@@ -82,6 +82,7 @@ class InventoriesController < ApplicationController
 		@products = get_products_from_almacenes(@@api_key, "5cbd3ce444f67600049431c7", "1001")
 		@fabricados = fabricar_sin_pago(@@api_key, "1001", "20")
 		@skus = obtener_skus_con_stock(@@api_key, "5cbd3ce444f67600049431c7")
+
 	end
 
 	def create
@@ -94,8 +95,23 @@ class InventoriesController < ApplicationController
 	end
 
 	def show_inventory
-		# @sku = obtener_skus_con_stock(@@api_key, "5cbd3ce444f67600049431c7")
-	end
+		@request = obtener_skus_con_stock(@@api_key, "5cbd3ce444f67600049431c7")
+		response = []
+		for element in @request do
+			sku = element["_id"][sku]
+			@product = Producto.find(sku)
+			name= @product.nombre
+			quantity = element["total"]
+			
+			line = {"sku" => sku, "nombre" => name, "cantidad" => quantity}
+			response << line
+			
+			return response.to_json
+		end
+	end		
+
+
+end
 
 end
 
