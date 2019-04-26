@@ -77,11 +77,11 @@ class InventoriesController < ApplicationController
 	end
 
 	def index
-		api_key = "o5bQnMbk@:BxrE"
-		@almacenes = get_almacenes(api_key)
-		@products = get_products_from_almacenes(api_key, "5cbd3ce444f67600049431c7", "1001")
-		@fabricados = fabricar_sin_pago(api_key, "1001", "20")
-		@skus = obtener_skus_con_stock(api_key, "5cbd3ce444f67600049431c7")
+		# api_key = "o5bQnMbk@:BxrE"
+		@almacenes = get_almacenes(@@api_key)
+		@products = get_products_from_almacenes(@@api_key, "5cbd3ce444f67600049431c7", "1001")
+		@fabricados = fabricar_sin_pago(@@api_key, "1001", "20")
+		@skus = obtener_skus_con_stock(@@api_key, "5cbd3ce444f67600049431c7")
 	end
 
 	def create
@@ -93,7 +93,9 @@ class InventoriesController < ApplicationController
 	def update
 	end
 
-
+	def show_inventory
+		# @sku = obtener_skus_con_stock(@@api_key, "5cbd3ce444f67600049431c7")
+	end
 
 end
 
