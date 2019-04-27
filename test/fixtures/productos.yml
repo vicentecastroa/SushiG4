@@ -1,0 +1,25 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  sku: MyString
+  nombre: MyString
+  precio_venta: 1
+  duracion: 2019-04-26 10:43:00
+  equivalencia_un_bodega: 1
+  lote_produccion: 1
+  tiempo_produccion: 2019-04-26 10:43:00
+  espacio_produccion: 1
+  espacio_recepcion: 1
+  stock_minimo: 1
+
+two:
+  sku: MyString
+  nombre: MyString
+  precio_venta: 1
+  duracion: 2019-04-26 10:43:00
+  equivalencia_un_bodega: 1
+  lote_produccion: 1
+  tiempo_produccion: 2019-04-26 10:43:00
+  espacio_produccion: 1
+  espacio_recepcion: 1
+  stock_minimo: 1
