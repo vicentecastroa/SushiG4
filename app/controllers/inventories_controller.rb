@@ -95,6 +95,7 @@ class InventoriesController < ApplicationController
 	end
 
 	def show_inventory
+		puts "\nMOSTRAR INVENTARIO\n"
 		@request = obtener_skus_con_stock(@@api_key, "5cbd3ce444f67600049431c7")
 		response = []
 		for element in @request do
