@@ -106,12 +106,11 @@ class InventoriesController < ApplicationController
 			line = {"sku" => sku, "nombre" => name, "cantidad" => quantity}
 			response << line
 			
-			return response.to_json
 		end
+		puts "\nFUNCIONA\n"
+		return response.to_json
 	end		
 
-
 end
-
-end
+# end
 
