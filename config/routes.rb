@@ -1,6 +1,4 @@
 Rails.application.routes.draw do
-	scope "/inventories"
-		resources :inventories
-		get action: show_inventory, controller: 'inventories'
-
+resources :inventories, :productos
+get '/', to: 'inventories#show_inventory'
 end
