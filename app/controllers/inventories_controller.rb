@@ -24,6 +24,25 @@ module InventoriesHelper
 		return almacenes
 	end
 
+	def mover_producto_entre_bodegas(api_key, productoId, almacenId, oc, precio)
+		data = "POST#{productoId}#{almacenId}"
+		hash_value = hashing(data, api_key)
+		producto_movido = HTTParty.post('https://integracion-2019-dev.herokuapp.com/bodega/moveStockBodega',
+		  body:{
+		  	"productoId": productoId,
+		  	"almacenId": almacenId,
+		  	"oc": "null",
+		  	"precio": 0,
+		  }.to_json,
+		  headers:{
+		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
+		    "Content-Type": "application/json"
+		  })
+		puts "\nMOVER PRODUCTO ENTRE BODEGAS\n"
+		puts JSON.pretty_generate(producto_movido)
+		return producto_movido
+	end
+
 	def get_products_from_almacenes(api_key, almacenId, sku)
 		data = "GET#{almacenId}#{sku}"
 		hash_value = hashing(data, api_key)
@@ -67,6 +86,18 @@ module InventoriesHelper
 		puts JSON.pretty_generate(products_produced)
 		return products_produced
 	end
+
+	def fabricar_todo(api_key, lista_productos)
+		almacenes = (get_almacenes(api_key)).to_a
+		puts "..................."
+		for almacen in almacenes do
+			almacenId = almacen["_id"]
+			for producto in lista_productos
+				get_products_from_almacenes(api_key, almacenId, producto)
+			end
+		end
+		puts "..................."
+	end
 end
 
 
@@ -78,10 +109,13 @@ class InventoriesController < ApplicationController
 
 	def index
 		api_key = "o5bQnMbk@:BxrE"
-		@almacenes = get_almacenes(api_key)
-		@products = get_products_from_almacenes(api_key, "5cbd3ce444f67600049431c7", "1001")
-		@fabricados = fabricar_sin_pago(api_key, "1001", "20")
-		@skus = obtener_skus_con_stock(api_key, "5cbd3ce444f67600049431c7")
+		#@almacenes = get_almacenes(api_key)
+		#get_products_from_almacenes(api_key, "5cbd3ce444f67600049431c7", "1001")
+		#@fabricados = fabricar_sin_pago(api_key, "1001", "20")
+		#@skus = obtener_skus_con_stock(api_key, "5cbd3ce444f67600049431c7")
+		@productos_movidos = mover_producto_entre_bodegas(api_key, "5cc388d78174cf000471d79e","5cbd3ce444f67600049431c5", "null", 0)
+		#lista_productos = ["1001"]
+		#fabricar_todo(api_key, lista_productos)
 	end
 
 	def create
