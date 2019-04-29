@@ -67,6 +67,18 @@ module InventoriesHelper
 		puts JSON.pretty_generate(products_produced)
 		return products_produced
 	end
+
+	def fabricar_todo(api_key, lista_productos)
+		almacenes = (get_almacenes(api_key)).to_a
+		puts "..................."
+		for almacen in almacenes do
+			almacenId = almacen["_id"]
+			for producto in lista_productos
+				get_products_from_almacenes(api_key, almacenId, producto)
+			end
+		end
+		puts "..................."
+	end
 end
 
 
