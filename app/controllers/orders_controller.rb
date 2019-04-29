@@ -56,8 +56,6 @@ class OrdersController < ApplicationController
 			res = "Producto no se encuentra (el grupo no ofrece productos de este sku) o no tiene stock"
 			render plain: res, :status => 404
 		end
-
-
 	end
 
 	def destroy
