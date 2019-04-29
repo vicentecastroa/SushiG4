@@ -210,6 +210,7 @@ DEPENDENCIES
   json (~> 1.8, >= 1.8.3)
   listen (>= 3.0.5, < 3.2)
   pg (>= 0.18, < 2.0)
+<<<<<<< .merge_file_x1shKS
 <<<<<<< .merge_file_SgceMV
   puma (~> 3.7)
   rails (~> 5.1.7)
@@ -218,6 +219,10 @@ DEPENDENCIES
   puma (~> 3.11)
   rails (~> 5.2.3)
 >>>>>>> .merge_file_MlNICV
+=======
+  puma (~> 3.11)
+  rails (~> 5.2.3)
+>>>>>>> .merge_file_ptD6zS
   sass-rails (~> 5.0)
   selenium-webdriver
   spring

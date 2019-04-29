@@ -15,6 +15,7 @@ gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'mini_racer', platforms: :ruby
+<<<<<<< .merge_file_2aD8SQ
 
 ##########################################
 gem 'httparty', '~> 0.13.7'
@@ -22,6 +23,8 @@ gem 'ruby-hmac', '~> 0.4.0'
 gem 'json', '~> 1.8', '>= 1.8.3'
 ##########################################
 
+=======
+>>>>>>> .merge_file_yZSyHQ
 
 # Use CoffeeScript for .coffee assets and views
 gem 'coffee-rails', '~> 4.2'
