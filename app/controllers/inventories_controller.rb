@@ -42,6 +42,10 @@ class InventoriesController < ApplicationController
 			@product = Producto.find(sku)
 			name= @product.nombre
 			quantity = element["total"]
+
+			if @product.stock_minimo > quantity
+				quantity = 0
+			end
 			
 			line = {"sku" => sku, "nombre" => name, "cantidad" => quantity}
 			response << line
