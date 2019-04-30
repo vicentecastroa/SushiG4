@@ -23,8 +23,10 @@ gem 'uglifier', '>= 1.3.0'
 gem 'httparty', '~> 0.13.7'
 gem 'ruby-hmac', '~> 0.4.0'
 gem 'json', '~> 1.8', '>= 1.8.3'
+# PARA LOS JOBS
+gem 'sidekiq'
+gem 'sinatra', github: 'sinatra/sinatra'
 ##########################################
-
 
 # Use CoffeeScript for .coffee assets and views
 gem 'coffee-rails', '~> 4.2'
