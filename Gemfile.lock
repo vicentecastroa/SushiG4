@@ -1,3 +1,15 @@
+GIT
+  remote: https://github.com/sinatra/sinatra.git
+  revision: 5e2e41f28395d68a922b60bc851951d46accf2b7
+  specs:
+    rack-protection (2.0.5)
+      rack
+    sinatra (2.0.5)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.5)
+      tilt (~> 2.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -62,6 +74,7 @@ GEM
       execjs
     coffee-script-source (1.12.2)
     concurrent-ruby (1.1.5)
+    connection_pool (2.2.2)
     crass (1.0.4)
     erubi (1.8.0)
     execjs (2.7.0)
@@ -92,6 +105,7 @@ GEM
     minitest (5.11.3)
     multi_json (1.13.1)
     multi_xml (0.6.0)
+    mustermann (1.0.3)
     nio4r (2.3.1)
     nokogiri (1.10.3)
       mini_portile2 (~> 2.4.0)
@@ -128,6 +142,7 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.10.0)
       ffi (~> 1.0)
+    redis (4.1.0)
     regexp_parser (1.4.0)
     ruby-hmac (0.4.0)
     ruby_dep (1.5.0)
@@ -146,6 +161,11 @@ GEM
     selenium-webdriver (3.142.0)
       childprocess (>= 0.5, < 2.0)
       rubyzip (~> 1.2, >= 1.2.2)
+    sidekiq (5.2.7)
+      connection_pool (~> 2.2, >= 2.2.2)
+      rack (>= 1.5.0)
+      rack-protection (>= 1.5.0)
+      redis (>= 3.3.5, < 5)
     spring (2.0.2)
       activesupport (>= 4.2)
     spring-watcher-listen (2.0.1)
@@ -196,6 +216,8 @@ DEPENDENCIES
   ruby-hmac (~> 0.4.0)
   sass-rails (~> 5.0)
   selenium-webdriver
+  sidekiq
+  sinatra!
   spring
   spring-watcher-listen (~> 2.0.0)
   turbolinks (~> 5)

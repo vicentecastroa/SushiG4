@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
-	resources :inventories
-	resources :orders
-	resources :productos
+require "sidekiq/web"
+mount Sidekiq::Web => "/sidekiq"
 
-	get '/inventories', to: 'inventories#show_inventory'
+resources :inventories, :productos, :orders
+get '/inventories', to: 'inventories#show_inventory'
+
 end
