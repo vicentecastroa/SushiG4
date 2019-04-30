@@ -145,5 +145,9 @@ class ApplicationController < ActionController::Base
 		end
 		puts "..................."
 	end
+=======
+  protect_from_forgery with: :exception
+  @@api_key = "o5bQnMbk@:BxrE"
+
 end
 

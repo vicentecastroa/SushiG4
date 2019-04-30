@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-	resources :inventories
-	resources :orders
-
+  
+resources :inventories, :productos :orders
+get '/inventories', to: 'inventories#show_inventory'
 end
