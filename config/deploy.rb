@@ -5,7 +5,7 @@ set :application, "SushiG4"
 set :repo_url, "https://github.com/vicentecastroa/SushiG4.git"
 
 # Default branch is :master
-# ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
+ask :DeploySetup, `git rev-parse --abbrev-ref HEAD`.chomp
 
 # Deploy to the user's home directory
 set :deploy_to, "/home/deploy/#{fetch :application}"
