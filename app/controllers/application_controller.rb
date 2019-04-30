@@ -7,6 +7,8 @@ class ApplicationController < ActionController::Base
 	@@id_pulmon = "5cbd3ce444f67600049431c9"
 	@@id_cocina = "5cbd3ce444f67600049431ca"
 
+	@@print_valores = false
+
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
 		signature = Base64.encode64(hmac).chomp
@@ -22,8 +24,10 @@ class ApplicationController < ActionController::Base
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
-		puts "\nALMACENES\n"
-		puts JSON.pretty_generate(almacenes)
+		if @@print_valores
+			puts "\nALMACENES\n"
+			puts JSON.pretty_generate(almacenes)
+		end
 		return almacenes
 	end
 
@@ -36,8 +40,10 @@ class ApplicationController < ActionController::Base
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
-		puts "\nPRODUCTOS DE ALMACENES\n"
-		puts JSON.pretty_generate(products)
+		if @@print_valores
+			puts "\nPRODUCTOS DE ALMACENES\n"
+			puts JSON.pretty_generate(products)
+		end
 		return products
 	end
 
@@ -50,8 +56,10 @@ class ApplicationController < ActionController::Base
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
-		puts "\nPRODUCTOS DE ALMACENES\n"
-		puts JSON.pretty_generate(products)
+		if @@print_valores
+			puts "\nPRODUCTOS DE ALMACENES\n"
+			puts JSON.pretty_generate(products)
+		end
 		return products
 	end
 
@@ -71,8 +79,10 @@ class ApplicationController < ActionController::Base
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
-		puts "\nMOVER PRODUCTO ENTRE BODEGAS\n"
-		puts JSON.pretty_generate(producto_movido)
+		if @@print_valores
+			puts "\nMOVER PRODUCTO ENTRE BODEGAS\n"
+			puts JSON.pretty_generate(producto_movido)
+		end
 		return producto_movido
 	end
 
@@ -95,9 +105,10 @@ class ApplicationController < ActionController::Base
 		    "Content-Type": "application/json"
 		  })
 
-
-		puts "\nMOVER PRODUCTO ENTRE ALMACENES\n"
-		puts JSON.pretty_generate(req)
+		if @@print_valores
+			puts "\nMOVER PRODUCTO ENTRE ALMACENES\n"
+			puts JSON.pretty_generate(req)
+		end
 		return req
 	end
 
@@ -110,8 +121,10 @@ class ApplicationController < ActionController::Base
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
-		puts "\nSKUS\n"
-		puts JSON.pretty_generate(skus)
+		if @@print_valores
+			puts "\nSKUS\n"
+			puts JSON.pretty_generate(skus)
+		end
 		return skus
 	end
 
@@ -128,9 +141,10 @@ class ApplicationController < ActionController::Base
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
-
-		puts "\nFABRICAR SIN PAGO\n"
-		puts JSON.pretty_generate(products_produced)
+		if @@print_valores
+			puts "\nFABRICAR SIN PAGO\n"
+			puts JSON.pretty_generate(products_produced)
+		end
 		return products_produced
 	end
 
@@ -145,5 +159,6 @@ class ApplicationController < ActionController::Base
 		end
 		puts "..................."
 	end
+
 end
 
