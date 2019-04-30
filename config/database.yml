@@ -81,5 +81,5 @@ test:
 production:
   <<: *default
   database: sushig4_production
-  username: sushig4
+  username: deploy
   password: <%= ENV['SUSHIG4_DATABASE_PASSWORD'] %>
