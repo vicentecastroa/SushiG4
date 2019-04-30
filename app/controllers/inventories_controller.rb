@@ -44,7 +44,7 @@ class InventoriesController < ApplicationController
 		end
 		res = response.to_json
 		render plain: res, :status => 200
-		return response.to_json
+		#return response.to_json
 	end
 
 end
