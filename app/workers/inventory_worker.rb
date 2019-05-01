@@ -16,8 +16,8 @@ class InventoryWorker < ApplicationController
 			@producto = Producto.find('sku')
 			if element['sku'] < @producto.stock_minimo
 				# Pedir mas de este producto
-				if element['sku'] in ['Cebollín entero', 'Arroz grano corto', 'Sal', 'Kanikama entero', 'Nori entero']
-					productos = fabricar_sin_pago(@@api_key, element['sku'], @producto.stock_minimo)
+				#if element['sku'] in ['Cebollín entero', 'Arroz grano corto', 'Sal', 'Kanikama entero', 'Nori entero']
+				#	productos = fabricar_sin_pago(@@api_key, element['sku'], @producto.stock_minimo)
 					# Aca no se hace nada mas cierto?
 				else
 					# No lo producimos nosotros, pedir a otro grupo
