@@ -22,8 +22,8 @@ class InventoryWorker < ApplicationController
 		#		else
 					# No lo producimos nosotros, pedir a otro grupo
 					
-				end
-			end
+				#end
+			#end
 		#end
 	end
 end
