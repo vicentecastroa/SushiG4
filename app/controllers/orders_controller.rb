@@ -14,6 +14,7 @@ class OrdersController < ApplicationController
 	end
 
 	def create
+
 		@group = request.headers['group']		
 		@sku = params["sku"]
 		@cantidad = params["cantidad"]
@@ -31,7 +32,7 @@ class OrdersController < ApplicationController
 			render plain: res, :status => 400
 			return res
 
-		elsif @sku == "1001" || @sku == "1005" || @sku == "1014"
+		elsif @sku == "1004" || @sku == "1005" || @sku == "1014"
 			skus = (obtener_skus_con_stock(@@api_key, @@id_despacho)).to_a
 			no_entrego_solucion = true
 			for my_sku in skus
