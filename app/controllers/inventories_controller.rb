@@ -7,7 +7,6 @@ class InventoriesController < ApplicationController
 	def show
 	end
 
-	private
 	def init_check_inventory
 		SchedulerWorker.perform_async unless SchedulerWorker.new.scheduled?
 	end
