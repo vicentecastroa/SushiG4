@@ -14,6 +14,7 @@ class OrdersController < ApplicationController
 	end
 
 	def create
+
 		@group = request.headers['group']		
 		@sku = params["sku"]
 		@cantidad = params["cantidad"]

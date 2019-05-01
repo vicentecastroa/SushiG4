@@ -21,10 +21,10 @@ class InventoriesController < ApplicationController
 		#obtener_skus_con_stock(@@api_key, "5cbd3ce444f67600049431c5")
 		
 		# api_key = "o5bQnMbk@:BxrE"
-		@almacenes = get_almacenes(@@api_key)
-		@products = get_products_from_almacenes(@@api_key, "5cbd3ce444f67600049431c7", "1001")
-		@fabricados = fabricar_sin_pago(@@api_key, "1001", "20")
-		@skus = obtener_skus_con_stock(@@api_key, "5cbd3ce444f67600049431c7")
+		# @almacenes = get_almacenes(@@api_key)
+		# @products = get_products_from_almacenes(@@api_key, "5cbd3ce444f67600049431c7", "1001")
+		# @fabricados = fabricar_sin_pago(@@api_key, "1001", "20")
+		# @skus = obtener_skus_con_stock(@@api_key, "5cbd3ce444f67600049431c7")
 
 	end
 
@@ -38,7 +38,7 @@ class InventoriesController < ApplicationController
 	end
 
 	def show_inventory
-		@request = (obtener_skus_con_stock(@@api_key, "5cbd3ce444f67600049431c6")).to_a
+		@request = (obtener_skus_con_stock(@@api_key, @@id_despacho)).to_a
 		response = []
 		for element in @request do
 			sku = element["_id"]
