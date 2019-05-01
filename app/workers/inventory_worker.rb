@@ -12,18 +12,18 @@ class InventoryWorker < ApplicationController
 		@response = obtener_skus_con_stock(@@api_key, @@id_despacho)
 		@response = JSON.pretty_generate(@response)
 
-		for element in @response do
-			@producto = Producto.find('sku')
-			if element['sku'] < @producto.stock_minimo
+		#for element in @response do
+		#	@producto = Producto.find('sku')
+		#	if element['sku'] < @producto.stock_minimo
 				# Pedir mas de este producto
 				#if element['sku'] in ['Cebollín entero', 'Arroz grano corto', 'Sal', 'Kanikama entero', 'Nori entero']
 				#	productos = fabricar_sin_pago(@@api_key, element['sku'], @producto.stock_minimo)
 					# Aca no se hace nada mas cierto?
-				else
+		#		else
 					# No lo producimos nosotros, pedir a otro grupo
 					
 				end
 			end
-		end
+		#end
 	end
 end
