@@ -2,11 +2,13 @@ class ApplicationController < ActionController::Base
 	protect_from_forgery with: :exception
 
 	@@api_key = "o5bQnMbk@:BxrE"
-	@@id_recepcion = "5cbd3ce444f67600049431c5"
-	@@id_despacho = "5cbd3ce444f67600049431c6"
-	@@id_pulmon = "5cbd3ce444f67600049431c9"
-	@@id_cocina = "5cbd3ce444f67600049431ca"
-	@@header = "https://integracion-2019-prod.herokuapp.com/bodega"
+
+	@@id_recepcion = "5cc7b139a823b10004d8e6df"
+	@@id_despacho = "5cc7b139a823b10004d8e6e0"
+	@@id_pulmon = "5cc7b139a823b10004d8e6e3"
+	@@id_cocina = "5cc7b139a823b10004d8e6e4"
+
+	@@header = "https://integracion-2019-prod.herokuapp.com/bodega/"
 
 	@@print_valores = false
 
