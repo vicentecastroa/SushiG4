@@ -7,6 +7,11 @@ class InventoriesController < ApplicationController
 	def show
 	end
 
+	private
+	def init_check_inventory
+		SchedulerWorker.perform_async unless SchedulerWorker.new.scheduled?
+	end
+
 	def index
 		get_almacenes(@@api_key)
 		get_products_from_almacenes_limit_primeros(@@api_key, "5cbd3ce444f67600049431c6", "1001", "3")
