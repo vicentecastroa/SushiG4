@@ -3,9 +3,9 @@ class SchedulerWorker
 	sidekiq_options queue: 'critical'
   
 	SCHEDULE = {
-	  InventoryWorker  => -> (time) { time.hour % 3 == 0 }
-	#   Worker2 => -> (time) { time.min == 0 && time.hour == 9 },
-	#   Worker3  => -> (time) { time.min % 10 == 0 },
+	  InventoryWorker  => -> (time) { time.hour % 3 == 0 },
+	  PulmonWorker => -> (time) { time.min == 0 },
+	  RecepcionWorker  => -> (time) { time.min == 0},
 	}
   
 	def perform
