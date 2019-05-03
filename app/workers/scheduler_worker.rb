@@ -5,10 +5,15 @@ class SchedulerWorker
 	SCHEDULE = {
 	  InventoryWorker  => -> (time) { time.hour % 3 == 0 },
 	  PulmonWorker => -> (time) { time.min == 0 },
-	  RecepcionWorker  => -> (time) { time.min == 0},
+		RecepcionWorker  => -> (time) { time.min % 10 == 0},
 	}
   
 	def perform
+
+		puts "\n--------------------------------------\n"
+		puts "Iniciando Scheduler Worker\n"
+		puts "--------------------------------------\n"
+
 		execution_time = Time.zone.now
 		execution_time -= execution_time.sec
   
