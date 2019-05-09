@@ -7,6 +7,7 @@ class ApplicationController < ActionController::Base
 	@@id_despacho = "5cc7b139a823b10004d8e6e0"
 	@@id_pulmon = "5cc7b139a823b10004d8e6e3"
 	@@id_cocina = "5cc7b139a823b10004d8e6e4"
+	
 
 	@@header = "https://integracion-2019-prod.herokuapp.com/bodega/"
 
@@ -67,8 +68,7 @@ class ApplicationController < ActionController::Base
 	end
 
 	# Funcionando bien
-	# Probado con la bodega del G14 5cbd3ce444f6760004943201
-  	def mover_producto_entre_bodegas(api_key, productoId, almacenId, oc, precio)
+  def mover_producto_entre_bodegas(api_key, productoId, almacenId, oc, precio)
 		data = "POST#{productoId}#{almacenId}"
 		hash_value = hashing(data, api_key)
 		producto_movido = HTTParty.post("#{@@header}moveStockBodega",
@@ -91,7 +91,6 @@ class ApplicationController < ActionController::Base
 
 	# Funcionando bien
 	def mover_producto_entre_almacenes(producto_json, id_destino)
-		#productoId = producto_json["_id"]
 		productoId = producto_json
 		almacenId = id_destino
 
