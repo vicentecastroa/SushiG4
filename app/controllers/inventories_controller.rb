@@ -12,7 +12,7 @@ class InventoriesController < ApplicationController
 	end
 
 	def index
-		show_inventory
+		getInventories
 		
 		#fabricar_sin_pago(@@api_key, "1004", "100")
 		#fabricar_sin_pago(@@api_key, "1005", "100")
@@ -41,17 +41,66 @@ class InventoriesController < ApplicationController
 	def update
 	end
 
-	def show_inventory
-		@request = (obtener_skus_con_stock(@@api_key, @@id_despacho)).to_a
+	def getInventories
 		response = []
+		skus_quantity = {}
+		sku_name = {}
+
+		@request = (obtener_skus_con_stock(@@api_key, @@id_despacho)).to_a
+		for element in @request do
+			sku = element["_id"]
+			@product = Producto.find(sku)
+			product_name = @product.nombre
+			sku_name[sku] = product_name
+			quantity = element["total"]
+			skus_quantity[sku] = quantity
+		end
+
+		@request = (obtener_skus_con_stock(@@api_key, @@id_cocina)).to_a
 		for element in @request do
 			sku = element["_id"]
 			@product = Producto.find(sku)
 			product_name = @product.nombre
 			quantity = element["total"]
-			line = {"sku" => sku, "nombre" => product_name, "cantidad" => quantity}
-			response << line
+			if skus_quantity.key?(sku)
+				skus_quantity[sku] += quantity
+			else
+				sku_name[sku] = product_name
+				skus_quantity[sku] = quantity
+			end
 		end
+
+		@request = (obtener_skus_con_stock(@@api_key, @@id_recepcion)).to_a
+		for element in @request do
+			sku = element["_id"]
+			@product = Producto.find(sku)
+			product_name = @product.nombre
+			quantity = element["total"]
+			if skus_quantity.key?(sku)
+				skus_quantity[sku] += quantity
+			else
+				sku_name[sku] = product_name
+				skus_quantity[sku] = quantity
+			end
+		end
+
+		@request = (obtener_skus_con_stock(@@api_key, @@id_pulmon)).to_a
+		for element in @request do
+			sku = element["_id"]
+			@product = Producto.find(sku)
+			product_name = @product.nombre
+			quantity = element["total"]
+			if skus_quantity.key?(sku)
+				skus_quantity[sku] += quantity
+			else
+				sku_name[sku] = product_name
+				skus_quantity[sku] = quantity
+			end
+		end
+		skus_quantity.each_key do |key|
+			line = {"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}
+			response << line
+		  end
 		res = response.to_json
 		render plain: res, :status => 200
 		return response.to_json
