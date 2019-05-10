@@ -30,35 +30,27 @@ class InventoryWorker < InventoriesController
 		puts "\nInventory worker checkeando inventario\n"
 
 		request = get_inventories()
-
-		minimos = Producto.where.not(stock_minimo: 0)
-		minimos.each do |p_referencia|
+		p_minimos = Producto.where.not(stock_minimo: 0) # selecciono los que tienen stock minimo
+		p_minimos.each do |p_referencia|
 			stock_minimo = p_referencia.stock_minimo
-
-			pedido = Hash.new
-
-			request.each do |producto|
-
-				if producto["sku"] == p_referencia.sku and producto["cantidad"] < stock_minimo
-					ingredientes = IngredientesAssociation.where(producto_id: p_referencia.sku)
-					
-					for ingrediente in ingredientes
-						request.each do |i|
-
-							pedir_producto(i.sku, 1)
+			
+			request.each do |bodega|
+			
+				bodega.each do |producto|
+			
+					if producto["sku"] == p_referencia.sku and producto["cantidad"] < stock_minimo
+			
+						if producto["sku"].to_i == 1013
+							pedir_producto(1013, 1)
+						else
+							ingredientes = IngredientesAssociation.where(producto_id: p_referencia.sku)
+							ingredientes.each do |ingrediente|
+								pedir_producto(ingrediente.sku, 1)
+							end
 						end
+
 					end
-
-
-					#ver si estan los ingredientes para mandar a cocinar o pedir lo ingredientes.
-					next
-					
-				else 
-					puts 'masago'
-				end
-					
-					a_pedir = stock_minimo.to_i - producto["cantidad"].to_i
-					pedir(p_referencia.sku, a_pedir)
+			
 				end
 			end
 		end
