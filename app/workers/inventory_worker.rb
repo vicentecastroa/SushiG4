@@ -6,28 +6,69 @@ class InventoryWorker < ApplicationController
 	include Sidekiq::Worker
 	sidekiq_options retry: false
 
+	def check_producers(producto)
+
+		n_grupos = producto.grupos.length
+		indices = (0...n_grupos).to_a
+		indices.shuffle()
+		sku = producto.sku
+		# ingredientes = IngredientesAssociation.where(producto_id=sku)
+		
+		for i in indices
+			request = pedir(producto.grupos[i])
+			if request == true
+				break
+			end
+		end
+	end
+
+
 	def perform
 		puts "\nInventory worker checkeando inventario\n"
 
-		@response = obtener_skus_con_stock(@@api_key, @@id_despacho)
-		@response = JSON.pretty_generate(@response)
 
-		for element in @response do
-			@producto = Producto.find('sku')
-			if element['sku'] < @producto.stock_minimo
-				# Pedir mas de este producto
-				# @grupos = @producto.grupos
-				# for i in @grupos
-				# 	fabricar = fabricar_sin_pago
+		stock_pulmon = obtener_skus_con_stock(@@api_key, @@id_pulmon)
+		stock_recepcion = obtener_skus_con_stock(@@api_key, @@id_recepcion)
+		stock_despacho = obtener_skus_con_stock(@@api_key, @@id_despacho)
+		stock_cocina = obtener_skus_con_stock(@@api_key, @@id_cocina)
 
-				if ['Cebollín entero', 'Arroz grano corto', 'Sal', 'Kanikama entero', 'Nori entero'].include? element['sku']
-					productos = fabricar_sin_pago(@@api_key, element['sku'], @producto.stock_minimo)
-					# Aca no se hace nada mas cierto?
-				# else
-				# 	# No lo producimos nosotros, pedir a otro grupo
+		# entregan [{}, {_id: xx , cantaidad }, ...]
 
+
+		minimos = Producto.where.not(stock_minimo: 0)
+		productos_a_pedir = []
+
+		minimos.each do |p_referencia|
+			stock_minimo = p_referencia.stock_minimo
+			productos_a_pedir << {p_referencia.sku => 0}
+
+			request = get_inventories()
+
+			request.each do |producto|
+				if producto["sku"] == p_referencia.sku and producto["cantidad"] < stock_minimo
+					a_pedir = stock_minimo.to_i - producto["cantidad"].to_i
+					pedir(p_referencia.sku, a_pedir)
 				end
 			end
+
+
+			stock_pulmon.each do |p_pulmon|
+
+			end
+
+			stock_recepcion.each do |p_recepcion|
+				if 
+			end
+
+			stock_despacho.each do |p_despacho|
+				if 
+			end
+
+			stock_cocina.each do |p_cocina|
+				if 
+			end
+
 		end
+		
 	end
 end
