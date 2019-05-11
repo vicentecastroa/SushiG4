@@ -11,6 +11,11 @@ class InventoriesController < ApplicationController
 		SchedulerWorker.perform_async unless SchedulerWorker.new.scheduled?
 	end
 
+	def init_test_worker
+		MeLlamoWorker.perform_async
+		render text: "El worker esta funcionanto"
+	end
+
 	def index
 		show_inventory
 		
