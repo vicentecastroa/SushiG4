@@ -160,6 +160,59 @@ class ApplicationController < ActionController::Base
 		puts "..................."
 	end
 
+	def getInventories
+		response = []
+		skus_quantity = {}
+		sku_name = {}
+		id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
+
+		for almacen in id_almacenes
+	
+			@request = (obtener_skus_con_stock(@@api_key, almacen)).to_a
+			for element in @request do
+				sku = element["_id"]
+				@product = Producto.find(sku)
+				product_name = @product.nombre
+				quantity = element["total"]
+				if skus_quantity.key?(sku)
+					skus_quantity[sku] += quantity
+				else
+					sku_name[sku] = product_name
+					skus_quantity[sku] = quantity
+				end
+			end
+		end 
+
+		skus_quantity.each_key do |key|
+			line = {"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}
+			response << line
+		end
+
+		res = response.to_json
+		render plain: res, :status => 200
+		return response.to_json
+	end
+
+	def getSkuOnStock
+		response = []
+		id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
+
+		for almacen in id_almacenes
+			@request = (obtener_skus_con_stock(@@api_key, almacen)).to_a
+			for element in @request do
+				sku = element["_id"]
+				@product = Producto.find(sku)
+				product_name = @product.nombre
+				quantity = element["total"]
+				line = {"almacenId" => almacen, "sku" => sku, "cantidad" => quantity, "nombre" => product_name}
+				response << line
+			end
+		end 
+
+		return response
+
+	end
+
   protect_from_forgery with: :exception
   @@api_key = "o5bQnMbk@:BxrE"
 
