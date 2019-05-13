@@ -233,6 +233,10 @@ DEPENDENCIES
   puma (~> 3.11)
   rack-protection (>= 1.5.0)
   rails (~> 5.2.3)
+<<<<<<< HEAD
+=======
+
+>>>>>>> f11972915c914424d0cf568f43da3bf5dc764dc0
   redis (~> 4.0)
   ruby-hmac (~> 0.4.0)
   sass-rails (~> 5.0)
