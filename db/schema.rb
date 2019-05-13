@@ -50,6 +50,8 @@ ActiveRecord::Schema.define(version: 2019_04_27_203514) do
     t.datetime "updated_at", null: false
     t.float "duracion_h"
     t.float "tiempo_produccion_min"
+    t.string "lugar_fabricacion"
+    t.integer "costo_prod_lote"
   end
 
 end

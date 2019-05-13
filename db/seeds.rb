@@ -28,6 +28,8 @@ csv.each do |row|
     producto.espacio_produccion = row['Espacio Produccion']
     producto.espacio_recepcion = row['Espacio Recepcion']
     producto.stock_minimo = row['Stock Minimo']
+    producto.lugar_fabricacion = row['Lugar Produccion']
+    producto.costo_prod_lote = row['Costo Produccion Lote']
   end
 end
 puts "Productos creados"
