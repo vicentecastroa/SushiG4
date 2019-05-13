@@ -9,6 +9,8 @@ class ApplicationController < ActionController::Base
 
 	@@print_valores = false
 
+	
+
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
 		signature = Base64.encode64(hmac).chomp
