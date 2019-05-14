@@ -33,6 +33,9 @@ module GroupsModule
     
     # iterar en orden random sobre los grupos productores
     grupos_productores.shuffle.each do |grupo|
+      if grupo.group_id == 4
+        next
+      end
       url = "http://#{grupo.url}/orders"
       grupo_solicitante = '4'
       req = HTTParty.post(url,
