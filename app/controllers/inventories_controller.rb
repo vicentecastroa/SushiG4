@@ -14,11 +14,13 @@ class InventoriesController < ApplicationController
 	def index
 		show_inventory
 		
-		#fabricar_sin_pago(@@api_key, "1004", "100")
-		#fabricar_sin_pago(@@api_key, "1005", "100")
-		#fabricar_sin_pago(@@api_key, "1014", "100")
+		fabricar_sin_pago(@@api_key, "1014", "100")
+		fabricar_sin_pago(@@api_key, "1001", "100")
+		fabricar_sin_pago(@@api_key, "1004", "100")
+		fabricar_sin_pago(@@api_key, "1005", "100")
+		fabricar_sin_pago(@@api_key, "1016", "100")
 		
-		#get_almacenes(@@api_key)
+		get_almacenes(@@api_key)
 		#get_products_from_almacenes_limit_primeros(@@api_key, "5cbd3ce444f67600049431c6", "1001", "3")
 		#mover_producto_entre_bodegas(@@api_key, "5cc359f04f65bf0004136cd0", "5cbd3ce444f6760004943201", "hola", "50")
 		#mover_producto_entre_almacenes("5cc359f04f65bf0004136ccf", "5cbd3ce444f67600049431c5")

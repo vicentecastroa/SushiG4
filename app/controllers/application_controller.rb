@@ -7,12 +7,23 @@ class ApplicationController < ActionController::Base
 	@@id_pulmon = "5cc7b139a823b10004d8e6e3"
 	@@id_cocina = "5cc7b139a823b10004d8e6e4"
 
-	@@print_valores = false
+	@@print_valores = true
 
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
 		signature = Base64.encode64(hmac).chomp
 		return signature
+  	end
+
+  	def fabricar_minimo_mis_productos()
+  	end
+
+  	def obtener_skus_con_stock_totales()
+  		skus_recepcion = obtener_skus_con_stock(api_key, @@id_recepcion)
+  		skus_despacho = obtener_skus_con_stock(api_key, @@id_despacho)
+  		skus_pulmon = obtener_skus_con_stock(api_key, @@id_pulmon)
+
+
   	end
 
   	# Funcionando bien
