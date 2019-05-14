@@ -25,6 +25,15 @@ class ApplicationController < ActionController::Base
 	@@tamaño_despacho = 80
 	@@tamaño_pulmon = 99999999
 
+	# Materia primas producidas por nosotros
+	@@materias_primas_propias = [1001, 1004, 1005, 1006, 1009, 1014, 1015, 1016]
+	
+	# Materias primas prodcidas por otros grupos
+	@@materias_primas_ajenas = [1002, 1003, 1007, 1008, 1010, 1011, 1012, 1013]
+
+	# Productos procesados
+	@@productos_procesados = [1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1114, 1115, 1116, 1201, 1207, 1209, 1210, 1211, 1215, 1216, 1301, 1307, 1309, 1310, 1407]
+	
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
 		signature = Base64.encode64(hmac).chomp
@@ -178,86 +187,70 @@ class ApplicationController < ActionController::Base
 
 	## NEW ##
 
-	def checkear_recepcion(api_key)
-		
-		puts "Comienzo función checkear_recepcion\n"
+	def vaciar_almacen(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover)
 
-		# Obtenemos espacio en Cocina
+		puts "Vaciando Almacen " + almacen_id_origen.to_s + "a Almacen " + almacen_id_destino.to_s + "\n"
+
+		# Obtenemos el espacio disponible en destino
 		almacenes = (get_almacenes(api_key)).to_a
 		for almacen in almacenes do
-			if almacen["cocina"] == true
-				puts "Almacen usedSpace: " + almacen["usedSpace"].to_s
+			if almacen["_id"] == almacen_id_destino
+				puts "Almacen de destino usedSpace: " + almacen["usedSpace"].to_s + "\n"
 				if almacen["usedSpace"] <= almacen["totalSpace"]
-					@espacio_disponible = almacen["totalSpace"] - almacen["usedSpace"]
-					puts "Espacio disponible en cocina: " + @espacio_disponible.to_s + "\n"
+					espacio_disponible = almacen["totalSpace"] - almacen["usedSpace"]
+					puts "Espacio disponible en destino: " + espacio_disponible.to_s + "\n"
 
-					puts "Vaciando Pulmón"
+					puts "Vaciando Origen\n"
 
-					# Obtenemos los skus en Pulmon
-					skus_pulmon = obtener_skus_con_stock(api_key, @@id_pulmon)
-
-					# Para cada sku, obtenemos productos
-					for sku_pulmon in skus_pulmon
-						puts "SKU en Pulmón: " + sku_pulmon["_id"]
-						sku_pulmon_num = sku_pulmon["_id"]
-
-						# Obtenemos los productos asociados a ese sku
-						productos_sku_pulmon_num = get_products_from_almacenes(api_key, @@id_pulmon, sku_pulmon_num)
-
-						# Movemos cada producto de Pulmon a Cocina hasta que:
-						# 1. No haya mas productos de ese sku
-						# 2. Se llene la cocina
-						for prod in productos_sku_pulmon_num
-							if @espacio_disponible == 0
-								puts "Cocina Llena\n"
-								return
-							end			
-							mover_producto_entre_almacenes(prod["_id"], @@id_cocina)
-							puts "Producto movido de Pulmón a Cocina"
-
-							# Disminuyo en 1 el espacio disponible
-							@espacio_disponible -= 1
-						end
-					end
-
-					puts "Pulmón Vaciado"
-
-					puts "Vaciando Recepción"
-
-					# Obtenemos los skus en Recepción
-					skus_recepcion = obtener_skus_con_stock(api_key, @@id_recepcion)
+					# Obtenemos los skus en el almacen de origen
+					skus_origen = obtener_skus_con_stock(api_key, almacen_id_origen)
 
 					# Para cada sku, obtenemos productos
-					for sku_recepcion in skus_recepcion
-						puts "SKU en Recepcion: " + sku_recepcion["_id"]
-						sku_recepcion_num = sku_recepcion["_id"]
+					for sku_origen in skus_origen
+						puts "SKU en Origen: " + sku_origen["_id"]
+						sku_origen_num = sku_origen["_id"]
+						
+						# Verificamos que el sku se encuentre en la lista de skus a mover
+						if skus_a_mover.include? sku_origen_num.to_i
+							# Obtenemos los productos asociados a ese sku
+							productos_origen = get_products_from_almacenes(api_key, almacen_id_origen, sku_origen_num)
 
-						# Obtenemos los productos asociados a ese sku
-						productos_sku_recepcion_num = get_products_from_almacenes(api_key, @@id_recepcion, sku_recepcion_num)
+							# Movemos cada producto de Origen a Destino
+							for producto_origen in productos_origen
+								if espacio_disponible <= 0
+									puts "Destino lleno\n"
+									return
+								end
+								mover_producto_entre_almacenes(producto_origen["_id"], almacen_id_destino)
+								puts "Producto movido de Origen a Destino"
 
-						# Movemos cada producto de Pulmon a Cocina hasta que:
-						# 1. No haya mas productos de ese sku
-						# 2. Se llene la cocina
-						for prod in productos_sku_recepcion_num
-							if @espacio_disponible == 0
-								puts "Cocina Llena\n"
-								return
+								# Disminuyo en 1 el espacio disponible
+								espacio_disponible -=1
 							end
-							
-							mover_producto_entre_almacenes(prod["_id"], @@id_cocina)
-							puts "Producto movido de Recepción a Cocina"
-
-							# Disminuyo en 1 el espacio disponible
-							@espacio_disponible -= 1
-						end
+						end						
 					end
-
-					puts "Recepción Vaciada"
-
 				end
 			end
-		end		
+		end
 	end
+
+	def recepcion_a_cocina(api_key)
+
+		# Vaciamos Pulmón
+		vaciar_almacen(api_key, @@id_pulmon, @@id_cocina, @@productos_procesados)
+
+		# Vaciamos Recepción
+		vaciar_almacen(api_key, @@id_recepcion, @@id_cocina, @@productos_procesados)
+
+	end
+
+	def cocina_a_recepcion(api_key)
+
+		# Vaciamos Cocina
+		vaciar_almacen(api_key, @@id_cocina, @@id_recepcion, @@materias_primas_propias)
+	
+	end
+
 
   protect_from_forgery with: :exception
   @@api_key = "o5bQnMbk@:BxrE"
