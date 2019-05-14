@@ -188,9 +188,10 @@ class ApplicationController < ActionController::Base
 
 	## NEW ##
 
-	def vaciar_almacen(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover)
+	def mover_a_almacen(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
 
 		puts "Vaciando Almacen " + almacen_id_origen.to_s + "a Almacen " + almacen_id_destino.to_s + "\n"
+		cantidad = cantidad_a_mover
 
 		# Obtenemos el espacio disponible en destino
 		almacenes = (get_almacenes(api_key)).to_a
@@ -227,6 +228,15 @@ class ApplicationController < ActionController::Base
 
 								# Disminuyo en 1 el espacio disponible
 								espacio_disponible -=1
+
+								# Si cantidad a mover es 0, se interpreta como mover todo los productos
+								if cantidad != 0
+									cantidad -= 1
+									puts "Productos a mover restantes: " + cantidad.to_s + "\n"
+									if cantidad == 0
+										return
+									end
+								end
 							end
 						end						
 					end
@@ -238,10 +248,10 @@ class ApplicationController < ActionController::Base
 	def recepcion_a_cocina(api_key)
 
 		# Vaciamos Pulmón
-		vaciar_almacen(api_key, @@id_pulmon, @@id_cocina, @@productos_procesados)
+		mover_a_almacen(api_key, @@id_pulmon, @@id_cocina, @@materias_primas_propias, 5)
 
 		# Vaciamos Recepción
-		vaciar_almacen(api_key, @@id_recepcion, @@id_cocina, @@productos_procesados)
+		mover_a_almacen(api_key, @@id_recepcion, @@id_cocina, @@materias_primas_propias, 5)
 
 	end
 
