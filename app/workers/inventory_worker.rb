@@ -31,7 +31,7 @@ class InventoryWorker < InventoriesController
 			if producto["sku"] == sku
 				almacen = producto["almacenId"]
 				cantidad = producto["cantidad"]
-				stock_en_almacen.merge!(almacen: producto)			
+				stock_en_almacen[almacen] = producto
 			end
 		end
 		unidades_por_mover = stock_minimo
@@ -104,7 +104,7 @@ class InventoryWorker < InventoriesController
 
 							cantidad_lote_ingrediente = ingrediente.cantidad_lote
 							lote_produccion_ingrediente = Produto.find(ingrediente.ingrediente_id).lote_produccion
-							un_a_pedir_ingrediente = (lotes_faltantes_p_referencia) * (cantidad_lote)
+							un_a_pedir_ingrediente = (lotes_faltantes_p_referencia) * (cantidad_lote_ingrediente)
 							# Revisar si tenemos stock del ingrediente en cualquier almacen
 							
 							lotes_a_pedir_ingrediente = (un_a_pedir_ingrediente.to_f / lote_produccion_ingrediente).ceil
