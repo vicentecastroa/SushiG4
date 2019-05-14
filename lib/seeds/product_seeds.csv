@@ -1,0 +1,79 @@
+SKU,Nombre,Costo Produccion Lote,PrecioVenta,Duracion,EqBodega,Lote Produccion,Tiempo Produccion,Espacio Produccion,Espacio Recepcion,Stock Minimo,Lugar Produccion
+1001,Arroz grano corto,3000,,720,1,10,240,0,10,,fabrica
+1002,Vinagre de arroz,4590,,720,1,10,300,0,10,,fabrica
+1003,Azúcar,1290,,720,0.1,100,320,0,100,,fabrica
+1004,Sal,2190,,720,0.1,100,400,0,100,,fabrica
+1005,Kanikama entero,9990,,24,1,5,260,0,5,,fabrica
+1006,Camarón,15990,,720,100,1,120,0,1,,fabrica
+1007,Filete de salmón,32990,,20,1,8,300,0,8,,fabrica
+1008,Filete de salmón ahumado,21990,,48,0.5,10,220,0,10,,fabrica
+1009,Filete de atún,14370,,15,1,3,400,0,3,,fabrica
+1010,Palta,2990,,30,3,5,480,0,5,,fabrica
+1011,Sésamo,990,,168,0.55,4,120,0,4,,fabrica
+1012,Queso crema,9990,,72,1,7,150,0,7,,fabrica
+1013,Masago,1400,,12,0.01,10,320,0,10,300,fabrica
+1014,Cebollín entero,690,,24,1,5,240,0,5,,fabrica
+1015,Ciboulette entero,350,,30,0.1,4,400,0,4,,fabrica
+1016,Nori entero,2790,,240,1,8,600,0,8,,fabrica
+1101,Arroz cocido,500,,3,1,10,40,17,10,,fabrica
+1105,Kanikama para roll,10,,3,1,10,10,1,10,50,fabrica
+1106,Camarón cocido,700,,4,1,100,30,1,100,400,fabrica
+1107,Salmón cortado para roll,10,,2,1,11,20,1,11,50,fabrica
+1108,Salmón ahumado cortado para roll,10,,4,1,6,20,1,6,10,fabrica
+1109,Atún cortado para roll,10,,1.5,1,12,30,1,12,50,fabrica
+1110,Palta cortada para envoltura,10,,2,1,6,10,1,6,80,fabrica
+1111,Sésamo tostado,120,,12,0.5,2,30,2,2,,fabrica
+1112,Queso crema para roll,10,,24,1,20,10,1,20,130,fabrica
+1114,Cebollín cortado para roll,10,,2,1,4,10,1,4,50,fabrica
+1115,Ciboulette picado para roll,10,,3,1,8,10,2,8,30,fabrica
+1116,Nori entero cortado para roll,10,,24,1,10,40,11,10,250,fabrica
+1201,Arroz cocido para roll,10,,2,1,10,10,1,10,250,fabrica
+1207,Salmón cortado para nigiri,30,,2,1,12,20,1,12,20,fabrica
+1209,Atún cortado para nigiri,30,,1.5,1,14,30,1,14,20,fabrica
+1210,Palta cortada para roll,10,,2.3,1,9,10,1,9,150,fabrica
+1211,Sésamo tostado para envoltura,10,,12,1,10,10,1,10,60,fabrica
+1215,Ciboulette picado para envoltura,0,,3,1,8,10,4,8,20,fabrica
+1216,Nori entero cortado para nigiri,10,,24,1,10,30,2,10,50,fabrica
+1301,Arroz cocido para nigiri,10,,2,1,5,10,1,5,50,fabrica
+1307,Salmón cortado para sashimi,50,,1.2,1,11,30,1,11,170,fabrica
+1309,Atún cortado para sashimi,50,,1.2,1,11,50,1,11,170,fabrica
+1310,Palta cortada para nigiri,10,,2,1,12,10,1,12,20,fabrica
+1407,Salmón cortado para envoltura,10,,2,1,14,30,1,14,40,fabrica
+10001,California Maki Sésamo,10,4500,1,1,1,10,5,1,,cocina
+10002,California Maki Masago,10,4500,1,1,1,20,9,1,,cocina
+10003,California Maki Mix,10,4700,1,1,1,30,10,1,,cocina
+10004,California Ebi Sésamo,10,4700,1,1,1,10,8,1,,cocina
+10005,California Ebi Masago,10,4700,1,1,1,20,12,1,,cocina
+10006,California Sake Sésamo,10,4900,1,1,1,10,5,1,,cocina
+10007,California Sake Masago,10,4900,1,1,1,20,9,1,,cocina
+10008,California Maguro Sésamo,10,4900,1,1,1,20,5,1,,cocina
+10009,California Maguro Masago,10,4900,1,1,1,30,9,1,,cocina
+10010,Ebi,10,4900,1,1,1,10,8,1,,cocina
+10011,Ebi Especial,10,5700,1,1,1,20,9,1,,cocina
+10012,Turo,10,5700,1,1,1,20,9,1,,cocina
+10013,Coca,10,5700,1,1,1,10,8,1,,cocina
+10014,Akita,10,4900,1,1,1,10,5,1,,cocina
+10015,Delicia,10,5700,1,1,1,20,6,1,,cocina
+10016,Beto,10,5700,1,1,1,20,9,1,,cocina
+10017,Avocado,10,5700,1,1,1,10,5,1,,cocina
+10018,Maki Salmón,10,5700,1,1,1,10,5,1,,cocina
+10019,Ebi Salmón,10,5700,1,1,1,10,8,1,,cocina
+10020,Ebi Salmón Especial,10,5900,1,1,1,20,9,1,,cocina
+10021,Maguro Salmón,10,5900,1,1,1,10,5,1,,cocina
+10022,Sake Ciboulette,10,5500,1,1,1,20,6,1,,cocina
+10023,Maguro Ciboulette,10,5500,1,1,1,20,6,1,,cocina
+10024,Vegan Sésamo,10,5900,1,1,1,20,6,1,,cocina
+10025,Vegan Masago,10,4900,1,1,1,20,10,1,,cocina
+20001,Nigiri Avocado,10,2700,1,1,1,10,5,1,,cocina
+20002,Nigiri Ebi,10,2700,1,1,1,10,6,1,,cocina
+20003,Nigiri Sake,10,2700,1,1,1,10,3,1,,cocina
+20004,Nigiri Maguro,10,2700,1,1,1,10,3,1,,cocina
+20005,Nigiri Maguro Especial,10,2700,1,1,1,20,5,1,,cocina
+30001,Sashimi Salmón 9 cortes,10,7900,1,1,1,10,3,1,,cocina
+30002,Sashimi Salmón 12 cortes,10,9900,1,1,1,10,4,1,,cocina
+30003,Sashimi Salmón 15 cortes,10,12500,1,1,1,10,5,1,,cocina
+30004,Sashimi Atún 9 cortes,10,7900,1,1,1,10,3,1,,cocina
+30005,Sashimi Atún 12 cortes,10,9900,1,1,1,10,4,1,,cocina
+30006,Sashimi Atún 15 cortes,10,12500,1,1,1,10,5,1,,cocina
+30007,Sashimi Mix 12 cortes,10,9900,1,1,1,10,4,1,,cocina
+30008,Sashimi Mix 18 cortes,10,15990,1,1,1,10,6,1,,cocina

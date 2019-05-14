@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  producto_id: MyString
+  ingrediente_id: MyString
+  cantidad: 1.5
+  lote_produccion: 1
+  cantidad_lote: 1.5
+  unidades_bodega: 1.5
+
+two:
+  producto_id: MyString
+  ingrediente_id: MyString
+  cantidad: 1.5
+  lote_produccion: 1
+  cantidad_lote: 1.5
+  unidades_bodega: 1.5
