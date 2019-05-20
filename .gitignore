@@ -11,6 +11,8 @@
 /config/database.yml
 *.lock
 *.vscode/
+.ruby-version
+
 
 # Ignore all logfiles and tempfiles.
 /log/*

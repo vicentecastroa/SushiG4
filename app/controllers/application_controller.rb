@@ -9,6 +9,10 @@ class ApplicationController < ActionController::Base
 
 	@@print_valores = false
 
+	def print_start
+		puts "\n\n--------------------------\n    Funciona el require y worker   \n--------------------------\n\n"
+		
+	end
 	
 
 	def hashing(data, api_key)

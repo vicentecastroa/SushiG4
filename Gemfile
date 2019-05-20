@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-# ruby '2.5.1'
+ruby '2.5.1'
 # ruby '2.6.2>'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
@@ -18,9 +18,10 @@ gem 'uglifier', '>= 1.3.0'
 # gem 'mini_racer', platforms: :ruby
 
 ##########################################
-gem 'httparty', '~> 0.13.7'
+gem 'httparty'#, '~> 0.13.7'
 gem 'ruby-hmac', '~> 0.4.0'
-gem 'json', '~> 1.8', '>= 1.8.3'
+gem 'json'#, '~> 1.8', '>= 1.8.3'
+# gem 'json', '~> 2.1'
 # PARA LOS JOBS
 gem 'sidekiq'
 gem 'sinatra', github: 'sinatra/sinatra'
