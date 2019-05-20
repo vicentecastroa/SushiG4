@@ -11,7 +11,6 @@ class ApplicationController < ActionController::Base
 
 	def print_start
 		puts "\n\n--------------------------\n    Funciona el require y worker   \n--------------------------\n\n"
-		
 	end
 	
 
