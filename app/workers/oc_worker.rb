@@ -1,15 +1,15 @@
 require 'httparty'
 require 'json'
 
-class InventoryWorker < ApplicationController
+class OcWorker < ApplicationController
 
 	include Sidekiq::Worker
 	sidekiq_options retry: false
 
-	def perform_inventory
-		puts "\nInventory worker checkeando inventario\n"
+	def perform_oc
+		puts "\nChequeando ordenes de compra generales\n"
 
-		@response = obtener_skus_con_stock(@@api_key, @@id_despacho)
+		@response = chequeo_ordenes_compra
 		@response = JSON.pretty_generate(@response)
 
 		for element in @response do

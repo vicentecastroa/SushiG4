@@ -1,0 +1,56 @@
+# == Schema Information
+#
+# Table name: documents
+#
+#  order_id           :string           not null, primary key
+#  cliente            :string
+#  proveedor          :string
+#  sku                :integer
+#  fechaEntrega       :date
+#  cantidad           :integer
+#  cantidadDespachada :integer
+#  precioUnitario     :integer
+#  canal              :string
+#  estado             :string
+#  notas              :string
+#  rechazo            :string
+#  anulacion          :string
+#  urlNotificacion    :string
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  all                :string
+#
+
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  order_id: 1
+  cliente: MyString
+  proveedor: MyString
+  sku: 1
+  fechaEntrega: 2019-05-23
+  cantidad: 1
+  cantidadDespachada: 1
+  precioUnitario: 1
+  canal: MyString
+  estado: MyString
+  notas: MyString
+  rechazo: MyString
+  anulacion: MyString
+  urlNotificacion: MyString
+
+two:
+  order_id: 1
+  cliente: MyString
+  proveedor: MyString
+  sku: 1
+  fechaEntrega: 2019-05-23
+  cantidad: 1
+  cantidadDespachada: 1
+  precioUnitario: 1
+  canal: MyString
+  estado: MyString
+  notas: MyString
+  rechazo: MyString
+  anulacion: MyString
+  urlNotificacion: MyString
