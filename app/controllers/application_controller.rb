@@ -294,6 +294,25 @@ class ApplicationController < ActionController::Base
 
 	end 
 
+	## NEW ENTREGA 2 ##
+
+	def cocinar 
+		
+		# Dejar ingredientes en almacen tipo cocina
+
+		# LLamar a metodo "fabricar" de bodega, indicando sku y cantidad a producir
+			# Se retiran (automaticamente) ingredientes de cocina
+			# Se deja orden de fabricación pendiente
+			# El metodo retorna fecha estimada de producción
+
+		# Llegan productos fabricados a almacén cocina.
+			# En caso de que la cocina está llena, llegarán a almacen pulmon
+		
+		# Se deben despachar utilizando el método "despacar producto", indicando el id de la orden de compra
+
+	end
+
+
 
 
   protect_from_forgery with: :exception
