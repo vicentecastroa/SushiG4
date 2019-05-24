@@ -2,8 +2,9 @@
 
 class MeLlamoWorker < ApplicationJob
 	# include AppController
-	include Sidekiq::Worker
+	# include Sidekiq::Worker
 	# sidekiq_options retry: false
+	queue_as :default
 
 	def perform
 		puts "\nmi api key es #{@@api_key}\n"
