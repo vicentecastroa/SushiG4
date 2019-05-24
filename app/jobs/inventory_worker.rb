@@ -6,8 +6,8 @@ require 'groups_module'
 
 class InventoryWorker < ApplicationJob
 
-	# include AppController
 	include GroupsModule
+	# include AppController
 	# include Sidekiq::Worker
 	# sidekiq_options retry: false
 
@@ -19,6 +19,7 @@ class InventoryWorker < ApplicationJob
 
 	def have_producto(sku, cantidad_minima)
 		inventario_total = getInventories()
+		inventario_total = JSON.parse(inventario_total)
 
 		for producto in inventario_total
 			if producto["sku"] == sku && producto["cantidad"].to_i < cantidad_minima
@@ -77,20 +78,33 @@ class InventoryWorker < ApplicationJob
 		puts "\nInventory worker checkeando inventario\n"
 
 		pedidos = Hash.new
-		
 
-		inventario = getSkuOnStock()
+		# inventario = getSkuOnStock()
 		#[{"almacenId" => almacen, "sku" => sku, "cantidad" => quantity, "nombre" => product_name}, {...}, {...},.....]
+		# puts "Corrio getSkuOnStock"
+
 		inventario_total = getInventories()
+		inventario_total = JSON.parse(inventario_total)
+
+		puts "inventario total #{inventario_total}"
 		# [{"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}, {}, {}]
+		puts "Corrio getInventories"
 
 		p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101') # selecciono los que tienen stock minimo y el arroz cocido
+
+		puts "Consulta con los productos minimos y el arroz"
+
+
+		puts "#{p_minimos[0]}"
+
 		p_minimos.each do |p_referencia|
 			if p_referencia.sku == '1101'
 				p_referencia.stock_minimo = 300
 			end
 
 			stock_minimo = p_referencia.stock_minimo.to_i
+
+			puts "#{stock_minimo}"
 
 			inventario_total.each do |producto_total| # reviso el inventario total 
 				sku = producto_total["sku"]

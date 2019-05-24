@@ -1,9 +1,4 @@
-me_llamo_worker:
+control_de_inventario:
   cron: "* * * * *"
-  class: MeLlamoWorker
-  queue: default
-
-# control_de_inventario:
-#   cron: "0 */3 * * *"
-#   class: InventoryWorker
-#   queue: default
+  class: InventoryWorker
+  queue: critical

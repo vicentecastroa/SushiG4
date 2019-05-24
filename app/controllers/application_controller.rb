@@ -272,6 +272,7 @@ class ApplicationController < ActionController::Base
 		skus_quantity = {}
 		sku_name = {}
 		lista_skus = getSkuOnStock
+		puts "get inventories 1"
 		for sku in lista_skus
 			product_sku = sku["sku"]
 			product_name = sku["nombre"]
@@ -283,13 +284,15 @@ class ApplicationController < ActionController::Base
 				skus_quantity[product_sku] = quantity
 			end
 		end
+		puts "get inventories 2"
+
 		skus_quantity.each_key do |key|
 			line = {"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}
 			response << line
 		end
 
 		res = response.to_json
-		render plain: res, :status => 200
+		# render plain: res, :status => 200
 		return response.to_json
 
 	end 
