@@ -73,19 +73,19 @@ class InventoryWorker < ApplicationJob
 		return 1
 	end
 
+	
 	def perform
 		
-		puts "\nInventory worker checkeando inventario\n"
-
 		pedidos = Hash.new
-
+		
 		# inventario = getSkuOnStock()
 		#[{"almacenId" => almacen, "sku" => sku, "cantidad" => quantity, "nombre" => product_name}, {...}, {...},.....]
 		# puts "Corrio getSkuOnStock"
-
+		
+		puts "\nInventory worker checkeando inventario\n"
 		inventario_total = getInventories()
 		inventario_total = JSON.parse(inventario_total)
-
+		print_start()
 		puts "inventario total #{inventario_total}"
 		# [{"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}, {}, {}]
 		puts "Corrio getInventories"
@@ -128,7 +128,7 @@ class InventoryWorker < ApplicationJob
 						ingredientes.each do |ingrediente|
 
 							cantidad_lote_ingrediente = ingrediente.unidades_bodega
-							lote_produccion_ingrediente = Produto.find(ingrediente.ingrediente_id).lote_produccion
+							lote_produccion_ingrediente = Producto.find(ingrediente.ingrediente_id).lote_produccion
 							un_a_pedir_ingrediente = (lotes_faltantes_p_referencia) * (cantidad_lote_ingrediente)
 							# Revisar si tenemos stock del ingrediente en cualquier almacen
 							

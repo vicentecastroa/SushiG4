@@ -7,23 +7,18 @@ module AppController
 	@@id_cocina = "5cc7b139a823b10004d8e6e4"
 
 	@@print_valores = false
-
-	def print_start
-		puts "\n\n--------------------------\n    Funciona el require y worker   \n--------------------------\n\n"
-	end
 	
-
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
 		signature = Base64.encode64(hmac).chomp
 		return signature
 	end
-
-  
-	def print_start
-		puts "\n\n--------------------------\n    Funciona el require y worker   \n--------------------------\n\n"
-	end
-
+	
+	
+		def print_start
+			puts "\n\n--------------------------\n    Funciona el require y worker   \n--------------------------\n\n"
+		end
+		
   
   # Funcionando bien
   def get_almacenes(api_key)

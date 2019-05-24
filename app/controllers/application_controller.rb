@@ -21,11 +21,6 @@ class ApplicationController < ActionController::Base
 	end
 
   
-	def print_start
-		puts "\n\n--------------------------\n    Funciona el require y worker   \n--------------------------\n\n"
-	end
-
-  
   # Funcionando bien
   def get_almacenes(api_key)
 		data = "GET"
