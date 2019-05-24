@@ -19,7 +19,7 @@ class ApplicationController < ActionController::Base
 
 	@@print_valores = false
 
-	# Capacidades Bodegas
+  # Capacidades Bodegas
 	@@tamaño_cocina = 1122
 	@@tamaño_recepcion = 133
 	@@tamaño_despacho = 80
@@ -34,6 +34,11 @@ class ApplicationController < ActionController::Base
 	# Productos procesados
 	@@productos_procesados = [1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1114, 1115, 1116, 1201, 1207, 1209, 1210, 1211, 1215, 1216, 1301, 1307, 1309, 1310, 1407]
 	
+	def print_start
+		puts "\n\n--------------------------\n    Funciona el require y worker   \n--------------------------\n\n"
+	end
+	
+
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
 		signature = Base64.encode64(hmac).chomp
