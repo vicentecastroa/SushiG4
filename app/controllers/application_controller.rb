@@ -38,10 +38,14 @@ class ApplicationController < ActionController::Base
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
 		signature = Base64.encode64(hmac).chomp
 		return signature
-  end
+	end
 
-  # Funcionando bien
-  def get_almacenes(api_key)
+	def print_start
+		puts "\n\n--------------------------\n    Funciona el require y worker   \n--------------------------\n\n"
+	end
+
+  	# Funcionando bien
+  	def get_almacenes(api_key)
 		data = "GET"
 		hash_value = hashing(data, api_key)
 		almacenes = HTTParty.get("#{@@url}/almacenes", 
