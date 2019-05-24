@@ -8,8 +8,10 @@ class InventoryWorker < ApplicationJob
 
 	# include AppController
 	include GroupsModule
-	include Sidekiq::Worker
+	# include Sidekiq::Worker
 	# sidekiq_options retry: false
+
+	queue_as :default
 
 	@@nuestros_productos = ["1004", "1005", "1006", "1009", "1014", "1015"]
 	@@id_almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon]
