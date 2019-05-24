@@ -84,8 +84,12 @@ class InventoryWorker < ApplicationJob
 		inventario_total = getInventories()
 		# [{"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}, {}, {}]
 
-		p_minimos = Producto.where.not(stock_minimo: 0) # selecciono los que tienen stock minimo
+		p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101') # selecciono los que tienen stock minimo y el arroz cocido
 		p_minimos.each do |p_referencia|
+			if p_referencia.sku == '1101'
+				p_referencia.stock_minimo = 300
+			end
+
 			stock_minimo = p_referencia.stock_minimo.to_i
 
 			inventario_total.each do |producto_total| # reviso el inventario total 
@@ -109,7 +113,7 @@ class InventoryWorker < ApplicationJob
 						ingredientes = IngredientesAssociation.where(producto_id: p_referencia.sku)
 						ingredientes.each do |ingrediente|
 
-							cantidad_lote_ingrediente = ingrediente.cantidad_lote
+							cantidad_lote_ingrediente = ingrediente.unidades_bodega
 							lote_produccion_ingrediente = Produto.find(ingrediente.ingrediente_id).lote_produccion
 							un_a_pedir_ingrediente = (lotes_faltantes_p_referencia) * (cantidad_lote_ingrediente)
 							# Revisar si tenemos stock del ingrediente en cualquier almacen
