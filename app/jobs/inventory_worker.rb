@@ -1,12 +1,16 @@
 require 'httparty'
 require 'json'
 require 'groups_module'
+# require "#{Rails.root}/app/controllers/concerns/app_controller_module"
 
-class InventoryWorker < InventoriesController
+
+class InventoryWorker < ApplicationJob
+
+	# include AppController
 	include GroupsModule
 	include Sidekiq::Worker
 	# sidekiq_options retry: false
-	
+
 	@@nuestros_productos = ["1004", "1005", "1006", "1009", "1014", "1015"]
 	@@id_almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon]
 	
@@ -43,23 +47,23 @@ class InventoryWorker < InventoriesController
 		end
 
 		if stock_en_almacen[@@id_recepcion]["cantidad"] >= unidades_por_mover
-			mover_a_almacen(@@id_recepcion, @@id_despacho, [sku], unidades_por_mover)
+			mover_a_almacen(@@api_key, @@id_recepcion, @@id_despacho, [sku], unidades_por_mover)
 		else 
-			mover_a_almacen(@@id_recepcion, @@id_despacho, [sku], 0)
+			mover_a_almacen(@@api_key, @@id_recepcion, @@id_despacho, [sku], 0)
 			unidades_por_mover -= stock_en_almacen[@@id_recepcion]["cantidad"]
 		end
 
 		if stock_en_almacen[@@id_pulmon]["cantidad"] >= unidades_por_mover
-			mover_a_almacen(@@id_pulmon, @@id_despacho, [sku], unidades_por_mover)
+			mover_a_almacen(@@api_key, @@id_pulmon, @@id_despacho, [sku], unidades_por_mover)
 		else 
-			mover_a_almacen(@@id_pulmon, @@id_despacho, [sku], 0)
+			mover_a_almacen(@@api_key, @@id_pulmon, @@id_despacho, [sku], 0)
 			unidades_por_mover -= stock_en_almacen[@@id_pulmon]["cantidad"]
 		end
 
 		if stock_en_almacen[@@id_cocina]["cantidad"] >= unidades_por_mover
-			mover_a_almacen(@@id_cocina, @@id_despacho, [sku], unidades_por_mover)
+			mover_a_almacen(@@api_key, @@id_cocina, @@id_despacho, [sku], unidades_por_mover)
 		else 
-			mover_a_almacen(@@id_cocina, @@id_despacho, [sku], 0)			
+			mover_a_almacen(@@api_key, @@id_cocina, @@id_despacho, [sku], 0)
 			unidades_por_mover -= stock_en_almacen[@@id_cocina]["cantidad"]
 		end
 		

@@ -1,0 +1,9 @@
+# inventory_worker:
+#   cron: "* * * * *"
+#   class: MeLlamoWorker
+#   queue: default
+#
+me_llamo_worker:
+  cron: "* * * * *"
+  class: InventoryWorker
+  queue: default

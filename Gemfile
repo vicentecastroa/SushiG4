@@ -26,6 +26,7 @@ gem 'json'#, '~> 1.8', '>= 1.8.3'
 gem 'sidekiq'
 gem 'sinatra', github: 'sinatra/sinatra'
 gem 'rack-protection', '>=1.5.0'
+gem 'sidekiq-cron'
 ##########################################
 
 # Use CoffeeScript for .coffee assets and views
