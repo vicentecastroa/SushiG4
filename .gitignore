@@ -7,6 +7,13 @@
 # Ignore bundler config.
 /.bundle
 
+/Gemfile.lock
+/config/database.yml
+*.lock
+*.vscode/
+.ruby-version
+
+
 # Ignore all logfiles and tempfiles.
 /log/*
 /tmp/*
@@ -17,3 +24,10 @@
 /yarn-error.log
 
 .byebug_history
+
+# Ignore master key for decrypting credentials and more.
+/config/master.key
+
+# Ignore database yml
+/config/database.yml
+

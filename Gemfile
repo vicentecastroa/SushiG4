@@ -5,6 +5,8 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+ruby '2.5.1'
+# ruby '2.6.2>'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.1.7'
@@ -20,12 +22,15 @@ gem 'uglifier', '>= 1.3.0'
 # gem 'therubyracer', platforms: :ruby
 
 ##########################################
-gem 'httparty', '~> 0.13.7'
+gem 'httparty'#, '~> 0.13.7'
 gem 'ruby-hmac', '~> 0.4.0'
-gem 'json', '~> 1.8', '>= 1.8.3'
+gem 'json'#, '~> 1.8', '>= 1.8.3'
+# gem 'json', '~> 2.1'
 # PARA LOS JOBS
 gem 'sidekiq'
 gem 'sinatra', github: 'sinatra/sinatra'
+gem 'rack-protection', '>=1.5.0'
+gem 'sidekiq-cron'
 ##########################################
 
 # Use CoffeeScript for .coffee assets and views
@@ -35,7 +40,7 @@ gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.5'
 # Use Redis adapter to run Action Cable in production
-# gem 'redis', '~> 4.0'
+gem 'redis', '~> 4.0'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 

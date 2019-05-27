@@ -3,13 +3,19 @@ class SchedulerWorker
 	sidekiq_options queue: 'critical'
   
 	SCHEDULE = {
-	  InventoryWorker  => -> (time) { time.min == 5 },
-	#   SecondWorker => -> (time) { time.min == 0 && time.hour == 9 },
-	#   ThirdWorker  => -> (time) { time.min % 10 == 0 },
+	  InventoryWorker  => -> (time) { time.hour % 3 == 0 },
+		# PulmonWorker => -> (time) { time.min == 0 },
+		MeLlamoWorker => -> (time) { time.min % 5 == 0 },
+		#RecepcionWorker  => -> (time) { time.min % 10 == 0},
 	}
   
 	def perform
-		execution_time = Time.zone.now
+
+		puts "\n--------------------------------------\n"
+		puts "Iniciando Scheduler Worker"
+		puts "\n--------------------------------------\n"
+
+		execution_time = Time.now
 		execution_time -= execution_time.sec
   
 		self.class.perform_at(execution_time + 60) unless scheduled?
