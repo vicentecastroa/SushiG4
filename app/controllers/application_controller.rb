@@ -25,6 +25,15 @@ class ApplicationController < ActionController::Base
 	@@tamaño_despacho = 80
 	@@tamaño_pulmon = 99999999
 
+	# Materia primas producidas por nosotros
+	@@materias_primas_propias = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
+	
+	# Materias primas prodcidas por otros grupos
+	@@materias_primas_ajenas = ["1002", "1003", "1007", "1008", "1010", "1011", "1012", "1013"]
+
+	# Productos procesados
+	@@productos_procesados = ["1105", "1106", "1107", "1108", "1109", "1110", "1111", "1112", "1114", "1115", "1116", "1201", "1207", "1209", "1210", "1211", "1215", "1216", "1301", "1307", "1309", "1310", "1407"]
+
 	def print_start
 		puts "\n\n--------------------------\n    Funciona el require y worker   \n--------------------------\n\n"
 	end
@@ -214,9 +223,10 @@ class ApplicationController < ActionController::Base
 						sku_origen_num = sku_origen["_id"]
 						
 						# Verificamos que el sku se encuentre en la lista de skus a mover
-						if skus_a_mover.include? sku_origen_num.to_i
+						if skus_a_mover.include? sku_origen_num
 							# Obtenemos los productos asociados a ese sku
 							productos_origen = get_products_from_almacenes(api_key, almacen_id_origen, sku_origen_num)
+							puts "Productos_origen: " + productos_origen.to_s + "\n"
 
 							# Movemos cada producto de Origen a Destino
 							for producto_origen in productos_origen
@@ -355,48 +365,59 @@ class ApplicationController < ActionController::Base
 		return 2
 	end
 
-	def mover_ingrediente_a_despacho(sku, stock_minimo)
+	def mover_ingrediente_a_despacho(sku, cantidad_ingrediente)
 		inventario =  getSkuOnStock()
+		puts "getSkuUnStock: \n" + inventario.to_s + "\n"
 		stock_en_almacen = Hash.new
+
+		# Partimos almacenes en 0
+		id_almacenes = [@@id_despacho, @@id_recepcion, @@id_pulmon, @@id_cocina]
+		for almacen in id_almacenes
+			stock_en_almacen[almacen] = {"cantidad" => 0}
+		end
+
+		# Agregamos los almacenes que tienen stock del producto
 		for producto in inventario
+			puts "producto[sku]: " + producto["sku"] + "\n"
 			if producto["sku"] == sku
+				puts "Encontramos el producto en esta bodega"
 				almacen = producto["almacenId"]
 				cantidad = producto["cantidad"]
 				stock_en_almacen[almacen] = producto
+				puts "stock_en_almacen[almacen]: " + stock_en_almacen[almacen].to_s + "\n"
 			end
 		end
-		unidades_por_mover = stock_minimo
-		if stock_en_almacen[@@id_despacho]["cantidad"] >= stock_minimo
-			return 1
-		else 
-			unidades_por_mover -= stock_en_almacen[@@id_despacho]["cantidad"]
-		end
+		unidades_por_mover = cantidad_ingrediente
 
-		if stock_en_almacen[@@id_recepcion]["cantidad"] >= unidades_por_mover
-			mover_a_almacen(@@api_key, @@id_recepcion, @@id_despacho, [sku], unidades_por_mover)
-		else 
-			mover_a_almacen(@@api_key, @@id_recepcion, @@id_despacho, [sku], 0)
-			unidades_por_mover -= stock_en_almacen[@@id_recepcion]["cantidad"]
-		end
-
-		if stock_en_almacen[@@id_pulmon]["cantidad"] >= unidades_por_mover
-			mover_a_almacen(@@api_key, @@id_pulmon, @@id_despacho, [sku], unidades_por_mover)
-		else 
-			mover_a_almacen(@@api_key, @@id_pulmon, @@id_despacho, [sku], 0)
-			unidades_por_mover -= stock_en_almacen[@@id_pulmon]["cantidad"]
-		end
-
-		if stock_en_almacen[@@id_cocina]["cantidad"] >= unidades_por_mover
-			mover_a_almacen(@@api_key, @@id_cocina, @@id_despacho, [sku], unidades_por_mover)
-		else 
-			mover_a_almacen(@@api_key, @@id_cocina, @@id_despacho, [sku], 0)
-			unidades_por_mover -= stock_en_almacen[@@id_cocina]["cantidad"]
-		end
+		# Para cada almacen, movemos las unidades
+		for almacen in id_almacenes
+			# Checkeamos si tenemos unidades en DESPACHO
+			if almacen == @@id_despacho
+				if stock_en_almacen[almacen]["cantidad"]
+					if stock_en_almacen[almacen]["cantidad"] >= unidades_por_mover
+						return 1
+					else 
+						unidades_por_mover -= stock_en_almacen[almacen]["cantidad"]
+					end
+				end
+			else
+			# Movemos las unidades en RECEPCIÓN, PULMÓN y COCINA a DESPACHO
+				if stock_en_almacen[almacen]["cantidad"]
+					if stock_en_almacen[almacen]["cantidad"] >= unidades_por_mover
+						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku.to_i], unidades_por_mover)
+						return 1
+					else 
+						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku.to_i], 0)
+						unidades_por_mover -= stock_en_almacen[almacen]["cantidad"]
+					end
+				end
+			end
+		end 
 		
 		return 1
 	end
 
-	def getInventoriesCero
+	def getInventoriesAll # Mismo retorno que getInventories pero incluyendo todos los productos, incluso los con stock 0
 		response = []
 		skus_quantity = {}
 		sku_name = {}
@@ -415,10 +436,11 @@ class ApplicationController < ActionController::Base
 		end
 		for prod in productos_all
 			product_sku = prod.sku
-			producto_name = prod.nombre
+			product_name = prod.nombre
 			quantity = 0
 			if skus_quantity.key?(product_sku)
-				skus_quantity[product_sku] += quantity
+				#skus_quantity[product_sku] += quantity
+				#sku_name[product_sku] = product_name
 			else
 				sku_name[product_sku] = product_name
 				skus_quantity[product_sku] = quantity
@@ -429,94 +451,191 @@ class ApplicationController < ActionController::Base
 			response << line
 		end
 
+		#res = response.to_json
+		#render plain: res, :status => 200
+		#return response.to_json
+
 		return response
 
-	end 
+	end
+
+	def getInventoriesOne(sku) # Retorna stock de un solo producto
+		inventario_total = getInventoriesAll
+		inventario_total.each do |inventario|
+			sku_inventario = inventario["sku"]
+			if sku == sku_inventario
+				return inventario
+			end
+		end
+	end
+ 
+
+	def getProductosMinimos
+		p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101')
+		p_minimos.each do |p_referencia|
+			if p_referencia.sku == '1101'
+				p_referencia.stock_minimo = 300
+			end
+		end
+		return p_minimos
+	end
+
+
 
 	def perform
 		
 		puts "\n****************************\nInventory worker checkeando inventario\n****************************\n\n"
 
 		pedidos = Hash.new
-		
-		#inventario = getSkuOnStock()
-		#[{"almacenId" => almacen, "sku" => sku, "cantidad" => quantity, "nombre" => product_name}, {...}, {...},.....]
-		inventario_total = getInventoriesCero()
+
+		## Obtenemos el inventario total de cada producto ##
+		inventario_total = getInventoriesAll()
 		puts "Inventario Total: \n" + inventario_total.to_s
 		# [{"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}, {}, {}]
 
 		p_all = Producto.all
-		p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101') # selecciono los que tienen stock minimo y el arroz cocido
-		puts "Productos Minimos: \n" + p_minimos.to_s
-		p_minimos.each do |p_referencia|
 
-			if p_referencia.sku == '1101'
-				p_referencia.stock_minimo = 300
-			end
+		## Obtenemos los productos que deban mantener un stock minimo ##
+		p_minimos = getProductosMinimos()
+		# puts "Productos Minimos: \n" + p_minimos.to_s
 
-			stock_minimo = p_referencia.stock_minimo.to_i
+		## Para cada producto que deba mantener stock minimo, revisamos su stock ##
+		p_minimos.each do |p_minimo|
 
-			puts "\n****************************\nProducto Minimo: " + p_referencia.nombre + "\n"
+			## Obtenemos el stock minimo que debe mantener el producto ##
+			stock_minimo = p_minimo.stock_minimo.to_i
+
+			puts "\n****************************\nProducto Minimo: " + p_minimo.nombre + "\n"
 			puts"\nStock Minimo: " + stock_minimo.to_s
 
+			## Obtenemos el producto dentro del inventario ##
+			p_minimo_inventario = getInventoriesOne(p_minimo.sku)
 
-			inventario_total.each do |producto_total| # reviso el inventario total 
-				sku = producto_total["sku"]
-				cantidad = producto_total["cantidad"].to_i
-				
-				cantidad_a_pedir = 0
-				 # por cada producto del inventario minimo, comparo y veo si encuentro
-				 # el producto en el invetario total
-				if p_referencia.sku == sku && cantidad < stock_minimo
+			## Por cada producto que deba mantener stock minimo, comparo y encuentro el producto en el inventario
+			sku = p_minimo_inventario["sku"]
+			cantidad = p_minimo_inventario["cantidad"].to_i
+			if cantidad < stock_minimo # Si la cantidad es mayor o igual al stock minimo, no hago nada
 
-					puts "\nCantidad Actual: " + cantidad.to_s
+				puts "\nCantidad Actual: " + cantidad.to_s
 
-					cantidad_faltante = stock_minimo - cantidad
-					lotes_faltantes_p_referencia = (cantidad_faltante.to_f / p_referencia.lote_produccion).ceil
+				# Calculamos la cantidad faltante de producto como la diferencia entre el stock minimo y la cantidad actual en inventario
+				cantidad_faltante = stock_minimo - cantidad
 
-					puts "\nCantidad Faltante: " + cantidad_faltante.to_s + " -> Lotes Faltantes: " + lotes_faltantes_p_referencia.to_s
-					puts "\n****************************\n\n"
-					puts "Ingredientes: \n"
+				# Obtenemos el tamaño de los lotes de producción del producto
+				lote_produccion = p_minimo.lote_produccion
 
-					#si es masago
-					if sku.to_i == 1013
-						#get_producto_grupo(1013, lotes_faltantes_p_referencia)
-						break #cambio a revisar al siguiente producto de p_minimos
-					else
-					#si no es masago
-						ingredientes = IngredientesAssociation.where(producto_id: p_referencia.sku)
-						ingredientes.each do |ingrediente|
+				# Los lotes faltantes a producir seran la cantidad faltante dividida en el lote de producción del producto
+				lotes_faltantes = (cantidad_faltante.to_f / lote_produccion.to_f).ceil
 
-							puts "\t ID Ingrediente: " + ingrediente.ingrediente_id + "\n"
+				# Calculamos la cantidad a fabricar del producto
+				cantidad_a_producir = lotes_faltantes * lote_produccion
 
-							cantidad_lote_ingrediente = ingrediente.unidades_bodega
-							lote_produccion_ingrediente = Producto.find(ingrediente.ingrediente_id).lote_produccion
-							un_a_pedir_ingrediente = (lotes_faltantes_p_referencia) * (cantidad_lote_ingrediente)
-							# Revisar si tenemos stock del ingrediente en cualquier almacen
-							
-							lotes_a_pedir_ingrediente = (un_a_pedir_ingrediente.to_f / lote_produccion_ingrediente).ceil
-							have_prod = have_producto(ingrediente.ingrediente_id, un_a_pedir_ingrediente, inventario_total)
-							if have_prod == 1
-								puts "\t ¡Tenemos el ingrediente! Enviando a despacho.\n"
-								p = mover_ingrediente_a_despacho(ingrediente.ingrediente_id, un_a_pedir_ingrediente)
-							elsif have_prod == 0
-								puts "\t ¡No tenemos el ingrediente!\n"								
-								if @@nuestros_productos.include? ingrediente.ingrediente_id 
-									puts "\t El ingrediente es nuestro, fabricamos sin pago un lote de " + lotes_a_pedir_ingrediente.to_s + "\n"
-									fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, lotes_a_pedir_ingrediente)
-								else
-									#get_producto_grupo(ingrediente.ingrediente_id, lotes_a_pedir_ingrediente)
-								end
+				puts "\nCantidad Faltante: " + cantidad_faltante.to_s + " -> Lotes Faltantes: " + lotes_faltantes.to_s
+				puts "\n****************************\n\n"
+				puts "Ingredientes: \n"
+
+				# Si el producto es MASAGO, lo pido a los grupos productores correspondientes
+				if sku.to_i == 1013
+					#get_producto_grupo(1013, cantidad_faltante)
+					#break #cambio a revisar al siguiente producto de p_minimos
+
+				# Si el producto NO es MASAGO, debo verificar el stock de sus ingredientes antes de fabricar
+				else
+						
+					# Obtenemos los ingredientes del producto
+					ingredientes = IngredientesAssociation.where(producto_id: p_minimo.sku)
+
+					# Para cada ingrediente, calculamos el stock necesario para producir el producto y pedimos en caso de no tenerlo
+					ingredientes.each do |ingrediente|
+
+						puts "\t ID Ingrediente: " + ingrediente.ingrediente_id + "\n"
+
+						# Obtenemos el ingrediente desde Producto
+						p_ingrediente = Producto.find(ingrediente.ingrediente_id)
+
+						# Obtenemos el inventario del ingrediente
+						p_ingrediente_inventario = getInventoriesOne(p_ingrediente.sku)
+
+						# Obtenemos la cantidad de ingrediente requerido para producir un lote de producto
+						unidades_bodega = ingrediente.unidades_bodega
+
+						# Calculamos la cantidad de unidades requeridas multiplicando las unidades bodega por los lotes faltantes de producto
+						cantidad_ingrediente = unidades_bodega * lotes_faltantes
+
+						# Si el stock actual es mayor o igual a la cantidad de ingrediente requerido, enviamos ingrediente a despacho y reponemos la misma cantidad
+						if p_ingrediente_inventario["cantidad"] >= cantidad_ingrediente
+							puts "\t ¡Tenemos el ingrediente! Enviamos a despacho " + cantidad_ingrediente.to_s + " unidades.\n"
+
+							# Enviamos ingredientes a despacho
+							mover_ingrediente_a_despacho(ingrediente.ingrediente_id, cantidad_ingrediente)
+
+							# Fabricamos sin costo los ingredientes enviados
+							#fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, cantidad_ingrediente)
+
+						
+						# Si el stock actual es menor a la cantidad de ingrediente requerido, calculamos la cantidad faltante de ingrediente
+						else
+							cantidad_faltante_ingrediente = cantidad_ingrediente - p_ingrediente_inventario["cantidad"]
+
+							if @@materias_primas_propias.include? ingrediente.ingrediente_id 
+
+								# Obtenemos el tamaño de lote de producción del ingrediente
+								lote_produccion_ingrediente = p_ingrediente.lote_produccion
+
+								# Calculamos los lotes faltantes de ingrediente
+								lotes_faltantes_ingrediente = (cantidad_faltante_ingrediente / lote_produccion_ingrediente).ceil
+
+								# Definimos factor de multiplicacion de stock minimo para ingredientes propios
+								factor_ingredientes = 2
+
+								# Calculamos la cantidad a producir del ingrediente
+								cantidad_a_producir_ingrediente = factor_ingredientes * lotes_faltantes_ingrediente * lote_produccion_ingrediente
+
+								# Fabricamos sin costo la cantidad a producir del ingrediente
+								puts fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, (cantidad_a_producir_ingrediente).ceil)
+
+							# Si el producto no es nuestro, lo pedimos a otro grupo
 							else
-								puts "no existe"
+
+								#get_producto_grupo(p_ingrediente.sku, cantidad_faltante_ingrediente)
+
 							end
 						end
 
-						fabricar_sin_pago(@@api_key, p_referencia.sku, lotes_faltantes_p_referencia)
 
+
+						#lote_produccion_ingrediente = p_ingrediente.lote_produccion
+						## un_a_pedir_ingrediente = (lotes_faltantes_p_referencia) * (cantidad_lote_ingrediente)
+						#un_a_pedir_ingrediente = (lotes_faltantes_p_referencia * cantidad_lote_ingrediente * lote_produccion_ingrediente).ceil
+						#puts "un_a_pedir_ingrediente = (" + lotes_faltantes_p_referencia.to_s + " * " + cantidad_lote_ingrediente.to_s + " * " + lote_produccion_ingrediente.to_s + ").ceil\n"
+						## Revisar si tenemos stock del ingrediente en cualquier almacen
+						#	
+						#lotes_a_pedir_ingrediente = (un_a_pedir_ingrediente.to_f / lote_produccion_ingrediente).ceil
+						#have_prod = have_producto(ingrediente.ingrediente_id, un_a_pedir_ingrediente, inventario_total)
+						#if have_prod == 1
+						#	puts "\t ¡Tenemos el ingrediente! Enviamos a despacho " + un_a_pedir_ingrediente.to_s + " unidades.\n"
+						#	p = mover_ingrediente_a_despacho(ingrediente.ingrediente_id, un_a_pedir_ingrediente)
+						#	###### FALTA MANDAR A FABRICAR PRODUCTO PROCESADO ####
+						#elsif have_prod == 0
+						#	puts "\t ¡No tenemos el ingrediente!\n"					
+						#	if @@nuestros_productos.include? ingrediente.ingrediente_id 
+						#		puts "\t El ingrediente es nuestro, fabricamos sin pago " + lotes_a_pedir_ingrediente.to_s + " lotes.\n"
+						#		#puts fabricar_sin_pago(@@api_key, ingrecantidad_lote_p_referenciaiente.ingrediente_id, lotes_a_pedir_ingrediente)
+						#		puts fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, 2*un_a_pedir_ingrediente.ceil)
+						#	else
+						#		#get_producto_grupo(ingrediente.ingrediente_id, lotes_a_pedir_ingrediente)
+						#	end
+						#else
+						#	puts "no existe"
+						#end
 					end
+
+					#fabricar_sin_pago(@@api_key, p_referencia.sku, lotes_faltantes_p_referencia)
+					puts "Fabricamos sin pago el sku " + p_minimo.sku + ", una cantidad de " + cantidad_a_producir.to_s + "\n"
+					puts fabricar_sin_pago(@@api_key, p_minimo.sku, cantidad_a_producir)
+					puts "\nFabricado"
 				end
-			end
+			end			
 		end
 	end
 
