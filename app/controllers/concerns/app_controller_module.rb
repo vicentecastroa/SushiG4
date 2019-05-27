@@ -9,7 +9,8 @@ module AppController
 	@@print_valores = false
 	
 	def hashing(data, api_key)
-		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
+		# hmac = OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
+		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
 		signature = Base64.encode64(hmac).chomp
 		return signature
 	end
@@ -242,11 +243,14 @@ module AppController
 	end
 
 	def getSkuOnStock
+		puts "dentro de getSkuOnStock"
 		response = []
 		id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
 
 		for almacen in id_almacenes
+			puts "antes de obtener skus con stock"
 			@request = (obtener_skus_con_stock(@@api_key, almacen)).to_a
+			puts "request: #{@request.class}"
 			for element in @request do
 				sku = element["_id"]
 				@product = Producto.find(sku)
@@ -256,16 +260,20 @@ module AppController
 				response << line
 			end
 		end 
-
+		puts "retornando de getSkuOnStock"
 		return response
 
 	end
 
 	def getInventories
+
+		puts "corriendo getInventories\n"
+
 		response = []
 		skus_quantity = {}
 		sku_name = {}
-		lista_skus = getSkuOnStock
+		lista_skus = getSkuOnStock()
+		puts "passed getskuonstock"
 		for sku in lista_skus
 			product_sku = sku["sku"]
 			product_name = sku["nombre"]
@@ -283,8 +291,9 @@ module AppController
 		end
 
 		res = response.to_json
-		render plain: res, :status => 200
-		return response.to_json
+		# render plain: res, :status => 200
+		puts "response:\n"
+		return response.to_json.class
 
 	end 
 

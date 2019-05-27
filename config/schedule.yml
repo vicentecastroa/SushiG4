@@ -2,3 +2,8 @@ control_de_inventario:
   cron: "* * * * *"
   class: InventoryWorker
   queue: critical
+
+# control_de_inventario:
+#   cron: "* * * * *"
+#   class: CheckInventoryJob
+#   queue: default
