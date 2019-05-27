@@ -4,20 +4,21 @@ class ApplicationController < ActionController::Base
 	@@api_key = "o5bQnMbk@:BxrE"
 
 	#IDs Producción
-	#@@id_recepcion = "5cc7b139a823b10004d8e6df"
-	#@@id_despacho = "5cc7b139a823b10004d8e6e0"
-	#@@id_pulmon = "5cc7b139a823b10004d8e6e3"
-	#@@id_cocina = "5cc7b139a823b10004d8e6e4"
-	#@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
+	@@id_recepcion = "5cc7b139a823b10004d8e6df"
+	@@id_despacho = "5cc7b139a823b10004d8e6e0"
+	@@id_pulmon = "5cc7b139a823b10004d8e6e3"
+	@@id_cocina = "5cc7b139a823b10004d8e6e4"
+	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
 
 	#IDs Desarrollo
-	@@id_recepcion = "5cbd3ce444f67600049431c5"
-	@@id_despacho = "5cbd3ce444f67600049431c6"
-	@@id_pulmon = "5cbd3ce444f67600049431c9"
-	@@id_cocina = "5cbd3ce444f67600049431ca"
-	@@url = "https://integracion-2019-dev.herokuapp.com/bodega"
+	#@@id_recepcion = "5cbd3ce444f67600049431c5"
+	#@@id_despacho = "5cbd3ce444f67600049431c6"
+	#@@id_pulmon = "5cbd3ce444f67600049431c9"
+	#@@id_cocina = "5cbd3ce444f67600049431ca"
+	#@@url = "https://integracion-2019-dev.herokuapp.com/bodega"
 
 	@@print_valores = false
+	#@@print_valores = true
 
 	# Capacidades Bodegas
 	@@tamaño_cocina = 1122
@@ -40,7 +41,7 @@ class ApplicationController < ActionController::Base
 	
 
 	def hashing(data, api_key)
-		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
+		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
 		signature = Base64.encode64(hmac).chomp
 		return signature
 	end
@@ -198,6 +199,43 @@ class ApplicationController < ActionController::Base
 
 	## NEW ##
 
+	## API GRUPAL ENTREGA 1 ##
+
+	def solicitar_inventario(grupo_id)
+
+		# Para ver e inventario de un grupo, debes indicar el id del grupo
+		# Ejemplo: solicitar_inventario(13)
+
+		inventario_grupo = HTTParty.get("http://tuerca#{grupo_id}.ing.puc.cl/inventories")
+		if @@print_valores
+			puts "\nInventario de Grupo " + grupo_id.to_s + ": \n" + inventario_grupo.to_s + "\n"
+		end
+		return inventario_grupo
+	end
+
+	def solicitar_orden(sku, cantidad, grupo_id)
+
+		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
+		# Ejemplo: solicitar_orden("1001", 10, 13)
+
+		pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
+			body:{
+				"sku": sku,
+				"cantidad": cantidad,
+				"almacenId": @@id_recepcion
+			}.to_json,
+			headers:{
+				"group": "4",
+				"Content-Type": "application/json"
+			})
+		if @@print_valores
+			puts "\nSolicitar Orden a Otro Grupo\n"
+			#puts JSON.pretty_generate(pedido_producto)
+			puts pedido_producto.to_s
+		end
+		return pedido_producto	
+	end
+
 	def mover_a_almacen(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
 
 		puts "Vaciando Almacen " + almacen_id_origen.to_s + "a Almacen " + almacen_id_destino.to_s + "\n"
@@ -226,7 +264,7 @@ class ApplicationController < ActionController::Base
 						if skus_a_mover.include? sku_origen_num
 							# Obtenemos los productos asociados a ese sku
 							productos_origen = get_products_from_almacenes(api_key, almacen_id_origen, sku_origen_num)
-							puts "Productos_origen: " + productos_origen.to_s + "\n"
+							#puts "Productos_origen: " + productos_origen.to_s + "\n"
 
 							# Movemos cada producto de Origen a Destino
 							for producto_origen in productos_origen
@@ -404,10 +442,10 @@ class ApplicationController < ActionController::Base
 			# Movemos las unidades en RECEPCIÓN, PULMÓN y COCINA a DESPACHO
 				if stock_en_almacen[almacen]["cantidad"]
 					if stock_en_almacen[almacen]["cantidad"] >= unidades_por_mover
-						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku.to_i], unidades_por_mover)
+						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku], unidades_por_mover)
 						return 1
 					else 
-						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku.to_i], 0)
+						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku], 0)
 						unidades_por_mover -= stock_en_almacen[almacen]["cantidad"]
 					end
 				end
@@ -468,7 +506,6 @@ class ApplicationController < ActionController::Base
 			end
 		end
 	end
- 
 
 	def getProductosMinimos
 		p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101')
@@ -480,7 +517,13 @@ class ApplicationController < ActionController::Base
 		return p_minimos
 	end
 
-
+	def pedir_producto_grupos(sku_a_pedir, cantidad_a_pedir)
+		producto = Producto.find(sku_a_pedir)
+		grupos_productores = producto.grupos
+		grupos_productores.each do |grupo|
+			puts "Grupo: " + grupo.group_id.to_s + ", URL: " + grupo.url.to_s + "\n"
+		end
+	end
 
 	def perform
 		
@@ -570,9 +613,10 @@ class ApplicationController < ActionController::Base
 							mover_ingrediente_a_despacho(ingrediente.ingrediente_id, cantidad_ingrediente)
 
 							# Fabricamos sin costo los ingredientes enviados
-							#fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, cantidad_ingrediente)
+							fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, cantidad_ingrediente)
 
-						
+							###### Enviar ingredientes en tandas de 80 unidades y mandar a producir producto proporcional a 80 unidades de ingrediente
+
 						# Si el stock actual es menor a la cantidad de ingrediente requerido, calculamos la cantidad faltante de ingrediente
 						else
 							cantidad_faltante_ingrediente = cantidad_ingrediente - p_ingrediente_inventario["cantidad"]
