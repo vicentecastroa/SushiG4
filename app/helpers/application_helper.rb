@@ -184,7 +184,7 @@ module ApplicationHelper
 			end
 		end
 		skus_quantity.each_key do |key|
-			line = {"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}
+			line = {"sku" => key, "nombre" => sku_name[key], "total" => skus_quantity[key]}
 			response << line
 		end
 

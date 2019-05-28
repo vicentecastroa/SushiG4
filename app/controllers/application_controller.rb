@@ -376,8 +376,6 @@ class ApplicationController < ActionController::Base
 		return response.to_json
 	end
 
-	end 
-
 	## NEW ENTREGA 2 ##
 
 	def cocinar (sku_a_cocinar, cantidad_a_cocinar)
