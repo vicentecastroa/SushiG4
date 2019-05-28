@@ -287,7 +287,7 @@ class ApplicationController < ActionController::Base
 							for producto_origen in productos_origen
 								if espacio_disponible <= 0
 									puts "Destino lleno\n"
-									return
+									return cantidad_a_mover - cantidad
 								end
 								mover_producto_entre_almacenes(producto_origen["_id"], almacen_id_destino)
 								puts "Producto movido de Origen a Destino"
@@ -300,10 +300,14 @@ class ApplicationController < ActionController::Base
 									cantidad -= 1
 									puts "Productos a mover restantes: " + cantidad.to_s + "\n"
 									if cantidad == 0
-										return
+										return cantidad_a_mover - cantidad
 									end
 								end
 							end
+
+							cantidad_movida = cantidad_a_mover - cantidad
+							return cantidad_movida
+
 						end						
 					end
 				end
@@ -376,16 +380,26 @@ class ApplicationController < ActionController::Base
 		return response.to_json
 	end
 
-	end 
 
 	## NEW ENTREGA 2 ##
 
 	def cocinar (sku_a_cocinar, cantidad_a_cocinar)
-
-		inventario_total = getInventories()
-		
-		# Dejar ingredientes en almacen tipo cocina
 		producto_a_cocinar = Producto.find(sku_a_cocinar)
+
+		inventario_total = getInventoriesAll()
+		ingredientes = IngredientesAssociation.where(producto_id: sku_a_cocinar)
+
+		ingredientes.each do |ingrediente|
+			inventario_total.each do |item|
+				if item["sku"] == ingrediente.sku
+					
+				end
+			end
+		end
+
+
+
+		# Dejar ingredientes en almacen tipo cocina
 
 
 
