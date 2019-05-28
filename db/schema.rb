@@ -10,10 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_09_192134) do
+ActiveRecord::Schema.define(version: 2019_05_24_213253) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "documents", primary_key: "order_id", id: :string, force: :cascade do |t|
+    t.string "cliente"
+    t.string "proveedor"
+    t.integer "sku"
+    t.date "fechaEntrega"
+    t.integer "cantidad"
+    t.integer "cantidadDespachada"
+    t.integer "precioUnitario"
+    t.string "canal"
+    t.string "estado"
+    t.string "notas"
+    t.string "rechazo"
+    t.string "anulacion"
+    t.string "urlNotificacion"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "all"
+  end
 
   create_table "grupos", primary_key: "group_id", id: :integer, default: nil, force: :cascade do |t|
     t.string "url"

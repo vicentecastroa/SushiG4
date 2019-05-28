@@ -6,8 +6,8 @@ require 'groups_module'
 
 class InventoryWorker < ApplicationJob
 
-	# include AppController
 	include GroupsModule
+	# include AppController
 	# include Sidekiq::Worker
 	# sidekiq_options retry: false
 
@@ -197,6 +197,7 @@ class InventoryWorker < ApplicationJob
 		return 0
 	end
 
+	
 	def perform
 		
 		puts "\n****************************\nInventory worker checkeando inventario\n****************************\n\n"
@@ -207,6 +208,7 @@ class InventoryWorker < ApplicationJob
 		inventario_total = getInventoriesAll()
 		puts "Inventario Total: \n" + inventario_total.to_s
 		# [{"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}, {}, {}]
+		puts "Corrio getInventories"
 
 		p_all = Producto.all
 

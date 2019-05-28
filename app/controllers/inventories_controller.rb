@@ -7,17 +7,20 @@ class InventoriesController < ApplicationController
 	def show
 	end
 
-	def init_check_inventory
-		SchedulerWorker.perform_async unless SchedulerWorker.new.scheduled?
+	def init_inventory_worker
+		InventoryWorker.perform_async
+		# SchedulerWorker.perform_async unless SchedulerWorker.new.scheduled?
 	end
 
 	def init_test_worker
 		MeLlamoWorker.perform_async
-		render text: "El worker esta funcionanto"
+		# render text: "El worker esta funcionanto"
 	end
 
 	def index
-		getInventories
+		start
+		StockAvailableToSell #no borrar esta funcion debe llamarse entrando al endpoint root/inventories
+
 	end
 
 	def create

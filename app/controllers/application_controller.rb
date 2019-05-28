@@ -1,5 +1,15 @@
+require 'net/ftp'
+require 'ftp_helper'
+require 'application_helper'
+require 'active_support/core_ext/hash'
+
 class ApplicationController < ActionController::Base
-	protect_from_forgery with: :exception
+	
+	include ApplicationHelper
+	include FtpHelper
+	include OcHelper
+
+
 
 	@@api_key = "o5bQnMbk@:BxrE"
 
@@ -35,10 +45,6 @@ class ApplicationController < ActionController::Base
 	# Productos procesados
 	@@productos_procesados = ["1105", "1106", "1107", "1108", "1109", "1110", "1111", "1112", "1114", "1115", "1116", "1201", "1207", "1209", "1210", "1211", "1215", "1216", "1301", "1307", "1309", "1310", "1407"]
 
-	def print_start
-		puts "\n\n--------------------------\n    Funciona el require y worker   \n--------------------------\n\n"
-	end
-	
 
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
@@ -185,16 +191,25 @@ class ApplicationController < ActionController::Base
 		return products_produced
 	end
 
-	def fabricar_todo(api_key, lista_productos)
-		almacenes = (get_almacenes(api_key)).to_a
-		puts "..................."
-		for almacen in almacenes do
-			almacenId = almacen["_id"]
-			for producto in lista_productos
-				get_products_from_almacenes(api_key, almacenId, producto)
-			end
-		end
-		puts "..................."
+	
+	#desarrollo es true y produccion es false
+	@@status_of_work = false
+
+	CONTENT_SERVER_DOMAIN_NAME = 'fierro.ing.puc.cl'
+	CONTENT_SERVER_FTP_LOGIN = 'grupo4'
+	CONTENT_SERVER_FTP_PASSWORD = 'p6FByxRf5QYbrDC80'
+	CONTENT_SERVER_FTP_PORT = 22
+
+	def start
+		#revisar_oc
+		#orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1568039052000, "10", "10", "b2b", "https://tuerca4.ing.puc.cl/document/{_id}/notification")
+		#nueva_oc
+		#orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1558039052000, "10", "10", "b2b")
+		#obtener_oc(orden_creada['_id'])
+		#aceptar_oc('1557965482159')
+		#rechazar_oc(orden_creada["_id"], "RECHAZADO POR X RAZON")
+		#anular_oc(orden_creada["_id"], "MUCHOS PRODUCTOS")
+		#verificar_conexion(CONTENT_SERVER_DOMAIN_NAME, CONTENT_SERVER_FTP_LOGIN, CONTENT_SERVER_FTP_PASSWORD, CONTENT_SERVER_FTP_PORT)
 	end
 
 	## NEW ##
@@ -212,6 +227,7 @@ class ApplicationController < ActionController::Base
 		end
 		return inventario_grupo
 	end
+
 
 	def solicitar_orden(sku, cantidad, grupo_id)
 
@@ -235,6 +251,7 @@ class ApplicationController < ActionController::Base
 		end
 		return pedido_producto	
 	end
+
 
 	def mover_a_almacen(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
 
@@ -328,7 +345,6 @@ class ApplicationController < ActionController::Base
 		end 
 
 		return response
-
 	end
 
 	def getInventories
@@ -336,6 +352,7 @@ class ApplicationController < ActionController::Base
 		skus_quantity = {}
 		sku_name = {}
 		lista_skus = getSkuOnStock
+		puts "get inventories 1"
 		for sku in lista_skus
 			product_sku = sku["sku"]
 			product_name = sku["nombre"]
@@ -347,14 +364,17 @@ class ApplicationController < ActionController::Base
 				skus_quantity[product_sku] = quantity
 			end
 		end
+		puts "get inventories 2"
+
 		skus_quantity.each_key do |key|
 			line = {"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}
 			response << line
 		end
 
 		res = response.to_json
-		render plain: res, :status => 200
+		# render plain: res, :status => 200
 		return response.to_json
+	end
 
 	end 
 
@@ -567,174 +587,66 @@ class ApplicationController < ActionController::Base
 		return 0
 	end
 
-	def perform
-		
-		puts "\n****************************\nInventory worker checkeando inventario\n****************************\n\n"
 
-		pedidos = Hash.new
-
-		## Obtenemos el inventario total de cada producto ##
-		inventario_total = getInventoriesAll()
-		puts "Inventario Total: \n" + inventario_total.to_s
-		# [{"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}, {}, {}]
-
-		p_all = Producto.all
-
-		## Obtenemos los productos que deban mantener un stock minimo ##
-		p_minimos = getProductosMinimos()
-		# puts "Productos Minimos: \n" + p_minimos.to_s
-
-		## Para cada producto que deba mantener stock minimo, revisamos su stock ##
-		p_minimos.each do |p_minimo|
-
-			## Obtenemos el stock minimo que debe mantener el producto ##
-			stock_minimo = p_minimo.stock_minimo.to_i
-
-			puts "\n****************************\nProducto Minimo: " + p_minimo.nombre + "\n"
-			puts"\nStock Minimo: " + stock_minimo.to_s
-
-			## Obtenemos el producto dentro del inventario ##
-			p_minimo_inventario = getInventoriesOne(p_minimo.sku)
-
-			## Por cada producto que deba mantener stock minimo, comparo y encuentro el producto en el inventario
-			sku = p_minimo_inventario["sku"]
-			cantidad = p_minimo_inventario["cantidad"].to_i
-			if cantidad < stock_minimo # Si la cantidad es mayor o igual al stock minimo, no hago nada
-
-				puts "\nCantidad Actual: " + cantidad.to_s
-
-				# Calculamos la cantidad faltante de producto como la diferencia entre el stock minimo y la cantidad actual en inventario
-				cantidad_faltante = stock_minimo - cantidad
-
-				# Obtenemos el tamaño de los lotes de producción del producto
-				lote_produccion = p_minimo.lote_produccion
-
-				# Los lotes faltantes a producir seran la cantidad faltante dividida en el lote de producción del producto
-				lotes_faltantes = (cantidad_faltante.to_f / lote_produccion.to_f).ceil
-
-				# Calculamos la cantidad a fabricar del producto
-				cantidad_a_producir = lotes_faltantes * lote_produccion
-
-				puts "\nCantidad Faltante: " + cantidad_faltante.to_s + " -> Lotes Faltantes: " + lotes_faltantes.to_s
-				puts "\n****************************\n\n"
-				puts "Ingredientes: \n"
-
-				# Si el producto es MASAGO, lo pido a los grupos productores correspondientes
-				if sku.to_i == 1013
-					#get_producto_grupo(1013, cantidad_faltante)
-					#break #cambio a revisar al siguiente producto de p_minimos
-
-				# Si el producto NO es MASAGO, debo verificar el stock de sus ingredientes antes de fabricar
-				else
-						
-					# Obtenemos los ingredientes del producto
-					ingredientes = IngredientesAssociation.where(producto_id: p_minimo.sku)
-
-					# Para cada ingrediente, calculamos el stock necesario para producir el producto y pedimos en caso de no tenerlo
-					ingredientes.each do |ingrediente|
-
-						puts "\t ID Ingrediente: " + ingrediente.ingrediente_id + "\n"
-
-						# Obtenemos el ingrediente desde Producto
-						p_ingrediente = Producto.find(ingrediente.ingrediente_id)
-
-						# Obtenemos el inventario del ingrediente
-						p_ingrediente_inventario = getInventoriesOne(p_ingrediente.sku)
-
-						# Obtenemos la cantidad de ingrediente requerido para producir un lote de producto
-						unidades_bodega = ingrediente.unidades_bodega
-
-						# Calculamos la cantidad de unidades requeridas multiplicando las unidades bodega por los lotes faltantes de producto
-						cantidad_ingrediente = unidades_bodega * lotes_faltantes
-
-						# Si el stock actual es mayor o igual a la cantidad de ingrediente requerido, enviamos ingrediente a despacho y reponemos la misma cantidad
-						if p_ingrediente_inventario["cantidad"] >= cantidad_ingrediente
-							puts "\t ¡Tenemos el ingrediente! Enviamos a despacho " + cantidad_ingrediente.to_s + " unidades.\n"
-
-							# Enviamos ingredientes a despacho
-							mover_ingrediente_a_despacho(ingrediente.ingrediente_id, cantidad_ingrediente)
-
-							# Fabricamos sin costo los ingredientes enviados
-							fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, cantidad_ingrediente)
-
-							###### Enviar ingredientes en tandas de 80 unidades y mandar a producir producto proporcional a 80 unidades de ingrediente
-
-						# Si el stock actual es menor a la cantidad de ingrediente requerido, calculamos la cantidad faltante de ingrediente
-						else
-							cantidad_faltante_ingrediente = cantidad_ingrediente - p_ingrediente_inventario["cantidad"]
-
-							if @@materias_primas_propias.include? ingrediente.ingrediente_id 
-
-								# Obtenemos el tamaño de lote de producción del ingrediente
-								lote_produccion_ingrediente = p_ingrediente.lote_produccion
-
-								# Calculamos los lotes faltantes de ingrediente
-								lotes_faltantes_ingrediente = (cantidad_faltante_ingrediente / lote_produccion_ingrediente).ceil
-
-								# Definimos factor de multiplicacion de stock minimo para ingredientes propios
-								factor_ingredientes = 2
-
-								# Calculamos la cantidad a producir del ingrediente
-								cantidad_a_producir_ingrediente = factor_ingredientes * lotes_faltantes_ingrediente * lote_produccion_ingrediente
-
-								# Fabricamos sin costo la cantidad a producir del ingrediente
-								puts fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, (cantidad_a_producir_ingrediente).ceil)
-
-							# Si el producto no es nuestro, lo pedimos a otro grupo
-							else
-
-								#get_producto_grupo(p_ingrediente.sku, cantidad_faltante_ingrediente)
-
-							end
-						end
-
-
-
-						#lote_produccion_ingrediente = p_ingrediente.lote_produccion
-						## un_a_pedir_ingrediente = (lotes_faltantes_p_referencia) * (cantidad_lote_ingrediente)
-						#un_a_pedir_ingrediente = (lotes_faltantes_p_referencia * cantidad_lote_ingrediente * lote_produccion_ingrediente).ceil
-						#puts "un_a_pedir_ingrediente = (" + lotes_faltantes_p_referencia.to_s + " * " + cantidad_lote_ingrediente.to_s + " * " + lote_produccion_ingrediente.to_s + ").ceil\n"
-						## Revisar si tenemos stock del ingrediente en cualquier almacen
-						#	
-						#lotes_a_pedir_ingrediente = (un_a_pedir_ingrediente.to_f / lote_produccion_ingrediente).ceil
-						#have_prod = have_producto(ingrediente.ingrediente_id, un_a_pedir_ingrediente, inventario_total)
-						#if have_prod == 1
-						#	puts "\t ¡Tenemos el ingrediente! Enviamos a despacho " + un_a_pedir_ingrediente.to_s + " unidades.\n"
-						#	p = mover_ingrediente_a_despacho(ingrediente.ingrediente_id, un_a_pedir_ingrediente)
-						#	###### FALTA MANDAR A FABRICAR PRODUCTO PROCESADO ####
-						#elsif have_prod == 0
-						#	puts "\t ¡No tenemos el ingrediente!\n"					
-						#	if @@nuestros_productos.include? ingrediente.ingrediente_id 
-						#		puts "\t El ingrediente es nuestro, fabricamos sin pago " + lotes_a_pedir_ingrediente.to_s + " lotes.\n"
-						#		#puts fabricar_sin_pago(@@api_key, ingrecantidad_lote_p_referenciaiente.ingrediente_id, lotes_a_pedir_ingrediente)
-						#		puts fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, 2*un_a_pedir_ingrediente.ceil)
-						#	else
-						#		#get_producto_grupo(ingrediente.ingrediente_id, lotes_a_pedir_ingrediente)
-						#	end
-						#else
-						#	puts "no existe"
-						#end
-					end
-
-					#fabricar_sin_pago(@@api_key, p_referencia.sku, lotes_faltantes_p_referencia)
-					puts "Fabricamos sin pago el sku " + p_minimo.sku + ", una cantidad de " + cantidad_a_producir.to_s + "\n"
-					puts fabricar_sin_pago(@@api_key, p_minimo.sku, cantidad_a_producir)
-					puts "\nFabricado"
-				end
-			end			
+	def revisar_oc
+		counter = 0
+		@host = "fierro.ing.puc.cl"
+		@user = "grupo4_dev"
+		@password = "1ccWcVkAmJyrOfA"
+		Net::SFTP.start(@host, @user, :password => @password) do |sftp|
+			sftp.dir.foreach("/pedidos") do |entry|
+				break if counter == 10
+				counter +=1
+				if counter > 2
+					data_xml = sftp.download!("pedidos/#{entry.name}")
+  					data_json = Hash.from_xml(data_xml).to_json
+  					data_json = JSON.parse data_json
+  					order_id = data_json["order"]['id']
+  					orden_compra = obtener_oc(order_id)
+  				end
+			end
 		end
 	end
 
+	def nueva_oc
+		orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1568039052000, "10", "10", "b2b", "https://tuerca4.ing.puc.cl/documents/{_id}/notification")
+		order_id = orden_creada['_id']
+		puts order_id
+		Document.create! do |document|
+			document.all = order_id,
+			document.cliente = orden_creada['cliente'],
+			document.proveedor = orden_creada['proveedor'],
+			document.sku = orden_creada['sku'],
+			document.fechaEntrega = orden_creada['fechaEntrega'],
+			document.cantidad = orden_creada['cantidad'],
+			document.cantidadDespachada = orden_creada['cantidadDespachada'],
+			document.precioUnitario = orden_creada['precioUnitario'],
+			document.canal = orden_creada['canal'],
+			document.estado = orden_creada['estado'],
+			document.notas = orden_creada['notas'],
+			document.rechazo = orden_creada['rechazo'], 
+			document.anulacion = orden_creada['anulacion'],
+			document.order_id = order_id,
+			document.urlNotificacion = orden_creada['urlNotificacion']
+		end
+		#anular_oc(orden_creada["_id"], "MUCHOS PRODUCTOS")
+	end
 
-
-
-
-
-
-
-  protect_from_forgery with: :exception
-  @@api_key = "o5bQnMbk@:BxrE"
-
+	def notificar(url, status)
+		data = "POST"
+		notificacion = HTTParty.post(url,
+		   body:{
+		  	"status": status
+		  }.to_json,
+		  headers:{
+		    "Content-Type": "application/json"
+		  })
+		if @@print_valores
+			puts "ORDEN DE COMPRA CREADA"
+			puts JSON.pretty_generate(notificacion)
+		end
+		return notificacion
+	end
 
 end
 
