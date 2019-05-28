@@ -98,7 +98,7 @@ module ApplicationHelper
 			puts JSON.pretty_generate(req)
 		end
 		return req
-	endd
+	end
 
 	def obtener_skus_con_stock(api_key, almacenId)
 		data = "GET#{almacenId}"

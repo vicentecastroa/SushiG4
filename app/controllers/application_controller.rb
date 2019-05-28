@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
 
 	@@api_key = "o5bQnMbk@:BxrE"
 
+	#IDs Producción
 	@@id_recepcion = '5cc7b139a823b10004d8e6df'
 	@@id_despacho = "5cc7b139a823b10004d8e6e0"
 	@@id_pulmon = "5cc7b139a823b10004d8e6e3"
@@ -374,16 +375,19 @@ class ApplicationController < ActionController::Base
 	## NEW ENTREGA 2 ##
 
 	def cocinar (sku_a_cocinar, cantidad_a_cocinar)
+
+		puts "\nVamos a cocinar " + cantidad_a_cocinar.to_s + "unidades del SKU " + sku_a_cocinar + "\n"
 		ingredientes = IngredientesAssociation.where(producto_id: sku_a_cocinar)
+		puts "\nIngredientes: " + ingredientes.to_s + "\n"
 		ingredientes.each do |ingrediente|
 			# Para cada ingrediente cuento cuantos hay en la cocina
 			contador_cocina = 0
-			en_cocina = (obtener_skus_con_stock(@@api_key, @@id_cocina)).to_a
-			en_cocina.each do |ing_cocina|
-				if ing_cocina["_id"]["sku"] == ingrediente.sku
-					contador_cocina += 1
-				end
-			end
+			#en_cocina = (obtener_skus_con_stock(@@api_key, @@id_cocina)).to_a
+			#en_cocina.each do |ing_cocina|
+			#	if ing_cocina["_id"]["sku"] == ingrediente.sku
+			#		contador_cocina += 1
+			#	end
+			#end
 			
 			if contador_cocina >= ingrediente.unidades_bodega * cantidad_a_cocinar
 				a_mover = 0
@@ -391,21 +395,29 @@ class ApplicationController < ActionController::Base
 				a_mover = ingrediente.unidades_bodega * cantidad_a_cocinar - contador_cocina
 			end
 
-			if a_mover > 0
-				movidos = mover_a_almacen(@@api_key, @@id_recepcion, @@id_cocina, inventario["sku"], a_mover)
-				a_mover -= movidos
-			end
+			puts "\nMovemos " + a_mover.to_s + "unidades del SKU " + ingrediente.ingrediente_id + " a COCINA\n"
 
 			if a_mover > 0
-				movidos = mover_a_almacen(@@api_key, @@id_pulmon, @@id_cocina, inventario["sku"], a_mover)
+				movidos = mover_a_almacen(@@api_key, @@id_recepcion, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover -= movidos
+				puts "\nSe movieron " + movidos.to_s + " unidades de RECEPCIÓN a COCINA, quedan " + a_mover.to_s + " unidades por mover"
 			end
 
-			if a_mover > 0
-				movidos = mover_a_almacen(@@api_key, @@id_despacho, @@id_cocina, inventario["sku"], a_mover)
-				a_mover -= movidos
-			end
 			
+
+			if a_mover > 0
+				movidos = mover_a_almacen(@@api_key, @@id_pulmon, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
+				a_mover -= movidos
+				puts "\nSe movieron " + movidos.to_s + " unidades de PULMÓN a COCINA, quedan " + a_mover.to_s + " unidades por mover"
+
+			end
+		
+			if a_mover > 0
+				movidos = mover_a_almacen(@@api_key, @@id_despacho, @@id_cocina, i[ingrediente.ingrediente_id], a_mover)
+				a_mover -= movidos
+				puts "\nSe movieron " + movidos.to_s + " unidades de DESPACHO a COCINA, quedan " + a_mover.to_s + " unidades por mover"
+			end
+				
 			if a_mover > 0
 				return nil
 			end
