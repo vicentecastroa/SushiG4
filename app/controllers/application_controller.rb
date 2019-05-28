@@ -518,11 +518,53 @@ class ApplicationController < ActionController::Base
 	end
 
 	def pedir_producto_grupos(sku_a_pedir, cantidad_a_pedir)
+
+		puts "\nPEDIR PRODUCTO A GRUPOS\npedir_producto_grupos(" + sku_a_pedir.to_s + ", " + cantidad_a_pedir.to_s + ")\n"
+
+		cantidad_faltante = cantidad_a_pedir
+
+		# Obtenemos el producto en Producto
 		producto = Producto.find(sku_a_pedir)
+
+		# Obtenemos sus grupos productores
 		grupos_productores = producto.grupos
+
+		# Para cada grupo productor, revisamos su inventario
 		grupos_productores.each do |grupo|
+			if cantidad_faltante == 0
+				return 1
+			end
+			if grupo.group_id == 4
+				next
+			end
 			puts "Grupo: " + grupo.group_id.to_s + ", URL: " + grupo.url.to_s + "\n"
+			inventario_grupo = solicitar_inventario(grupo.group_id)
+			inventario_grupo.each do |p_inventario|
+				#puts "sku_a_pedir: " + sku_a_pedir + "\n"
+				#puts "p_inventario[sku]: " + p_inventario['sku'] + "\n"
+				# Si el grupo productor tiene inventario, lo pedimos
+				if sku_a_pedir == p_inventario["sku"]
+					puts p_inventario.to_s
+					cantidad_inventario = p_inventario["total"]
+					puts "Inventario: " + cantidad_inventario.to_s + "\n"
+
+					# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
+					if cantidad_inventario >= cantidad_faltante
+						puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante"
+						solicitar_orden(sku_a_pedir, cantidad_faltante, grupo.group_id)
+						cantidad_faltante = 0
+
+					# Si el inventario es menor a la cantidad faltante, pedimos todo el inventario
+					else
+						puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario"
+						solicitar_orden(sku_a_pedir, cantidad_inventario, grupo.group_id)
+						cantidad_faltante -= cantidad_inventario
+					end
+
+				end
+			end
 		end
+		return 0
 	end
 
 	def perform
