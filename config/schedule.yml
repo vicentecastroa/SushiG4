@@ -1,0 +1,4 @@
+control_de_inventario:
+  cron: "* * * * *"
+  class: InventoryWorker
+  queue: critical
