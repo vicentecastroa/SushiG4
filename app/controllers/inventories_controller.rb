@@ -18,7 +18,9 @@ class InventoriesController < ApplicationController
 	end
 
 	def index
-		getInventories
+		start
+		StockAvailableToSell #no borrar esta funcion debe llamarse entrando al endpoint root/inventories
+
 	end
 
 	def create

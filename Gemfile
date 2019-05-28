@@ -25,6 +25,7 @@ gem 'json'#, '~> 1.8', '>= 1.8.3'
 # PARA LOS JOBS
 gem 'sidekiq'
 gem 'sinatra', github: 'sinatra/sinatra'
+gem 'net-sftp', '~> 2.1', '>= 2.1.2'
 gem 'rack-protection', '>=1.5.0'
 gem 'sidekiq-cron'
 ##########################################
