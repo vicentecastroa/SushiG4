@@ -53,13 +53,8 @@ class ApplicationController < ActionController::Base
 	end
 
   
-	def print_start
-		puts "\n\n--------------------------\n    Funciona el require y worker   \n--------------------------\n\n"
-	end
-
-  
   # Funcionando bien
-  def get_almacenes(api_key)
+    def get_almacenes(api_key)
 		data = "GET"
 		hash_value = hashing(data, api_key)
 		almacenes = HTTParty.get("#{@@url}/almacenes", 
@@ -332,6 +327,15 @@ class ApplicationController < ActionController::Base
 	
 	end
 
+	def despacho_a_recepcion
+
+		# D Cocina
+		mover_a_almacen(@@api_key, @@id_despacho, @@id_recepcion, @@materias_primas_propias, 200)
+		mover_a_almacen(@@api_key, @@id_despacho, @@id_pulmon, @@materias_primas_propias, 200)
+		
+	
+	end
+
 	def getSkuOnStock
 		response = []
 		id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
@@ -384,35 +388,44 @@ class ApplicationController < ActionController::Base
 	## NEW ENTREGA 2 ##
 
 	def cocinar (sku_a_cocinar, cantidad_a_cocinar)
-		producto_a_cocinar = Producto.find(sku_a_cocinar)
-
-		inventario_total = getInventoriesAll()
 		ingredientes = IngredientesAssociation.where(producto_id: sku_a_cocinar)
-
 		ingredientes.each do |ingrediente|
-			inventario_total.each do |item|
-				if item["sku"] == ingrediente.sku
-					
+			# Para cada ingrediente cuento cuantos hay en la cocina
+			contador_cocina = 0
+			en_cocina = (obtener_skus_con_stock(@@api_key, @@id_cocina)).to_a
+			en_cocina.each do |ing_cocina|
+				if ing_cocina["_id"]["sku"] == ingrediente.sku
+					contador_cocina += 1
 				end
 			end
+			
+			if contador_cocina >= ingrediente.unidades_bodega * cantidad_a_cocinar
+				a_mover = 0
+			else
+				a_mover = ingrediente.unidades_bodega * cantidad_a_cocinar - contador_cocina
+			end
+
+			if a_mover > 0
+				movidos = mover_a_almacen(@@api_key, @@id_recepcion, @@id_cocina, inventario["sku"], a_mover)
+				a_mover -= movidos
+			end
+
+			if a_mover > 0
+				movidos = mover_a_almacen(@@api_key, @@id_pulmon, @@id_cocina, inventario["sku"], a_mover)
+				a_mover -= movidos
+			end
+
+			if a_mover > 0
+				movidos = mover_a_almacen(@@api_key, @@id_despacho, @@id_cocina, inventario["sku"], a_mover)
+				a_mover -= movidos
+			end
+			
+			if a_mover > 0
+				return nil
+			end
 		end
-
-
-
-		# Dejar ingredientes en almacen tipo cocina
-
-
-
-		# LLamar a metodo "fabricar" de bodega, indicando sku y cantidad a producir
-			# Se retiran (automaticamente) ingredientes de cocina
-			# Se deja orden de fabricación pendiente
-			# El metodo retorna fecha estimada de producción
-
-		# Llegan productos fabricados a almacén cocina.
-			# En caso de que la cocina está llena, llegarán a almacen pulmon
-		
-		# Se deben despachar utilizando el método "despacar producto", indicando el id de la orden de compra
-
+		response = fabricar_sin_pago(@@api_key, sku_a_cocinar, cantidad_a_cocinar)
+		return response
 	end
 
 	## WORKER ##
@@ -439,7 +452,7 @@ class ApplicationController < ActionController::Base
 
 	def mover_ingrediente_a_despacho(sku, cantidad_ingrediente)
 		inventario =  getSkuOnStock()
-		puts "getSkuUnStock: \n" + inventario.to_s + "\n"
+		puts "getSkuOnStock: \n" + inventario.to_s + "\n"
 		stock_en_almacen = Hash.new
 
 		# Partimos almacenes en 0
@@ -541,15 +554,6 @@ class ApplicationController < ActionController::Base
 		end
 	end
 
-	def getProductosMinimos
-		p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101')
-		p_minimos.each do |p_referencia|
-			if p_referencia.sku == '1101'
-				p_referencia.stock_minimo = 300
-			end
-		end
-		return p_minimos
-	end
 
 	def pedir_producto_grupos(sku_a_pedir, cantidad_a_pedir)
 

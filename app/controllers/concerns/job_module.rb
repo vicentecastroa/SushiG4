@@ -19,12 +19,6 @@ module AppController
 	@@print_valores = false
 	#@@print_valores = true
 
-	# Capacidades Bodegas
-	@@tamaño_cocina = 1122
-	@@tamaño_recepcion = 133
-	@@tamaño_despacho = 80
-	@@tamaño_pulmon = 99999999
-
 	# Materia primas producidas por nosotros
 	@@materias_primas_propias = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
 	
@@ -34,7 +28,10 @@ module AppController
 	# Productos procesados
 	@@productos_procesados = ["1105", "1106", "1107", "1108", "1109", "1110", "1111", "1112", "1114", "1115", "1116", "1201", "1207", "1209", "1210", "1211", "1215", "1216", "1301", "1307", "1309", "1310", "1407"]
 
-	
+	@@nuestros_productos = ["1004", "1005", "1006", "1009", "1014", "1015"]
+	@@id_almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon]
+
+
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
 		signature = Base64.encode64(hmac).chomp
@@ -42,19 +39,20 @@ module AppController
 	end
 	
 	
-	def print_start
-		puts "\n\n--------------------------\n    Funciona el require y worker   \n--------------------------\n\n"
+	def job_start
+		puts "\n**********************************************"
+		puts "\n************** INICIO DEL JOB ****************"
+		puts "\n**********************************************\n\n"
 	end
 
 
 	def job_end
-		puts "\n\n******************************************"
-		puts "\n************ FIN DEL JOB *****************"
-		puts "\n******************************************\n\n"
+		puts "\n**********************************************"
+		puts "\n************** FIN DEL JOB *******************"
+		puts "\n**********************************************\n\n"
 	end
-		
-  # Funcionando bien
-  def get_almacenes(api_key)
+
+	def get_almacenes(api_key)
 		data = "GET"
 		hash_value = hashing(data, api_key)
 		almacenes = HTTParty.get("#{@@url}/almacenes", 
@@ -69,27 +67,11 @@ module AppController
 		return almacenes
 	end
 
-	# Funcionando bien
+
 	def get_products_from_almacenes(api_key, almacenId, sku)
 		data = "GET#{almacenId}#{sku}"
 		hash_value = hashing(data, api_key)
 		products = HTTParty.get("#{@@url}/stock?almacenId=#{almacenId}&sku=#{sku}",
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "\nPRODUCTOS DE ALMACENES\n"
-			puts JSON.pretty_generate(products)
-		end
-		return products
-	end
-
-	# Funcionando bien
-	def get_products_from_almacenes_limit_primeros(api_key, almacenId, sku, limit)
-		data = "GET#{almacenId}#{sku}"
-		hash_value = hashing(data, api_key)
-		products = HTTParty.get("#{@@url}/stock?almacenId=#{almacenId}&sku=#{sku}&limit=#{limit}",
 		  headers:{
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
@@ -186,21 +168,7 @@ module AppController
 		return products_produced
 	end
 
-	def fabricar_todo(api_key, lista_productos)
-		almacenes = (get_almacenes(api_key)).to_a
-		puts "..................."
-		for almacen in almacenes do
-			almacenId = almacen["_id"]
-			for producto in lista_productos
-				get_products_from_almacenes(api_key, almacenId, producto)
-			end
-		end
-		puts "..................."
-	end
-
 	## NEW ##
-
-	## API GRUPAL ENTREGA 1 ##
 
 	def solicitar_inventario(grupo_id)
 
@@ -271,7 +239,7 @@ module AppController
 							for producto_origen in productos_origen
 								if espacio_disponible <= 0
 									puts "Destino lleno\n"
-									return
+									return cantidad_a_mover - cantidad
 								end
 								mover_producto_entre_almacenes(producto_origen["_id"], almacen_id_destino)
 								puts "Producto movido de Origen a Destino"
@@ -284,10 +252,14 @@ module AppController
 									cantidad -= 1
 									puts "Productos a mover restantes: " + cantidad.to_s + "\n"
 									if cantidad == 0
-										return
+										return cantidad_a_mover - cantidad
 									end
 								end
 							end
+
+							cantidad_movida = cantidad_a_mover - cantidad
+							return cantidad_movida
+
 						end						
 					end
 				end
@@ -357,52 +329,7 @@ module AppController
 		render plain: res, :status => 200
 		return response.to_json
 
-	end 
-
-	## NEW ENTREGA 2 ##
-
-	def cocinar (sku_a_cocinar, cantidad_a_cocinar)
-
-		inventario_total = getInventories()
-		
-		# Dejar ingredientes en almacen tipo cocina
-		producto_a_cocinar = Producto.find(sku_a_cocinar)
-
-
-
-		# LLamar a metodo "fabricar" de bodega, indicando sku y cantidad a producir
-			# Se retiran (automaticamente) ingredientes de cocina
-			# Se deja orden de fabricación pendiente
-			# El metodo retorna fecha estimada de producción
-
-		# Llegan productos fabricados a almacén cocina.
-			# En caso de que la cocina está llena, llegarán a almacen pulmon
-		
-		# Se deben despachar utilizando el método "despacar producto", indicando el id de la orden de compra
-
-	end
-
-	## WORKER ##
-
-	@@nuestros_productos = ["1004", "1005", "1006", "1009", "1014", "1015"]
-	@@id_almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon]
-	
-
-	def have_producto(sku, cantidad_minima, inventario_total)
-		#inventario_total = getInventoriesCero()
-
-		puts "have_producto(" + sku + ", " + cantidad_minima.to_s + ", " + ")\n"
-
-		for producto in inventario_total
-			#puts "Producto sku: " + producto["sku"]
-			if producto["sku"].to_s == sku && producto["cantidad"].to_f < cantidad_minima.to_f
-				return 0
-			elsif producto["sku"].to_s == sku && producto["cantidad"].to_f >= cantidad_minima.to_f
-				return 1
-			end
-		end
-		return 2
-	end
+	end 	
 
 	def mover_ingrediente_a_despacho(sku, cantidad_ingrediente)
 		inventario =  getSkuOnStock()
@@ -509,7 +436,8 @@ module AppController
 	end
 
 	def getProductosMinimos
-		p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101')
+		# p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101')
+		p_minimos = Producto.where('stock_minimo != ?', 0)
 		p_minimos.each do |p_referencia|
 			if p_referencia.sku == '1101'
 				p_referencia.stock_minimo = 300
