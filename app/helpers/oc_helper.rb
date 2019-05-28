@@ -1,5 +1,5 @@
 module OcHelper
-	@@print_valores = true
+	@@print_valores = false
 	@@estado = 'dev'
 
 	def obtener_oc(id)
