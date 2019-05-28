@@ -243,14 +243,13 @@ module AppController
 	end
 
 	def getSkuOnStock
-		puts "dentro de getSkuOnStock"
 		response = []
 		id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
 
 		for almacen in id_almacenes
 			puts "antes de obtener skus con stock"
 			@request = (obtener_skus_con_stock(@@api_key, almacen)).to_a
-			puts "request: #{@request.class}"
+			puts "request: #{@request}"
 			for element in @request do
 				sku = element["_id"]
 				@product = Producto.find(sku)
