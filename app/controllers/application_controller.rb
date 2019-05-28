@@ -2,14 +2,13 @@ require 'net/ftp'
 require 'ftp_helper'
 require 'application_helper'
 require 'active_support/core_ext/hash'
+require 'date'
 
 class ApplicationController < ActionController::Base
 	include ApplicationHelper
 	include FtpHelper
 	include OcHelper
 	
-	#protect_from_forgery with: :exception
-
 	@@api_key = 'o5bQnMbk@:BxrE'
 	@@id_recepcion = '5cc7b139a823b10004d8e6df'
 	@@id_despacho = '5cc7b139a823b10004d8e6e0'
@@ -30,7 +29,7 @@ class ApplicationController < ActionController::Base
 	CONTENT_SERVER_FTP_PORT = 22
 
 	def start
-		#revisar_oc
+		revisar_oc
 		#orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1568039052000, "10", "10", "b2b", "https://tuerca4.ing.puc.cl/document/{_id}/notification")
 		#nueva_oc
 		#orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1558039052000, "10", "10", "b2b")
@@ -40,8 +39,6 @@ class ApplicationController < ActionController::Base
 		#anular_oc(orden_creada["_id"], "MUCHOS PRODUCTOS")
 		#verificar_conexion(CONTENT_SERVER_DOMAIN_NAME, CONTENT_SERVER_FTP_LOGIN, CONTENT_SERVER_FTP_PASSWORD, CONTENT_SERVER_FTP_PORT)
 	end
-
-	## NEW ##
 
 	def mover_a_almacen(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
 
@@ -56,7 +53,6 @@ class ApplicationController < ActionController::Base
 				if almacen["usedSpace"] <= almacen["totalSpace"]
 					espacio_disponible = almacen["totalSpace"] - almacen["usedSpace"]
 					puts "Espacio disponible en destino: " + espacio_disponible.to_s + "\n"
-
 					puts "Vaciando Origen\n"
 
 					# Obtenemos los skus en el almacen de origen
@@ -107,14 +103,12 @@ class ApplicationController < ActionController::Base
 
 		# Vaciamos Recepción
 		mover_a_almacen(api_key, @@id_recepcion, @@id_cocina, @@materias_primas_propias, 5)
-
 	end
 
 	def cocina_a_recepcion(api_key)
 
 		# Vaciamos Cocina
 		vaciar_almacen(api_key, @@id_cocina, @@id_recepcion, @@materias_primas_propias)
-	
 	end
 
 	def getSkuOnStock
@@ -166,20 +160,27 @@ class ApplicationController < ActionController::Base
 	end
 
 	def revisar_oc
+		time = Time.now
 		counter = 0
 		@host = "fierro.ing.puc.cl"
 		@user = "grupo4_dev"
 		@password = "1ccWcVkAmJyrOfA"
 		Net::SFTP.start(@host, @user, :password => @password) do |sftp|
-			sftp.dir.foreach("/pedidos") do |entry|
-				break if counter == 10
+			entries = sftp.dir.entries("/pedidos")
+			entries.each do |entry|
+				#break if counter == 4
 				counter +=1
 				if counter > 2
-					data_xml = sftp.download!("pedidos/#{entry.name}")
-  					data_json = Hash.from_xml(data_xml).to_json
-  					data_json = JSON.parse data_json
-  					order_id = data_json["order"]['id']
-  					orden_compra = obtener_oc(order_id)
+					time_file = DateTime.strptime(entry.attributes.mtime.to_s,'%s')
+					if time_file > (time - 10.hours)
+						data_xml = sftp.download!("pedidos/#{entry.name}")
+	  					data_json = Hash.from_xml(data_xml).to_json
+	  					data_json = JSON.parse data_json
+	  					order_id = data_json["order"]['id']
+	  					orden_compra = obtener_oc(order_id)
+	  					aceptar_o_rechazar(orden_compra[0])
+					end
+					
   				end
 			end
 		end
@@ -223,6 +224,42 @@ class ApplicationController < ActionController::Base
 			puts JSON.pretty_generate(notificacion)
 		end
 		return notificacion
+	end
+
+	def aceptar_o_rechazar(orden_compra)
+		@sku = orden_compra["sku"]
+		@cantidad = orden_compra["cantidad"]
+		@proveedor = orden_compra["proveedor"]
+		@fecha_entrega = orden_compra["fechaEntrega"]
+		@estado = orden_compra["estado"]
+	# 	elsif (@sku.length == 4)
+	# 		@skus_to_sell = StockAvailableToSell
+	# 		@skus_on_stock = getSkuOnStock
+	# 		#si el sku es de los asignados a nosotros
+	# 		if (@@nuestros_productos.include? @sku)
+
+	# 		#si el sku es de largo 4 pero no es de los asignados a nosotros RECHAZAR
+	# 		unless (@@nuestros_productos.include? @sku)
+	# 			#rechazar la OC con la API del profesor
+	# 			rechazar_oc(@order_id,"rechazada por frescos")
+	# 			#notificar rechazo al endpoint del grupo
+	# 			notificar(@urlNotificacion,"reject")
+	# 			#responder la request al grupo con status 404
+	# 			res = "Producto no se encuentra (el grupo no ofrece productos de este sku) o no tiene stock"
+	# 			render plain: res, :status => 404
+	# 			return res
+	# 		end
+		
+	# 	#ACEPTAR O RECHAZAR MANDAR A PRODUCIR PRODUCTOS FINALES
+	# 	#si el sku es de largo 5 significa que es un producto final
+	# 	#elsif (@sku.length == 5)
+	# 		#if #ver si tenemos los ingredientes para hacerlo
+	# 			#FALTA HACER EL FLUJO
+	# 		#else #rechazar
+	# 			#rechazar_oc(@order_id,"rechazado porque no tenemos los ingredientes")
+	# 			#notificar(@urlNotificacion,"reject")
+	# 		#end
+	# 	end
 	end
 
 end
