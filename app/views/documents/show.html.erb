@@ -1,0 +1,74 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Order:</strong>
+  <%= @document.order_id %>
+</p>
+
+<p>
+  <strong>Cliente:</strong>
+  <%= @document.cliente %>
+</p>
+
+<p>
+  <strong>Proveedor:</strong>
+  <%= @document.proveedor %>
+</p>
+
+<p>
+  <strong>Sku:</strong>
+  <%= @document.sku %>
+</p>
+
+<p>
+  <strong>Fechaentrega:</strong>
+  <%= @document.fechaEntrega %>
+</p>
+
+<p>
+  <strong>Cantidad:</strong>
+  <%= @document.cantidad %>
+</p>
+
+<p>
+  <strong>Cantidaddespachada:</strong>
+  <%= @document.cantidadDespachada %>
+</p>
+
+<p>
+  <strong>Preciounitario:</strong>
+  <%= @document.precioUnitario %>
+</p>
+
+<p>
+  <strong>Canal:</strong>
+  <%= @document.canal %>
+</p>
+
+<p>
+  <strong>Estado:</strong>
+  <%= @document.estado %>
+</p>
+
+<p>
+  <strong>Notas:</strong>
+  <%= @document.notas %>
+</p>
+
+<p>
+  <strong>Rechazo:</strong>
+  <%= @document.rechazo %>
+</p>
+
+<p>
+  <strong>Anulacion:</strong>
+  <%= @document.anulacion %>
+</p>
+
+<p>
+  <strong>Urlnotificacion:</strong>
+  <%= @document.urlNotificacion %>
+</p>
+
+<%= link_to 'Edit', edit_document_path(@document) %> |
+<%= link_to 'Back', documents_path %>

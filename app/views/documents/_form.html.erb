@@ -1,0 +1,87 @@
+<%= form_with(model: document, local: true) do |form| %>
+  <% if document.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(document.errors.count, "error") %> prohibited this document from being saved:</h2>
+
+      <ul>
+      <% document.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :order_id %>
+    <%= form.number_field :order_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :cliente %>
+    <%= form.text_field :cliente %>
+  </div>
+
+  <div class="field">
+    <%= form.label :proveedor %>
+    <%= form.text_field :proveedor %>
+  </div>
+
+  <div class="field">
+    <%= form.label :sku %>
+    <%= form.number_field :sku %>
+  </div>
+
+  <div class="field">
+    <%= form.label :fechaEntrega %>
+    <%= form.date_select :fechaEntrega %>
+  </div>
+
+  <div class="field">
+    <%= form.label :cantidad %>
+    <%= form.number_field :cantidad %>
+  </div>
+
+  <div class="field">
+    <%= form.label :cantidadDespachada %>
+    <%= form.number_field :cantidadDespachada %>
+  </div>
+
+  <div class="field">
+    <%= form.label :precioUnitario %>
+    <%= form.number_field :precioUnitario %>
+  </div>
+
+  <div class="field">
+    <%= form.label :canal %>
+    <%= form.text_field :canal %>
+  </div>
+
+  <div class="field">
+    <%= form.label :estado %>
+    <%= form.text_field :estado %>
+  </div>
+
+  <div class="field">
+    <%= form.label :notas %>
+    <%= form.text_field :notas %>
+  </div>
+
+  <div class="field">
+    <%= form.label :rechazo %>
+    <%= form.text_field :rechazo %>
+  </div>
+
+  <div class="field">
+    <%= form.label :anulacion %>
+    <%= form.text_field :anulacion %>
+  </div>
+
+  <div class="field">
+    <%= form.label :urlNotificacion %>
+    <%= form.text_field :urlNotificacion %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

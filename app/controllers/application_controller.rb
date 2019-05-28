@@ -1,169 +1,44 @@
+require 'net/ftp'
+require 'ftp_helper'
+require 'application_helper'
+require 'active_support/core_ext/hash'
+
 class ApplicationController < ActionController::Base
-	protect_from_forgery with: :exception
-
-	@@api_key = "o5bQnMbk@:BxrE"
-	@@id_recepcion = "5cc7b139a823b10004d8e6df"
-	@@id_despacho = "5cc7b139a823b10004d8e6e0"
-	@@id_pulmon = "5cc7b139a823b10004d8e6e3"
-	@@id_cocina = "5cc7b139a823b10004d8e6e4"
-
-	@@print_valores = false
-
-	def print_start
-		puts "\n\n--------------------------\n    Funciona el require y worker   \n--------------------------\n\n"
-	end
+	include ApplicationHelper
+	include FtpHelper
+	include OcHelper
 	
+	#protect_from_forgery with: :exception
 
-	def hashing(data, api_key)
-		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
-		signature = Base64.encode64(hmac).chomp
-		return signature
-	end
+	@@api_key = 'o5bQnMbk@:BxrE'
+	@@id_recepcion = '5cc7b139a823b10004d8e6df'
+	@@id_despacho = '5cc7b139a823b10004d8e6e0'
+	@@id_pulmon = '5cc7b139a823b10004d8e6e3'
+	@@id_cocina = '5cc7b139a823b10004d8e6e4'
 
-  
-  # Funcionando bien
-  def get_almacenes(api_key)
-		data = "GET"
-		hash_value = hashing(data, api_key)
-		almacenes = HTTParty.get('https://integracion-2019-prod.herokuapp.com/bodega/almacenes', 
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "\nALMACENES\n"
-			puts JSON.pretty_generate(almacenes)
-		end
-		return almacenes
-	end
+	@@id_desarrollo = '5cbd31b7c445af0004739be6'
+	@@id_desarrollo_14 = '5cbd31b7c445af0004739bf0'
+	@@id_produccion = '5cc66e378820160004a4c3bf'
 
-	# Funcionando bien
-	def get_products_from_almacenes(api_key, almacenId, sku)
-		data = "GET#{almacenId}#{sku}"
-		hash_value = hashing(data, api_key)
-		products = HTTParty.get("https://integracion-2019-prod.herokuapp.com/bodega/stock?almacenId=#{almacenId}&sku=#{sku}",
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "\nPRODUCTOS DE ALMACENES\n"
-			puts JSON.pretty_generate(products)
-		end
-		return products
-	end
+	
+	#desarrollo es true y produccion es false
+	@@status_of_work = false
 
-	# Funcionando bien
-	def get_products_from_almacenes_limit_primeros(api_key, almacenId, sku, limit)
-		data = "GET#{almacenId}#{sku}"
-		hash_value = hashing(data, api_key)
-		products = HTTParty.get("https://integracion-2019-prod.herokuapp.com/bodega/stock?almacenId=#{almacenId}&sku=#{sku}&limit=#{limit}",
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "\nPRODUCTOS DE ALMACENES\n"
-			puts JSON.pretty_generate(products)
-		end
-		return products
-	end
+	CONTENT_SERVER_DOMAIN_NAME = 'fierro.ing.puc.cl'
+	CONTENT_SERVER_FTP_LOGIN = 'grupo4'
+	CONTENT_SERVER_FTP_PASSWORD = 'p6FByxRf5QYbrDC80'
+	CONTENT_SERVER_FTP_PORT = 22
 
-	# Funcionando bien
-	# Probado con la bodega del G14 5cbd3ce444f6760004943201
-  	def mover_producto_entre_bodegas(api_key, productoId, almacenId, oc, precio)
-		data = "POST#{productoId}#{almacenId}"
-		hash_value = hashing(data, api_key)
-		producto_movido = HTTParty.post('https://integracion-2019-prod.herokuapp.com/bodega/moveStockBodega',
-		  body:{
-		  	"productoId": productoId,
-		  	"almacenId": almacenId,
-		  	"oc": oc,
-		  	"precio": precio,
-		  }.to_json,
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "\nMOVER PRODUCTO ENTRE BODEGAS\n"
-			puts JSON.pretty_generate(producto_movido)
-		end
-		return producto_movido
-	end
-
-	# Funcionando bien
-	def mover_producto_entre_almacenes(producto_json, id_destino)
-		#productoId = producto_json["_id"]
-		productoId = producto_json
-		almacenId = id_destino
-
-		data = "POST#{productoId}#{almacenId}"
-		hash_value = hashing(data, @@api_key)
-		req = HTTParty.post("https://integracion-2019-prod.herokuapp.com/bodega/moveStock",
-		  body:{
-				"productoId": productoId,
-				"almacenId": almacenId,
-
-		  }.to_json,
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-
-		if @@print_valores
-			puts "\nMOVER PRODUCTO ENTRE ALMACENES\n"
-			puts JSON.pretty_generate(req)
-		end
-		return req
-	end
-
-	# Funcionando bien
-	def obtener_skus_con_stock(api_key, almacenId)
-		data = "GET#{almacenId}"
-		hash_value = hashing(data, api_key)
-		skus = HTTParty.get("https://integracion-2019-prod.herokuapp.com/bodega/skusWithStock?almacenId=#{almacenId}",
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "\nSKUS\n"
-			puts JSON.pretty_generate(skus)
-		end
-		return skus
-	end
-
-	# Funcionando bien
-	def fabricar_sin_pago(api_key, sku, cantidad)
-		data = "PUT#{sku}#{cantidad}"
-		hash_value = hashing(data, api_key)
-		products_produced = HTTParty.put("https://integracion-2019-prod.herokuapp.com/bodega/fabrica/fabricarSinPago",
-		  body:{
-		  	"sku": sku,
-		  	"cantidad": cantidad
-		  }.to_json,
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "\nFABRICAR SIN PAGO\n"
-			puts JSON.pretty_generate(products_produced)
-		end
-		return products_produced
-	end
-
-	def fabricar_todo(api_key, lista_productos)
-		almacenes = (get_almacenes(api_key)).to_a
-		puts "..................."
-		for almacen in almacenes do
-			almacenId = almacen["_id"]
-			for producto in lista_productos
-				get_products_from_almacenes(api_key, almacenId, producto)
-			end
-		end
-		puts "..................."
+	def start
+		#revisar_oc
+		#orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1568039052000, "10", "10", "b2b", "https://tuerca4.ing.puc.cl/document/{_id}/notification")
+		#nueva_oc
+		#orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1558039052000, "10", "10", "b2b")
+		#obtener_oc(orden_creada['_id'])
+		#aceptar_oc('1557965482159')
+		#rechazar_oc(orden_creada["_id"], "RECHAZADO POR X RAZON")
+		#anular_oc(orden_creada["_id"], "MUCHOS PRODUCTOS")
+		#verificar_conexion(CONTENT_SERVER_DOMAIN_NAME, CONTENT_SERVER_FTP_LOGIN, CONTENT_SERVER_FTP_PASSWORD, CONTENT_SERVER_FTP_PORT)
 	end
 
 	## NEW ##
@@ -259,7 +134,6 @@ class ApplicationController < ActionController::Base
 		end 
 
 		return response
-
 	end
 
 	def getInventories
@@ -289,14 +163,67 @@ class ApplicationController < ActionController::Base
 		res = response.to_json
 		# render plain: res, :status => 200
 		return response.to_json
+	end
 
-	end 
+	def revisar_oc
+		counter = 0
+		@host = "fierro.ing.puc.cl"
+		@user = "grupo4_dev"
+		@password = "1ccWcVkAmJyrOfA"
+		Net::SFTP.start(@host, @user, :password => @password) do |sftp|
+			sftp.dir.foreach("/pedidos") do |entry|
+				break if counter == 10
+				counter +=1
+				if counter > 2
+					data_xml = sftp.download!("pedidos/#{entry.name}")
+  					data_json = Hash.from_xml(data_xml).to_json
+  					data_json = JSON.parse data_json
+  					order_id = data_json["order"]['id']
+  					orden_compra = obtener_oc(order_id)
+  				end
+			end
+		end
+	end
 
+	def nueva_oc
+		orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1568039052000, "10", "10", "b2b", "https://tuerca4.ing.puc.cl/documents/{_id}/notification")
+		order_id = orden_creada['_id']
+		puts order_id
+		Document.create! do |document|
+			document.all = order_id,
+			document.cliente = orden_creada['cliente'],
+			document.proveedor = orden_creada['proveedor'],
+			document.sku = orden_creada['sku'],
+			document.fechaEntrega = orden_creada['fechaEntrega'],
+			document.cantidad = orden_creada['cantidad'],
+			document.cantidadDespachada = orden_creada['cantidadDespachada'],
+			document.precioUnitario = orden_creada['precioUnitario'],
+			document.canal = orden_creada['canal'],
+			document.estado = orden_creada['estado'],
+			document.notas = orden_creada['notas'],
+			document.rechazo = orden_creada['rechazo'], 
+			document.anulacion = orden_creada['anulacion'],
+			document.order_id = order_id,
+			document.urlNotificacion = orden_creada['urlNotificacion']
+		end
+		#anular_oc(orden_creada["_id"], "MUCHOS PRODUCTOS")
+	end
 
-
-  protect_from_forgery with: :exception
-  @@api_key = "o5bQnMbk@:BxrE"
-
+	def notificar(url, status)
+		data = "POST"
+		notificacion = HTTParty.post(url,
+		   body:{
+		  	"status": status
+		  }.to_json,
+		  headers:{
+		    "Content-Type": "application/json"
+		  })
+		if @@print_valores
+			puts "ORDEN DE COMPRA CREADA"
+			puts JSON.pretty_generate(notificacion)
+		end
+		return notificacion
+	end
 
 end
 
