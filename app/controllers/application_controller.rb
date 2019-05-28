@@ -374,7 +374,7 @@ class ApplicationController < ActionController::Base
 		return response.to_json
 	end
 
-	end 
+	#end 
 
 	## NEW ENTREGA 2 ##
 

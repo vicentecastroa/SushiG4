@@ -191,7 +191,6 @@ module ApplicationHelper
 		res = response.to_json
 		render plain: res, :status => 200
 		return response.to_json
-
 	end
 
 	def mover_a_almacen(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
