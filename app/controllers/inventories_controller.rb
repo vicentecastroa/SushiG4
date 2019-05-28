@@ -19,7 +19,7 @@ class InventoriesController < ApplicationController
 
 	def index
 		start
-		StockAvailableToSell #no borrar esta funcion debe llamarse entrando al endpoint root/inventories
+		StockAvailableToSell() #no borrar esta funcion debe llamarse entrando al endpoint root/inventories
 
 	end
 
