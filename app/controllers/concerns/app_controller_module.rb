@@ -46,7 +46,13 @@ module AppController
 		puts "\n\n--------------------------\n    Funciona el require y worker   \n--------------------------\n\n"
 	end
 
-  
+
+	def job_end
+		puts "\n\n******************************************"
+		puts "\n************ FIN DEL JOB *****************"
+		puts "\n******************************************\n\n"
+	end
+		
   # Funcionando bien
   def get_almacenes(api_key)
 		data = "GET"
