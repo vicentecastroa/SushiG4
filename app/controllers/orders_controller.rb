@@ -109,7 +109,7 @@ class OrdersController < ApplicationController
 
 					end
 				end
-
+			end
 			#si el sku es de largo 4 pero no es de los asignados a nosotros RECHAZAR
 			unless (@@nuestros_productos.include? @sku)
 				#rechazar la OC con la API del profesor
@@ -121,19 +121,7 @@ class OrdersController < ApplicationController
 				render plain: res, :status => 404
 				return res
 			end
-		
-		#ACEPTAR O RECHAZAR MANDAR A PRODUCIR PRODUCTOS FINALES
-		#si el sku es de largo 5 significa que es un producto final
-		#elsif (@sku.length == 5)
-			#if #ver si tenemos los ingredientes para hacerlo
-				#FALTA HACER EL FLUJO
-			#else #rechazar
-				#rechazar_oc(@order_id,"rechazado porque no tenemos los ingredientes")
-				#notificar(@urlNotificacion,"reject")
-			#end
 		end
-
-
 	end
 
 	def destroy
