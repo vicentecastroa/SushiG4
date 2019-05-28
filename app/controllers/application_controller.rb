@@ -14,18 +14,18 @@ class ApplicationController < ActionController::Base
 	@@api_key = "o5bQnMbk@:BxrE"
 
 	#IDs Producción
-	@@id_recepcion = "5cc7b139a823b10004d8e6df"
-	@@id_despacho = "5cc7b139a823b10004d8e6e0"
-	@@id_pulmon = "5cc7b139a823b10004d8e6e3"
-	@@id_cocina = "5cc7b139a823b10004d8e6e4"
-	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
+	#@@id_recepcion = "5cc7b139a823b10004d8e6df"
+	#@@id_despacho = "5cc7b139a823b10004d8e6e0"
+	#@@id_pulmon = "5cc7b139a823b10004d8e6e3"
+	#@@id_cocina = "5cc7b139a823b10004d8e6e4"
+	#@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
 
 	#IDs Desarrollo
-	#@@id_recepcion = "5cbd3ce444f67600049431c5"
-	#@@id_despacho = "5cbd3ce444f67600049431c6"
-	#@@id_pulmon = "5cbd3ce444f67600049431c9"
-	#@@id_cocina = "5cbd3ce444f67600049431ca"
-	#@@url = "https://integracion-2019-dev.herokuapp.com/bodega"
+	@@id_recepcion = "5cbd3ce444f67600049431c5"
+	@@id_despacho = "5cbd3ce444f67600049431c6"
+	@@id_pulmon = "5cbd3ce444f67600049431c9"
+	@@id_cocina = "5cbd3ce444f67600049431ca"
+	@@url = "https://integracion-2019-dev.herokuapp.com/bodega"
 
 	@@print_valores = false
 	#@@print_valores = true
@@ -45,6 +45,37 @@ class ApplicationController < ActionController::Base
 	# Productos procesados
 	@@productos_procesados = ["1105", "1106", "1107", "1108", "1109", "1110", "1111", "1112", "1114", "1115", "1116", "1201", "1207", "1209", "1210", "1211", "1215", "1216", "1301", "1307", "1309", "1310", "1407"]
 
+	#IDs Grupos Producción
+	#@@IDs_Grupos = {"1"=>"5cc66e378820160004a4c3bc",
+	#				"2"=>"5cc66e378820160004a4c3bd",
+	#				"3"=>"5cc66e378820160004a4c3be",
+	#				"4"=>"5cc66e378820160004a4c3bf",
+	#				"5"=>"5cc66e378820160004a4c3c0",
+	#				"6"=>"5cc66e378820160004a4c3c1",
+	#				"7"=>"5cc66e378820160004a4c3c2",
+	#				"8"=>"5cc66e378820160004a4c3c3",
+	#				"9"=>"5cc66e378820160004a4c3c4",
+	#				"10"=>"5cc66e378820160004a4c3c5",
+	#				"11"=>"5cc66e378820160004a4c3c6",
+	#				"12"=>"5cc66e378820160004a4c3c7",
+	#				"13"=>"5cc66e378820160004a4c3c8",
+	#				"14"=>"5cc66e378820160004a4c3c9"}
+
+	#IDs Grupos Desarrollo
+	@@IDs_Grupos = {"1"=>"5cbd31b7c445af0004739be3",
+					"2"=>"5cbd31b7c445af0004739be4",
+					"3"=>"5cbd31b7c445af0004739be5",
+					"4"=>"5cbd31b7c445af0004739be6",
+					"5"=>"5cbd31b7c445af0004739be7",
+					"6"=>"5cbd31b7c445af0004739be8",
+					"7"=>"5cbd31b7c445af0004739be9",
+					"8"=>"5cbd31b7c445af0004739bea",
+					"9"=>"5cbd31b7c445af0004739beb",
+					"10"=>"5cbd31b7c445af0004739bec",
+					"11"=>"5cbd31b7c445af0004739bed",
+					"12"=>"5cbd31b7c445af0004739bee",
+					"13"=>"5cbd31b7c445af0004739bef",
+					"14"=>"5cbd31b7c445af0004739bf0"}
 
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
@@ -191,8 +222,6 @@ class ApplicationController < ActionController::Base
 		return products_produced
 	end
 
-	
-	#desarrollo es true y produccion es false
 	@@status_of_work = false
 
 	CONTENT_SERVER_DOMAIN_NAME = 'fierro.ing.puc.cl'
@@ -228,7 +257,6 @@ class ApplicationController < ActionController::Base
 		return inventario_grupo
 	end
 
-
 	def solicitar_orden(sku, cantidad, grupo_id)
 
 		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
@@ -250,6 +278,48 @@ class ApplicationController < ActionController::Base
 			puts pedido_producto.to_s
 		end
 		return pedido_producto	
+	end
+
+
+	def solicitar_orden_OC(sku, cantidad, grupo_id)
+
+		# Primero debemos crear la OC
+
+		# crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+		cliente = @@IDs_Grupos[grupo_id.to_s]
+		proveedor = @@IDs_Grupos["4"]
+		sku = sku.to_s
+		fechaEntrega = "1607742000000" #12/12/2020
+		cantidad = cantidad.to_s
+		precioUnitario = "1"
+		canal = "b2b"
+		url = "https://tuerca4.ing.puc.cl/documents/{_id}/notification"
+
+		OC_creada = crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+
+		# Luego debemos solicitar el producto al grupo, incluyendo el id de la OC
+
+		puts "\n********************\n" + OC_creada["_id"] + "\n********************\n" 
+
+		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
+		# Ejemplo: solicitar_orden("1001", 10, 13)
+
+		#pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
+		#	body:{
+		#		"sku": sku,
+		#		"cantidad": cantidad,
+		#		"almacenId": @@id_recepcion
+		#	}.to_json,
+		#	headers:{
+		#		"group": "4",
+		#		"Content-Type": "application/json"
+		#	})
+		#if @@print_valores
+		#	puts "\nSolicitar Orden a Otro Grupo\n"
+			#puts JSON.pretty_generate(pedido_producto)
+		#	puts pedido_producto.to_s
+		#end
+		#return pedido_producto	
 	end
 
 
@@ -287,7 +357,7 @@ class ApplicationController < ActionController::Base
 							for producto_origen in productos_origen
 								if espacio_disponible <= 0
 									puts "Destino lleno\n"
-									return
+									return cantidad_a_mover - cantidad
 								end
 								mover_producto_entre_almacenes(producto_origen["_id"], almacen_id_destino)
 								puts "Producto movido de Origen a Destino"
@@ -300,10 +370,15 @@ class ApplicationController < ActionController::Base
 									cantidad -= 1
 									puts "Productos a mover restantes: " + cantidad.to_s + "\n"
 									if cantidad == 0
-										return
+										return cantidad_a_mover - cantidad
 									end
 								end
 							end
+
+							cantidad_movida = cantidad_a_mover - cantidad
+
+							return cantidad_movida
+
 						end						
 					end
 				end
