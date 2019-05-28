@@ -330,5 +330,4 @@ class InventoryWorker < ApplicationJob
 			end			
 		end
 	end
-	job_end()
 end
