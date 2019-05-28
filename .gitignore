@@ -12,7 +12,7 @@
 *.lock
 *.vscode/
 .ruby-version
-
+*.rdb
 
 # Ignore all logfiles and tempfiles.
 /log/*
