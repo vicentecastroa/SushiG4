@@ -68,7 +68,7 @@ class InventoryWorker < ApplicationJob
 
 				# Si el producto es MASAGO, lo pido a los grupos productores correspondientes
 				if sku.to_i == 1013
-					puts solicitar_orden("1013", cantidad_a_producir)
+					puts pedir_producto_grupos("1013", cantidad_a_producir)
 					#break #cambio a revisar al siguiente producto de p_minimos
 
 				# Si el producto NO es MASAGO, debo verificar el stock de sus ingredientes antes de fabricar
@@ -129,7 +129,7 @@ class InventoryWorker < ApplicationJob
 
 							# Si el producto no es nuestro, lo pedimos a otro grupo
 							else
-								solicitar_orden(ingrediente.ingrediente_id, cantidad_a_producir_ingrediente)
+								pedir_producto_grupos(ingrediente.ingrediente_id, cantidad_a_producir_ingrediente)
 								#get_producto_grupo(p_ingrediente.sku, cantidad_faltante_ingrediente)
 
 							end
