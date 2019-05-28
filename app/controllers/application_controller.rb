@@ -4,6 +4,7 @@ require 'application_helper'
 require 'active_support/core_ext/hash'
 
 class ApplicationController < ActionController::Base
+	protect_from_forgery with: :exception
 	
 	include ApplicationHelper
 	include FtpHelper
