@@ -19,6 +19,7 @@ class ApplicationController < ActionController::Base
 	@@id_desarrollo = '5cbd31b7c445af0004739be6'
 	@@id_desarrollo_14 = '5cbd31b7c445af0004739bf0'
 	@@id_produccion = '5cc66e378820160004a4c3bf'
+
 	
 	#desarrollo es true y produccion es false
 	@@status_of_work = false
@@ -31,7 +32,7 @@ class ApplicationController < ActionController::Base
 	def start
 		#revisar_oc
 		#orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1568039052000, "10", "10", "b2b", "https://tuerca4.ing.puc.cl/document/{_id}/notification")
-		nueva_oc
+		#nueva_oc
 		#orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1558039052000, "10", "10", "b2b")
 		#obtener_oc(orden_creada['_id'])
 		#aceptar_oc('1557965482159')
@@ -185,7 +186,7 @@ class ApplicationController < ActionController::Base
 	end
 
 	def nueva_oc
-		orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1568039052000, "10", "10", "b2b", "https://tuerca4.ing.puc.cl/document/{_id}/notification")
+		orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1568039052000, "10", "10", "b2b", "https://tuerca4.ing.puc.cl/documents/{_id}/notification")
 		order_id = orden_creada['_id']
 		puts order_id
 		Document.create! do |document|
@@ -205,7 +206,23 @@ class ApplicationController < ActionController::Base
 			document.order_id = order_id,
 			document.urlNotificacion = orden_creada['urlNotificacion']
 		end
-		anular_oc(orden_creada["_id"], "MUCHOS PRODUCTOS")
+		#anular_oc(orden_creada["_id"], "MUCHOS PRODUCTOS")
+	end
+
+	def notificar(url, status)
+		data = "POST"
+		notificacion = HTTParty.post(url,
+		   body:{
+		  	"status": status
+		  }.to_json,
+		  headers:{
+		    "Content-Type": "application/json"
+		  })
+		if @@print_valores
+			puts "ORDEN DE COMPRA CREADA"
+			puts JSON.pretty_generate(notificacion)
+		end
+		return notificacion
 	end
 
 end

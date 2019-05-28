@@ -63,8 +63,14 @@ class DocumentsController < ApplicationController
     end
   end
 
-  def example
-    puts "hola"
+  def notificaciones
+    @status = params["status"]
+    @order_id = params["order_id"]
+    puts "OC ID: " + @order_id
+    puts "Estado: " + @status
+    res = "NO CONTENT"
+		render plain: res, :status => 204
+		return res
   end
 
   private
