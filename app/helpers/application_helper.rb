@@ -1,7 +1,7 @@
 module ApplicationHelper
 	@@print_valores = true
 
-	@@nuestros_productos = ["1004", "1005", "1006", "1009", "1014", "1015"]
+	@@nuestros_productos = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
 	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
 	@@api_key = "o5bQnMbk@:BxrE"
 	
@@ -147,63 +147,6 @@ module ApplicationHelper
 			end
 		end
 		puts "..................."
-	end
-
-	def StockAvailableToSell
-		response = []
-		skus_quantity = {}
-		sku_name = {}
-		lista_skus = getSkuOnStock
-		productos_all = Producto.all
-		for sku in lista_skus
-			product_sku = sku["sku"]
-			product_name = sku["nombre"]
-			quantity = sku["cantidad"]
-			if skus_quantity.key?(product_sku)
-				skus_quantity[product_sku] += quantity
-			else
-				sku_name[product_sku] = product_name
-				skus_quantity[product_sku] = quantity
-			end
-		end
-		for prod in productos_all
-			product_sku = prod.sku
-			product_name = prod.nombre
-
-			if skus_quantity.key?(product_sku)
-				if prod.stock_minimo != nil
-					if skus_quantity[product_sku] > prod.stock_minimo
-						diferencia = skus_quantity[product_sku] - prod.stock_minimo
-						if diferencia > 80
-							skus_quantity[product_sku] = 80
-						else
-							skus_quantity[product_sku] = diferencia
-						end
-					else
-						skus_quantity[product_sku] = 0
-					end
-				else
-					if skus_quantity[product_sku] > 50
-						diferencia = skus_quantity[product_sku] - 50
-						if diferencia > 80
-							skus_quantity[product_sku] = 80
-						else
-							skus_quantity[product_sku] = diferencia
-						end
-					else
-						skus_quantity[product_sku] = 0
-					end
-				end
-			end
-		end
-		skus_quantity.each_key do |key|
-			line = {"sku" => key, "nombre" => sku_name[key], "total" => skus_quantity[key]}
-			response << line
-		end
-
-		res = response.to_json
-		render plain: res, :status => 200
-		return response.to_json
 	end
 
 	def StockAvailableToSellAll
@@ -368,6 +311,52 @@ module ApplicationHelper
 			contador += 1
 			break if contador == cantidad
 		end
+	end
+
+	def StockAvailableToSell
+		response = []
+		skus_quantity = {}
+		sku_name = {}
+		lista_skus = getSkuOnStock
+		productos_all = Producto.all
+		skus_quantity_final ={}
+		for sku in lista_skus
+			product_sku = sku["sku"]
+			product_name = sku["nombre"]
+			quantity = sku["cantidad"]
+			if skus_quantity.key?(product_sku)
+				skus_quantity[product_sku] += quantity
+			else
+				sku_name[product_sku] = product_name
+				skus_quantity[product_sku] = quantity
+			end
+		end
+		for prod in productos_all
+			product_sku = prod.sku
+			product_name = prod.nombre
+
+			if skus_quantity.key?(product_sku)
+				if @@nuestros_productos.include? product_sku
+					
+					if skus_quantity[product_sku] > 50
+						diferencia = skus_quantity[product_sku] - 50
+						if diferencia > 80
+							skus_quantity_final[product_sku] = 80
+						else
+							skus_quantity_final[product_sku] = diferencia
+						end
+					end
+				end
+			end
+		end
+		skus_quantity_final.each_key do |key|
+				line = {"sku" => key, "nombre" => sku_name[key], "total" => skus_quantity_final[key]}
+				response << line
+		end
+
+		res = response.to_json
+		render json: res, :status => 200
+		return response.to_json
 	end
 
 end
