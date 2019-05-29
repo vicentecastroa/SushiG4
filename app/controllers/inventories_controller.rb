@@ -51,14 +51,6 @@ class InventoriesController < ApplicationController
 
 	def index
 		StockAvailableToSell() #no borrar esta funcion debe llamarse entrando al endpoint root/inventories
-<<<<<<< HEAD
-=======
-		# despacho_a_recepcion()
-		# mover_a_almacen(@@api_key, @@id_pulmon, @@id_recepcion, 5)
-		# puts fabricar_sin_pago(@@api_key, "1105", 40)
-		# InventoryWorker::perform()
-
->>>>>>> origin/development
 	end
 
 	def create
