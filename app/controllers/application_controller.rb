@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
 
 	@@api_key = "o5bQnMbk@:BxrE"
 
+	#IDs Producción
 	@@id_recepcion = '5cc7b139a823b10004d8e6df'
 	@@id_despacho = "5cc7b139a823b10004d8e6e0"
 	@@id_pulmon = "5cc7b139a823b10004d8e6e3"
@@ -51,6 +52,38 @@ class ApplicationController < ActionController::Base
 	@@materias_primas_ajenas = ["1002", "1003", "1007", "1008", "1010", "1011", "1012", "1013"]
 	# Productos procesados
 	@@productos_procesados = ["1105", "1106", "1107", "1108", "1109", "1110", "1111", "1112", "1114", "1115", "1116", "1201", "1207", "1209", "1210", "1211", "1215", "1216", "1301", "1307", "1309", "1310", "1407"]
+
+	#IDs Grupos Producción
+	@@IDs_Grupos = {"1"=>"5cc66e378820160004a4c3bc",
+					"2"=>"5cc66e378820160004a4c3bd",
+					"3"=>"5cc66e378820160004a4c3be",
+					"4"=>"5cc66e378820160004a4c3bf",
+					"5"=>"5cc66e378820160004a4c3c0",
+					"6"=>"5cc66e378820160004a4c3c1",
+					"7"=>"5cc66e378820160004a4c3c2",
+					"8"=>"5cc66e378820160004a4c3c3",
+					"9"=>"5cc66e378820160004a4c3c4",
+					"10"=>"5cc66e378820160004a4c3c5",
+					"11"=>"5cc66e378820160004a4c3c6",
+					"12"=>"5cc66e378820160004a4c3c7",
+					"13"=>"5cc66e378820160004a4c3c8",
+					"14"=>"5cc66e378820160004a4c3c9"}
+
+	# #IDs Grupos Desarrollo
+	# @@IDs_Grupos = {"1"=>"5cbd31b7c445af0004739be3",
+	# 				"2"=>"5cbd31b7c445af0004739be4",
+	# 				"3"=>"5cbd31b7c445af0004739be5",
+	# 				"4"=>"5cbd31b7c445af0004739be6",
+	# 				"5"=>"5cbd31b7c445af0004739be7",
+	# 				"6"=>"5cbd31b7c445af0004739be8",
+	# 				"7"=>"5cbd31b7c445af0004739be9",
+	# 				"8"=>"5cbd31b7c445af0004739bea",
+	# 				"9"=>"5cbd31b7c445af0004739beb",
+	# 				"10"=>"5cbd31b7c445af0004739bec",
+	# 				"11"=>"5cbd31b7c445af0004739bed",
+	# 				"12"=>"5cbd31b7c445af0004739bee",
+	# 				"13"=>"5cbd31b7c445af0004739bef",
+	# 				"14"=>"5cbd31b7c445af0004739bf0"}
 	
 	#desarrollo es true y produccion es false
 	@@status_of_work = false
@@ -204,8 +237,10 @@ class ApplicationController < ActionController::Base
 		return response.to_json
 	end
 
+
 	def cocinar(sku_a_cocinar, cantidad_a_cocinar)
 		ingredientes = IngredientesAssociation.where(producto_id: sku_a_cocinar)
+		puts "\nIngredientes: " + ingredientes.to_s + "\n"
 		ingredientes.each do |ingrediente|
 			a_mover = cantidad_a_cocinar * ingrediente.unidades_bodega
 			if a_mover > 0
@@ -213,16 +248,20 @@ class ApplicationController < ActionController::Base
 				a_mover = a_mover - movidos
 			end
 
+			
+
 			if a_mover > 0
 				movidos = mover_a_almacen_cocinar(@@api_key, @@id_pulmon, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover = a_mover - movidos
 			end
 
+			end
+		
 			if a_mover > 0
 				movidos = mover_a_almacen_cocinar(@@api_key, @@id_despacho, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover = a_mover - movidos
 			end
-			
+				
 			if a_mover > 0
 				return nil
 			end
@@ -384,13 +423,13 @@ class ApplicationController < ActionController::Base
 					# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
 					if cantidad_inventario >= cantidad_faltante
 						puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante"
-						solicitar_orden(sku_a_pedir, cantidad_faltante, grupo.group_id)
+						solicitar_orden_OC(sku_a_pedir, cantidad_faltante, grupo.group_id)
 						cantidad_faltante = 0
 
 					# Si el inventario es menor a la cantidad faltante, pedimos todo el inventario
 					else
 						puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario"
-						solicitar_orden(sku_a_pedir, cantidad_inventario, grupo.group_id)
+						solicitar_orden_OC(sku_a_pedir, cantidad_inventario, grupo.group_id)
 						cantidad_faltante -= cantidad_inventario
 					end
 

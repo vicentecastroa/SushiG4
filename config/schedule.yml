@@ -1,7 +1,7 @@
-# control_de_inventario:
-#   cron: "16 * * * *"
-#   class: InventoryWorker
-#   queue: default
+control_de_inventario:
+  cron: "16 * * * *"
+  class: InventoryWorker
+  queue: default
 
 control_de_inventario:
   cron: "*/10 * * * *"

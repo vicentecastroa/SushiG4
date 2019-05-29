@@ -56,7 +56,6 @@ class InventoriesController < ApplicationController
 		# mover_a_almacen(@@api_key, @@id_pulmon, @@id_recepcion, 5)
 		# puts fabricar_sin_pago(@@api_key, "1105", 40)
 		# InventoryWorker::perform()
-
 	end
 
 	def create
