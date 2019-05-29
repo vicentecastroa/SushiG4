@@ -142,12 +142,12 @@ class OrdersController < ApplicationController
 					return res
 				elsif respuesta_oc[0] == "rechazada"
 					notificar(@urlNotificacion,"reject")
-					res = respuesta_oc[1]
+					res = {"error": respuesta_oc[1]}
 					render json: res, :status => 404
 				else
 					notificar(@urlNotificacion,"reject")
-		 			res = "No se creó el pedido por un error del cliente en la solicitud. Por ejemplo, falta un parámetro obligatorio"
-					render json: res, :status => 400
+					res = {"error": "No se creó el pedido por un error del cliente en la solicitud. Por ejemplo, falta un parámetro obligatorio"}
+					render json: res, :status => 404
 				end
 			end
 		end

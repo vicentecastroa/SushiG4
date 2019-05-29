@@ -61,8 +61,9 @@ class ApplicationController < ActionController::Base
 	CONTENT_SERVER_FTP_PORT = 22
 
 	def start
+		#borrar_todos_documentos_compra
 		#cocinar("30002", 1)
-		revisar_oc
+		#revisar_oc
 		#for i in 0..1
 		#	nueva = nueva_oc(@@id_produccion, @@id_produccion_14, "1014", nil, "1", true, 14)
 			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1003", nil, "5", true, 7)

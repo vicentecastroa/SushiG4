@@ -359,4 +359,15 @@ module ApplicationHelper
 		return producto_despachado
 	end
 
+	def despacho_todos(id_bodega, sku, cantidad, order_id)
+		lista_id_productos = get_products_from_almacenes(@@api_key, id_bodega, sku)
+		contador = 0
+		for item in lista_id_productos
+			productoId = item["_id"]
+			despachado = despachar_producto(@@api_key, productoId, order_id, "frescos", 1)
+			contador += 1
+			break if contador == cantidad
+		end
+	end
+
 end
