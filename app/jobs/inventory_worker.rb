@@ -13,7 +13,6 @@ class InventoryWorker < ApplicationJob
 
 	queue_as :default
 
-		
 	def perform
 		
 		puts "\n****************************\nInventory worker checkeando inventario\n****************************\n\n"
