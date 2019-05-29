@@ -1,14 +1,14 @@
 require 'httparty'
 require 'json'
 require 'groups_module'
-require 'oc_helper'
+# require 'oc_helper'
 # require "#{Rails.root}/app/controllers/concerns/app_controller_module"
 
 
 class InventoryWorker < ApplicationJob
 
 	# include GroupsModule
-	include OcHelper
+	# include OcHelper
 	# include AppController
 
 	queue_as :default
@@ -22,7 +22,7 @@ class InventoryWorker < ApplicationJob
 
 		## Obtenemos el inventario total de cada producto ##
 		inventario_total = getInventoriesAll()
-		puts "Inventario Total: \n" + inventario_total.to_s
+		# puts "Inventario Total: \n" + inventario_total.to_s
 		# [{"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}, {}, {}]
 		puts "Corrio getInventories"
 
@@ -71,9 +71,16 @@ class InventoryWorker < ApplicationJob
 
 				# Si el producto es MASAGO, lo pido a los grupos productores correspondientes
 				if sku.to_i == 1013
-					# puts pedir_producto_grupos("1013", cantidad_a_producir)
-					#break #cambio a revisar al siguiente producto de p_minimos
-
+					while cantidad_a_producir > 0 do
+						orden = [cantidad_a_producir, 10].min
+						nos_entregan = pedir_producto_grupos("1013", orden)
+						puts "Nos entregan #{nos_entregan} unidades"
+						cantidad_a_producir -= nos_entregan
+						if nos_entregan == 0
+							puts "\nNINGUN grupo tienen mas MASAGO\n"
+							break
+						end
+					end
 				# Si el producto NO es MASAGO, debo verificar el stock de sus ingredientes antes de fabricar
 				else
 						
@@ -151,13 +158,18 @@ class InventoryWorker < ApplicationJob
 
 							# Si el producto no es nuestro, lo pedimos a otro grupo
 							else
-								pedir_producto_grupos(ingrediente.ingrediente_id, cantidad_faltante_ingrediente)
-
-								#get_producto_grupo(p_ingrediente.sku, cantidad_faltante_ingrediente)
-
+								while cantidad_faltante_ingrediente > 0
+									orden = [cantidad_a_producir_ingrediente, 10].min
+									nos_entregan = pedir_producto_grupos(ingrediente.ingrediente_id, orden)
+									puts "Nos entregan #{nos_entregan} unidades"
+									cantidad_a_producir_ingrediente -= nos_entregan
+									if nos_entregan == 0
+										puts "\nNINGUN grupo tienen mas MASAGO\n"
+										break
+									end
+								end
 							end
 						end
-
 					end
 				end
 			end			
