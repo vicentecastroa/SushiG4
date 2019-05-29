@@ -11,7 +11,6 @@ class InventoryWorker < ApplicationJob
 	include OcHelper
 	# include AppController
 
-	
 	queue_as :default
 
 		
@@ -81,18 +80,22 @@ class InventoryWorker < ApplicationJob
 					# Obtenemos los ingredientes del producto
 					ingredientes = IngredientesAssociation.where(producto_id: p_minimo.sku)
 
+					numero_ingredientes = ingredientes.length
+					lista_ingredientes = []
 					# Para cada ingrediente, calculamos el stock necesario para producir el producto y pedimos en caso de no tenerlo
+
 					ingredientes.each do |ingrediente|
-
+						
+						lista_ingredientes << [ingrediente.ingrediente_id, ingrediente.unidades_bodega]
+						
 						puts "\t ID Ingrediente: " + ingrediente.ingrediente_id + "\n"
-
+						
 						# Obtenemos el ingrediente desde Producto
 						p_ingrediente = Producto.find(ingrediente.ingrediente_id)
-
+						
 						# Obtenemos el inventario del ingrediente
-						# fixme cachar que solo busque en pulmon y en recepcion                             
 						p_ingrediente_inventario = getInventoriesOne(p_ingrediente.sku)
-
+						
 						# Obtenemos la cantidad de ingrediente requerido para producir un lote de producto
 						unidades_bodega = ingrediente.unidades_bodega
 
@@ -100,16 +103,28 @@ class InventoryWorker < ApplicationJob
 						cantidad_ingrediente = unidades_bodega * lotes_faltantes
 
 						# Si el stock actual es mayor o igual a la cantidad de ingrediente requerido, enviamos ingrediente a despacho y reponemos la misma cantidad
-						# fixme solo enviar ingredientes a despacho si es que podemos enviar TODOS lo ingredientes para cocinar             
+							
+						contador_ingredientes = 0
+
 						if p_ingrediente_inventario["cantidad"] >= cantidad_ingrediente
 							puts "\t ¡Tenemos el ingrediente! Enviamos a despacho " + cantidad_ingrediente.to_s + " unidades.\n"
+							contador_ingredientes += 1
+							
+							if contador_ingredientes == numero_ingredientes
+								
+								while cantidad_a_producir > 0 do
+								# Enviamos ingredientes a despacho
+									lista_ingredientes.each do |item|
+										mover_ingrediente_a_despacho(item[0], item[1])
+									end
+									# Fabricamos sin costo los ingredientes enviados
+									puts fabricar_sin_pago(@@api_key, p_minimo.sku, lote_produccion)
+									cantidad_a_producir -= lote_produccion
+									cantidad_a_producir = [cantidad_a_producir, 0].max
 
-							# Enviamos ingredientes a despacho
-							mover_ingrediente_a_despacho(ingrediente.ingrediente_id, cantidad_ingrediente)
-
-							# Fabricamos sin costo los ingredientes enviados
-							fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, cantidad_ingrediente)
-
+									# fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, cantidad_ingrediente)
+								end 
+							end
 							###### Enviar ingredientes en tandas de 80 unidades y mandar a producir producto proporcional a 80 unidades de ingrediente
 
 						# Si el stock actual es menor a la cantidad de ingrediente requerido, calculamos la cantidad faltante de ingrediente
@@ -144,12 +159,6 @@ class InventoryWorker < ApplicationJob
 						end
 
 					end
-
-					#fabricar_sin_pago(@@api_key, p_referencia.sku, lotes_faltantes_p_referencia)
-
-					# fixme Mandar esto pa arriba cuando chequee cuantos ingredientes tengo, producir is tengo ingredientes, else pedir hasta que tenga los ingredientes y break
-					puts fabricar_sin_pago(@@api_key, p_minimo.sku, cantidad_a_producir)
-					puts "\nFabricado"
 				end
 			end			
 		end

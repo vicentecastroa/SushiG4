@@ -216,97 +216,6 @@ module AppController
 		return inventario_grupo
 	end
 
-	def solicitar_orden(sku, cantidad, grupo_id)
-
-		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
-		# Ejemplo: solicitar_orden("1001", 10, 13)
-
-		pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
-			body:{
-				"sku": sku,
-				"cantidad": cantidad,
-				"almacenId": @@id_recepcion
-			}.to_json,
-			headers:{
-				"group": "4",
-				"Content-Type": "application/json"
-			})
-		if @@print_valores
-			puts "\nSolicitar Orden a Otro Grupo\n"
-			#puts JSON.pretty_generate(pedido_producto)
-			puts pedido_producto.to_s
-		end
-		return pedido_producto	
-	end
-
-	def crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
-		data = "PUT"
-		order_creada = HTTParty.put("https://integracion-2019-#{@@estado}.herokuapp.com/oc/crear",
-		   body:{
-		  	"cliente": cliente,
-		  	"proveedor": proveedor,
-		  	"sku": sku,
-		  	"fechaEntrega": fechaEntrega,
-		  	"cantidad": cantidad,
-		  	"precioUnitario": precioUnitario,
-		  	"canal": canal,
-		  	"urlNotificacion": url
-		  }.to_json,
-		  headers:{
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "ORDEN DE COMPRA CREADA"
-			puts JSON.pretty_generate(order_creada)
-		end
-		return order_creada
-	end
-	
-	def solicitar_orden_OC(sku, cantidad, grupo_id)
-
-		# Primero debemos crear la OC
-
-		# crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
-		cliente = @@IDs_Grupos[grupo_id.to_s]
-		proveedor = @@IDs_Grupos["4"]
-		sku = sku.to_s
-		fechaEntrega = "1607742000000" #12/12/2020
-		cantidad = cantidad.to_s
-		precioUnitario = "1"
-		canal = "b2b"
-		url = "https://tuerca4.ing.puc.cl/documents/{_id}/notification"
-
-		oc_creada = crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
-
-		# Luego debemos solicitar el producto al grupo, incluyendo el id de la OC
-		
-		oc_id = oc_creada["_id"]
-		puts '\n'
-		puts "OC ID: #{oc_id}"
-		puts "\n********************\n" + oc_creada["_id"] + "\n********************\n" 
-
-		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
-		# Ejemplo: solicitar_orden("1001", 10, 13)
-
-		pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
-			body:{
-				"sku": sku,
-				"cantidad": cantidad,
-				"almacenId": @@id_recepcion,
-				"oc": oc_id
-			}.to_json,
-			headers:{
-				"group": "4",
-				"Content-Type": "application/json"
-			})
-		if @@print_valores
-			puts "\nSolicitar Orden a Otro Grupo\n"
-			#puts JSON.pretty_generate(pedido_producto)
-			puts pedido_producto.to_s
-		end
-		puts pedido_producto.to_s
-		return pedido_producto	
-	end
 
 	def mover_a_almacen(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
 
@@ -599,6 +508,188 @@ module AppController
 			end
 		end
 		return 0
+	end
+
+
+	def solicitar_orden_OC(sku, cantidad, nro_grupo)
+		# crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+		cliente = @@IDs_Grupos[grupo_id.to_s]
+		proveedor = @@IDs_Grupos["4"]
+		sku = sku.to_s
+		fechaEntrega = 1607742000000 #12/12/2020
+		cantidad = cantidad.to_s
+		precioUnitario = "1"
+		canal = "b2b"
+		url = "https://tuerca4.ing.puc.cl/documents/{_id}/notification"
+
+		oc_creada = nueva_oc(cliente, proveedor, sku, fechaEntrega, cantidad, url, nro_grupo)
+		return oc_creada
+	end
+
+	def solicitar_orden(sku, cantidad, grupo_id, order_id)
+		pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
+			body:{
+				"sku": sku,
+				"cantidad": cantidad,
+				"almacenId": @@id_recepcion,
+				"oc": order_id
+			}.to_json,
+			headers:{
+				"group": "4",
+				"Content-Type": "application/json"
+			})
+
+		case response.code
+			when 201
+		    	return pedido_producto
+		    when 500
+		    	return nil
+		end
+		return pedido_producto
+	end
+
+	def crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+		data = "PUT"
+		order_creada = HTTParty.put("https://integracion-2019-#{@@estado}.herokuapp.com/oc/crear",
+		   body:{
+		  	"cliente": cliente,
+		  	"proveedor": proveedor,
+		  	"sku": sku,
+		  	"fechaEntrega": fechaEntrega,
+		  	"cantidad": cantidad,
+		  	"precioUnitario": precioUnitario,
+		  	"canal": canal,
+		  	"urlNotificacion": url
+		  }.to_json,
+		  headers:{
+		    "Content-Type": "application/json"
+		  })
+		if @@print_valores
+			puts "ORDEN DE COMPRA CREADA"
+			puts JSON.pretty_generate(order_creada)
+		end
+		return order_creada
+	end
+
+	def nueva_oc(cliente, proveedor, sku, fechaEntrega, cantidad, materia_prima, nro_grupo)
+		time = Time.now.tomorrow.to_date
+		precio = Producto.find(sku).precio_venta
+		if materia_prima
+			orden_creada = crear_oc(cliente, proveedor, sku, 1607742000000, cantidad, "10", 'b2b', "https://tuerca4.ing.puc.cl/documents/{_id}/notification")
+		else
+			orden_creada = crear_oc(cliente, proveedor, sku, 1607742000000, cantidad, "10", 'b2b', "https://tuerca4.ing.puc.cl/documents/{_id}/notification")
+		end
+		respuesta = solicitar_orden(orden_creada['sku'], orden_creada['cantidad'], nro_grupo, orden_creada['_id'])
+		if respuesta["sku"]
+			if respuesta["aceptado"] == true
+				return 'oc_aceptada'
+			else
+				return 'oc_rechazada'
+			end
+		else
+			return 'oc_rechazada'
+		end
+	end
+
+	def revisar_oc
+		time = Time.now
+		counter = 0
+		@host = "fierro.ing.puc.cl"
+		@user = "grupo4_dev"
+		@password = "1ccWcVkAmJyrOfA"
+		Net::SFTP.start(@host, @user, :password => @password) do |sftp|
+			entries = sftp.dir.entries("/pedidos")
+			entries.each do |entry|
+				#break if counter == 4
+				counter +=1
+				if counter > 2
+					time_file = DateTime.strptime(entry.attributes.mtime.to_s,'%s')
+					if time_file > (time - 5.hours)
+						data_xml = sftp.download!("pedidos/#{entry.name}")
+	  					data_json = Hash.from_xml(data_xml).to_json
+	  					data_json = JSON.parse data_json
+	  					order_id = data_json["order"]['id']
+	  					orden_compra = obtener_oc(order_id)
+	  					if orden_compra[0]["estado"] == "creada"
+	  						aceptar_o_rechazar_oc_producto_final(orden_compra[0])
+	  					end
+					end
+					
+  				end
+			end
+		end
+	end
+
+	def notificar(url, status)
+		data = "POST"
+		notificacion = HTTParty.post(url,
+		   body:{
+		  	"status": status
+		  }.to_json,
+		  headers:{
+		    "Content-Type": "application/json"
+		  })
+		if @@print_valores
+			puts "ORDEN DE COMPRA CREADA"
+			puts JSON.pretty_generate(notificacion)
+		end
+		return notificacion
+	end
+
+	def aceptar_o_rechazar_oc_producto_final(orden_compra)
+		@order_id = orden_compra["_id"]
+		@sku = orden_compra["sku"]
+		@cantidad = orden_compra["cantidad"]
+		@proveedor = orden_compra["proveedor"]
+		@fecha_entrega = orden_compra["fechaEntrega"]
+		@estado = orden_compra["estado"]
+
+		if (@sku.length == 5)
+			respuesta_cocina = cocinar(@sku, @cantidad)
+			if respuesta_cocina
+				puts "hay en cocina"
+				if @fecha_entrega > respuesta_cocina
+					crear_documento_oc(orden_compra)
+					aceptar_oc(@order_id)
+					return ["aceptada", 0]
+				else
+					rechazar_oc(@order_id, "No podemos complir con los plazos entregados")
+					return ["rechazada","No podemos complir con los plazos entregados"]
+				end
+			else
+				puts "no hay en cocina"
+				rechazar_oc(@order_id, "No hay inventario para realizar pedido")
+				return ["rechazada","No hay inventario para realizar pedido"]
+			end
+		end
+		return nil
+	end
+
+	def crear_documento_oc(orden_compra)
+		Document.create! do |document|
+			document.all = orden_compra['_id'],
+			document.cliente = orden_compra['cliente'],
+			document.proveedor = orden_compra['proveedor'],
+			document.sku = orden_compra['sku'],
+			document.fechaEntrega = orden_compra['fechaEntrega'],
+			document.cantidad = orden_compra['cantidad'],
+			document.cantidadDespachada = orden_compra['cantidadDespachada'],
+			document.precioUnitario = orden_compra['precioUnitario'],
+			document.canal = orden_compra['canal'],
+			document.estado = orden_compra['estado'],
+			document.notas = orden_compra['notas'],
+			document.rechazo = orden_compra['rechazo'], 
+			document.anulacion = orden_compra['anulacion'],
+			document.order_id = orden_compra['_id'],
+			document.urlNotificacion = orden_compra['urlNotificacion']
+		end
+	end
+
+	def borrar_todos_documentos_compra
+		@documents = Document.all
+		@documents.each do |document|
+		   document.destroy
+		end
 	end
 
 end
