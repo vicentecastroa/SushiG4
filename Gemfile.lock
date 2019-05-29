@@ -248,6 +248,7 @@ DEPENDENCIES
   capistrano-rbenv (~> 2.1, >= 2.1.4)
   capybara (>= 2.15)
   coffee-rails (~> 4.2)
+  ffi (~> 1.11)
   httparty
   jbuilder (~> 2.5)
   json

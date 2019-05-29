@@ -1,5 +1,5 @@
 module OcHelper
-	@@print_valores = true
+	@@print_valores = false
 	@@estado = 'dev'
 
 	def obtener_oc(id)
@@ -87,9 +87,4 @@ module OcHelper
 		return orden_compra_rechazada
 	end
 
-	def chequeo_ordenes_compra
-		for orden in ordenes
-			
-		end
-	end
 end
