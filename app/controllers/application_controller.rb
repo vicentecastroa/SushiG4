@@ -65,7 +65,7 @@ class ApplicationController < ActionController::Base
 		#cocinar("30002", 1)
 		#revisar_oc
 		#for i in 0..1
-		#	nueva = nueva_oc(@@id_produccion, @@id_produccion_14, "1014", nil, "1", true, 14)
+		nueva = nueva_oc(@@id_produccion, @@id_produccion_13, "1013", nil, "10", true, 13)
 			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1003", nil, "5", true, 7)
 			# puts "1003"
 			# puts nueva
@@ -124,10 +124,11 @@ class ApplicationController < ActionController::Base
 				"Content-Type": "application/json"
 			})
 
-		case response.code
+		case pedido_producto.code
 			when 201
 		    	return pedido_producto
 		    when 500
+		    	puts 'timeoooooout'
 		    	return nil
 		end
 		return pedido_producto
