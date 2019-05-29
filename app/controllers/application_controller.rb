@@ -34,7 +34,7 @@ class ApplicationController < ActionController::Base
 	@@tamaño_despacho = 80
 	@@tamaño_pulmon = 99999999
 
-	@@nuestros_productos = ["1004", "1005", "1006", "1009", "1014", "1015"]
+	@@nuestros_productos = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
 	@@id_almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon]
 
 	# Materia primas producidas por nosotros
@@ -43,148 +43,6 @@ class ApplicationController < ActionController::Base
 	@@materias_primas_ajenas = ["1002", "1003", "1007", "1008", "1010", "1011", "1012", "1013"]
 	# Productos procesados
 	@@productos_procesados = ["1105", "1106", "1107", "1108", "1109", "1110", "1111", "1112", "1114", "1115", "1116", "1201", "1207", "1209", "1210", "1211", "1215", "1216", "1301", "1307", "1309", "1310", "1407"]
-
-
-	def hashing(data, api_key)
-		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
-		signature = Base64.encode64(hmac).chomp
-		return signature
-	end
-
-  
-  # Funcionando bien
-    def get_almacenes(api_key)
-		data = "GET"
-		hash_value = hashing(data, api_key)
-		almacenes = HTTParty.get("#{@@url}/almacenes", 
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "\nALMACENES\n"
-			puts JSON.pretty_generate(almacenes)
-		end
-		return almacenes
-	end
-
-	# Funcionando bien
-	def get_products_from_almacenes(api_key, almacenId, sku)
-		data = "GET#{almacenId}#{sku}"
-		hash_value = hashing(data, api_key)
-		products = HTTParty.get("#{@@url}/stock?almacenId=#{almacenId}&sku=#{sku}",
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "\nPRODUCTOS DE ALMACENES\n"
-			puts JSON.pretty_generate(products)
-		end
-		return products
-	end
-
-	# Funcionando bien
-	def get_products_from_almacenes_limit_primeros(api_key, almacenId, sku, limit)
-		data = "GET#{almacenId}#{sku}"
-		hash_value = hashing(data, api_key)
-		products = HTTParty.get("#{@@url}/stock?almacenId=#{almacenId}&sku=#{sku}&limit=#{limit}",
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "\nPRODUCTOS DE ALMACENES\n"
-			puts JSON.pretty_generate(products)
-		end
-		return products
-	end
-
-	# Funcionando bien
-	# Probado con la bodega del G14 5cbd3ce444f6760004943201
-  	def mover_producto_entre_bodegas(api_key, productoId, almacenId, oc, precio)
-		data = "POST#{productoId}#{almacenId}"
-		hash_value = hashing(data, api_key)
-		producto_movido = HTTParty.post("#{@@url}/moveStockBodega",
-		  body:{
-		  	"productoId": productoId,
-		  	"almacenId": almacenId,
-		  	"oc": oc,
-		  	"precio": precio,
-		  }.to_json,
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "\nMOVER PRODUCTO ENTRE BODEGAS\n"
-			puts JSON.pretty_generate(producto_movido)
-		end
-		return producto_movido
-	end
-
-	# Funcionando bien
-	def mover_producto_entre_almacenes(producto_json, id_destino)
-		#productoId = producto_json["_id"]
-		productoId = producto_json
-		almacenId = id_destino
-
-		data = "POST#{productoId}#{almacenId}"
-		hash_value = hashing(data, @@api_key)
-		req = HTTParty.post("#{@@url}/moveStock",
-		  body:{
-				"productoId": productoId,
-				"almacenId": almacenId,
-
-		  }.to_json,
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-
-		if @@print_valores
-			puts "\nMOVER PRODUCTO ENTRE ALMACENES\n"
-			puts JSON.pretty_generate(req)
-		end
-		return req
-	end
-
-	# Funcionando bien
-	def obtener_skus_con_stock(api_key, almacenId)
-		data = "GET#{almacenId}"
-		hash_value = hashing(data, api_key)
-		skus = HTTParty.get("#{@@url}/skusWithStock?almacenId=#{almacenId}",
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "\nSKUS\n"
-			puts JSON.pretty_generate(skus)
-		end
-		return skus
-	end
-
-	# Funcionando bien
-	def fabricar_sin_pago(api_key, sku, cantidad)
-		data = "PUT#{sku}#{cantidad}"
-		hash_value = hashing(data, api_key)
-		products_produced = HTTParty.put("#{@@url}/fabrica/fabricarSinPago",
-		  body:{
-		  	"sku": sku,
-		  	"cantidad": cantidad
-		  }.to_json,
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "\nFABRICAR SIN PAGO\n"
-			puts JSON.pretty_generate(products_produced)
-		end
-		return products_produced
-	end
-
 	
 	#desarrollo es true y produccion es false
 	@@status_of_work = false
@@ -601,7 +459,7 @@ class ApplicationController < ActionController::Base
 		end
 		respuesta = solicitar_orden(orden_creada['sku'], orden_creada['cantidad'], nro_grupo, orden_creada['_id'])
 		if respuesta["sku"]
-			if respuesta["aceptado"] == "true"
+			if respuesta["aceptado"] == true
 				return 'oc_aceptada'
 			else
 				return 'oc_rechazada'
