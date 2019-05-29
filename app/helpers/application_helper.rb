@@ -1,6 +1,8 @@
 module ApplicationHelper
 	@@print_valores = true
 	@@nuestros_productos = ["1004", "1005", "1006", "1009", "1014", "1015"]
+	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
+	
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
 		signature = Base64.encode64(hmac).chomp
@@ -98,7 +100,7 @@ module ApplicationHelper
 			puts JSON.pretty_generate(req)
 		end
 		return req
-	endd
+	end
 
 	def obtener_skus_con_stock(api_key, almacenId)
 		data = "GET#{almacenId}"
@@ -244,6 +246,4 @@ module ApplicationHelper
 			end
 		end
 	end
-
-
 end
