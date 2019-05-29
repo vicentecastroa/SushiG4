@@ -20,8 +20,6 @@ default: &default
   # For details on connection pooling, see Rails configuration guide
   # http://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  # host: postgres
-
 
 development:
   <<: *default
@@ -82,9 +80,6 @@ test:
 #
 production:
   <<: *default
-  database: sushig4_production
-  username: sushig4
-  password: <%= ENV['SUSHIG4_DATABASE_PASSWORD'] %>
-
-
-  
+  database: SushiG4
+  username: deploy
+  password: deploy123
