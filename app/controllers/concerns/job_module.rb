@@ -1,6 +1,7 @@
 module AppController
 
 	@@api_key = "o5bQnMbk@:BxrE"
+	@@estado = 'prod'
 
 	#IDs Producción
 	@@id_recepcion = "5cc7b139a823b10004d8e6df"
@@ -15,6 +16,38 @@ module AppController
 	#@@id_pulmon = "5cbd3ce444f67600049431c9"
 	#@@id_cocina = "5cbd3ce444f67600049431ca"
 	#@@url = "https://integracion-2019-dev.herokuapp.com/bodega"
+
+	#IDs Grupos Producción
+	@@IDs_Grupos = {"1"=>"5cc66e378820160004a4c3bc",
+					"2"=>"5cc66e378820160004a4c3bd",
+					"3"=>"5cc66e378820160004a4c3be",
+					"4"=>"5cc66e378820160004a4c3bf",
+					"5"=>"5cc66e378820160004a4c3c0",
+					"6"=>"5cc66e378820160004a4c3c1",
+					"7"=>"5cc66e378820160004a4c3c2",
+					"8"=>"5cc66e378820160004a4c3c3",
+					"9"=>"5cc66e378820160004a4c3c4",
+					"10"=>"5cc66e378820160004a4c3c5",
+					"11"=>"5cc66e378820160004a4c3c6",
+					"12"=>"5cc66e378820160004a4c3c7",
+					"13"=>"5cc66e378820160004a4c3c8",
+					"14"=>"5cc66e378820160004a4c3c9"}
+
+	#IDs Grupos Desarrollo
+	#@@IDs_Grupos = {"1"=>"5cbd31b7c445af0004739be3",
+	# 				"2"=>"5cbd31b7c445af0004739be4",
+	# 				"3"=>"5cbd31b7c445af0004739be5",
+	#				"4"=>"5cbd31b7c445af0004739be6",
+	#				"5"=>"5cbd31b7c445af0004739be7",
+	#				"6"=>"5cbd31b7c445af0004739be8",
+	#				"7"=>"5cbd31b7c445af0004739be9",
+	#				"8"=>"5cbd31b7c445af0004739bea",
+	#				"9"=>"5cbd31b7c445af0004739beb",
+	#				"10"=>"5cbd31b7c445af0004739bec",
+	#				"11"=>"5cbd31b7c445af0004739bed",
+	#				"12"=>"5cbd31b7c445af0004739bee",
+	#				"13"=>"5cbd31b7c445af0004739bef",
+	#				"14"=>"5cbd31b7c445af0004739bf0"}
 
 	@@print_valores = false
 	#@@print_valores = true
@@ -52,7 +85,7 @@ module AppController
 		puts "\n**********************************************\n\n"
 	end
 
-	
+
 	def get_almacenes(api_key)
 		data = "GET"
 		hash_value = hashing(data, api_key)
@@ -175,36 +208,16 @@ module AppController
 
 		# Para ver e inventario de un grupo, debes indicar el id del grupo
 		# Ejemplo: solicitar_inventario(13)
-
+		
 		inventario_grupo = HTTParty.get("http://tuerca#{grupo_id}.ing.puc.cl/inventories")
+
 		if @@print_valores
 			puts "\nInventario de Grupo " + grupo_id.to_s + ": \n" + inventario_grupo.to_s + "\n"
 		end
+
 		return inventario_grupo
 	end
 
-	def solicitar_orden(sku, cantidad, grupo_id)
-
-		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
-		# Ejemplo: solicitar_orden("1001", 10, 13)
-
-		pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
-			body:{
-				"sku": sku,
-				"cantidad": cantidad,
-				"almacenId": @@id_recepcion
-			}.to_json,
-			headers:{
-				"group": "4",
-				"Content-Type": "application/json"
-			})
-		if @@print_valores
-			puts "\nSolicitar Orden a Otro Grupo\n"
-			#puts JSON.pretty_generate(pedido_producto)
-			puts pedido_producto.to_s
-		end
-		return pedido_producto	
-	end
 
 	def mover_a_almacen(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
 
@@ -227,7 +240,7 @@ module AppController
 
 					# Para cada sku, obtenemos productos
 					for sku_origen in skus_origen
-						puts "SKU en Origen: " + sku_origen["_id"]
+						# puts "SKU en Origen: " + sku_origen["_id"]
 						sku_origen_num = sku_origen["_id"]
 						
 						# Verificamos que el sku se encuentre en la lista de skus a mover
@@ -251,7 +264,7 @@ module AppController
 								# Si cantidad a mover es 0, se interpreta como mover todo los productos
 								if cantidad != 0
 									cantidad -= 1
-									puts "Productos a mover restantes: " + cantidad.to_s + "\n"
+									# puts "Productos a mover restantes: " + cantidad.to_s + "\n"
 									if cantidad == 0
 										return cantidad_a_mover - cantidad
 									end
@@ -334,7 +347,7 @@ module AppController
 
 	def mover_ingrediente_a_despacho(sku, cantidad_ingrediente)
 		inventario =  getSkuOnStock()
-		puts "getSkuUnStock: \n" + inventario.to_s + "\n"
+		# puts "getSkuUnStock: \n" + inventario.to_s + "\n"
 		stock_en_almacen = Hash.new
 
 		# Partimos almacenes en 0
@@ -345,13 +358,13 @@ module AppController
 
 		# Agregamos los almacenes que tienen stock del producto
 		for producto in inventario
-			puts "producto[sku]: " + producto["sku"] + "\n"
+			# puts "producto[sku]: " + producto["sku"] + "\n"
 			if producto["sku"] == sku
 				puts "Encontramos el producto en esta bodega"
 				almacen = producto["almacenId"]
 				cantidad = producto["cantidad"]
 				stock_en_almacen[almacen] = producto
-				puts "stock_en_almacen[almacen]: " + stock_en_almacen[almacen].to_s + "\n"
+				# puts "stock_en_almacen[almacen]: " + stock_en_almacen[almacen].to_s + "\n"
 			end
 		end
 		unidades_por_mover = cantidad_ingrediente
@@ -438,13 +451,61 @@ module AppController
 
 	def getProductosMinimos
 		# p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101')
-		p_minimos = Producto.where('stock_minimo != ?', 0)
+		p_minimos = Producto.where('sku = ?', '1101')
+		# p_minimos = Producto.where('stock_minimo != ?', 0)
 		p_minimos.each do |p_referencia|
 			if p_referencia.sku == '1101'
 				p_referencia.stock_minimo = 300
 			end
 		end
 		return p_minimos
+	end
+
+	def solicitar_OC(sku, cantidad, grupo_id)
+
+		# Primero debemos crear la OC
+
+		# crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+		cliente = @@IDs_Grupos["4"]
+		proveedor = @@IDs_Grupos[grupo_id.to_s] 
+		sku = sku.to_s
+		fechaEntrega = "1607742000000" #12/12/2020
+		cantidad = cantidad.to_s
+		precioUnitario = "1"
+		canal = "b2b"
+		url = "https://tuerca4.ing.puc.cl/documents/{_id}/notification"
+
+		oc_creada = crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+
+		# Luego debemos solicitar el producto al grupo, incluyendo el id de la OC
+
+		oc_id = oc_creada["_id"]
+
+		puts "\n*******\n" + oc_creada["_id"] + "\n*******\n" 
+
+		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
+		# Ejemplo: solicitar_orden("1001", 10, 13)
+
+		pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
+			body:{
+				"sku": sku,
+				"cantidad": cantidad,
+				"almacenId": @@id_recepcion,
+				"oc": oc_id
+			}.to_json,
+			headers:{
+				"group": "4",
+				"Content-Type": "application/json"
+			})
+			#,timeout: 2)
+
+		if @@print_valores
+			puts "\nSolicitar Orden a Otro Grupo\n"
+			#puts JSON.pretty_generate(pedido_producto)
+			puts pedido_producto.to_s
+		end
+		puts pedido_producto
+		return pedido_producto	
 	end
 
 	def pedir_producto_grupos(sku_a_pedir, cantidad_a_pedir)
@@ -458,43 +519,265 @@ module AppController
 
 		# Obtenemos sus grupos productores
 		grupos_productores = producto.grupos
+		grupos_productores = grupos_productores.shuffle
 
+		lista_de_grupos = []
+		grupos_productores.each do |g|
+			lista_de_grupos << g.group_id
+		end
+		lista_de_grupos.shuffle
+		puts lista_de_grupos
+
+		lista_de_grupos = []
+		grupos_productores.each do |g|
+			lista_de_grupos << g
+		end
 		# Para cada grupo productor, revisamos su inventario
-		grupos_productores.each do |grupo|
+		cantidad_entregada = 0
+
+		lista_de_grupos.each do |grupo|
 			if cantidad_faltante == 0
 				return 1
 			end
-			if grupo.group_id == 4
+			if grupo.group_id == 4 || grupo.group_id == 12 || grupo.group_id == 14
 				next
 			end
+
 			puts "Grupo: " + grupo.group_id.to_s + ", URL: " + grupo.url.to_s + "\n"
 			inventario_grupo = solicitar_inventario(grupo.group_id)
-			inventario_grupo.each do |p_inventario|
-				#puts "sku_a_pedir: " + sku_a_pedir + "\n"
-				#puts "p_inventario[sku]: " + p_inventario['sku'] + "\n"
-				# Si el grupo productor tiene inventario, lo pedimos
-				if sku_a_pedir == p_inventario["sku"]
-					puts p_inventario.to_s
-					cantidad_inventario = p_inventario["total"]
-					puts "Inventario: " + cantidad_inventario.to_s + "\n"
+			
+			if inventario_grupo
+				inventario_grupo.each do |p_inventario|
+					#puts "sku_a_pedir: " + sku_a_pedir + "\n"
+					#puts "p_inventario[sku]: " + p_inventario['sku'] + "\n"
+					# Si el grupo productor tiene inventario, lo pedimos
+					if sku_a_pedir == p_inventario["sku"]
+						puts p_inventario.to_s
+						cantidad_inventario = p_inventario["total"]
+						puts "Inventario: " + cantidad_inventario.to_s + "\n"
 
-					# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
-					if cantidad_inventario >= cantidad_faltante
-						puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante"
-						solicitar_orden(sku_a_pedir, cantidad_faltante, grupo.group_id)
-						cantidad_faltante = 0
+						# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
+						if cantidad_inventario >= cantidad_faltante
+							puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante"
+							# solicitar_orden_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
+							solicitar_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
+							# cantidad_faltante = 0
+							return cantidad_faltante
 
-					# Si el inventario es menor a la cantidad faltante, pedimos todo el inventario
-					else
-						puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario"
-						solicitar_orden(sku_a_pedir, cantidad_inventario, grupo.group_id)
-						cantidad_faltante -= cantidad_inventario
+						# Si el inventario es menor a la cantidad faltante, pedimos todo el inventario
+						else
+							puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario"
+							solicitar_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
+							# solicitar_orden_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
+							cantidad_faltante -= cantidad_inventario
+							cantidad_entregada += cantidad_inventario
+						end
 					end
-
 				end
 			end
 		end
-		return 0
+		return cantidad_entregada
+	end
+
+
+	def solicitar_orden_OC(sku, cantidad, nro_grupo)
+		puts "SOLICITAR ORDEN OC"
+		# crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+		cliente = @@IDs_Grupos["4"]
+		proveedor = @@IDs_Grupos[nro_grupo.to_s]
+		sku = sku.to_s
+		fechaEntrega = 1607742000000 #12/12/2020
+		cantidad = cantidad.to_s
+		precioUnitario = "1"
+		canal = "b2b"
+		url = "https://tuerca4.ing.puc.cl/documents/{_id}/notification"
+		materia_prima = true
+		oc_creada = nueva_oc(cliente, proveedor, sku, fechaEntrega, cantidad, materia_prima, nro_grupo)
+		return oc_creada
+	end
+
+	def solicitar_orden(sku, cantidad, grupo_id, order_id)
+		puts "SOLICITAR ORDEN"
+		puts "sku: #{sku}, tipo #{sku.class}"
+		puts "cantidad: #{cantidad}, tipo #{cantidad.class}"
+		puts "grupo_id: #{grupo_id}, tipo #{grupo_id.class}"
+		puts "order_id: #{order_id}, tipo #{order_id.class}"
+
+		
+		pedido_producto = HTTParty.post("https://tuerca#{grupo_id}.ing.puc.cl/orders",
+			body:{
+				"sku": sku,
+				"cantidad": cantidad,
+				"almacenId": @@id_recepcion,
+				"oc": order_id
+			}.to_json,
+			headers:{
+				"group": "4",
+				"Content-Type": "application/json"
+			})
+
+		puts pedido_producto
+		# case pedido_producto.code
+		# 	when 201
+		#     	return pedido_producto
+		#     when 500
+		#     	return nil
+		# end
+		return pedido_producto
+	end
+
+	def crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+		puts "CREAR OC"
+
+		data = "PUT"
+		order_creada = HTTParty.put("https://integracion-2019-#{@@estado}.herokuapp.com/oc/crear",
+		   body:{
+		  	"cliente": cliente,
+		  	"proveedor": proveedor,
+		  	"sku": sku,
+		  	"fechaEntrega": fechaEntrega,
+		  	"cantidad": cantidad,
+		  	"precioUnitario": precioUnitario,
+		  	"canal": canal,
+		  	"urlNotificacion": url
+		  }.to_json,
+		  headers:{
+		    "Content-Type": "application/json"
+		  })
+		if @@print_valores
+			puts "ORDEN DE COMPRA CREADA"
+			puts JSON.pretty_generate(order_creada)
+		end
+		return order_creada
+	end
+
+	def nueva_oc(cliente, proveedor, sku, fechaEntrega, cantidad, materia_prima, nro_grupo)
+		puts "NUEVA OC"
+
+		time = Time.now.tomorrow.to_date
+		precio = Producto.find(sku).precio_venta
+		if materia_prima
+			orden_creada = crear_oc(cliente, proveedor, sku, 1607742000000, cantidad, "10", 'b2b', "https://tuerca4.ing.puc.cl/documents/{_id}/notification")
+		else
+			orden_creada = crear_oc(cliente, proveedor, sku, 1607742000000, cantidad, "10", 'b2b', "https://tuerca4.ing.puc.cl/documents/{_id}/notification")
+		end
+		puts orden_creada
+		puts "\n ORDEN CREADA: #{orden_creada["_id"]}\n"
+
+		respuesta = solicitar_orden(orden_creada['sku'], orden_creada['cantidad'], nro_grupo, orden_creada['_id'])
+		puts "NUEVA OC - respuesta: \n#{respuesta}"
+		puts "NUEVA OC - tipo respuesta: \n#{respuesta.class}"
+
+		if respuesta["sku"]
+			if respuesta["aceptado"] == true
+				return 'oc_aceptada'
+			else
+				return 'oc_rechazada'
+			end
+		else
+			return 'oc_rechazada'
+		end
+	end
+
+	def revisar_oc
+		time = Time.now
+		counter = 0
+		@host = "fierro.ing.puc.cl"
+		@user = "grupo4_dev"
+		@password = "1ccWcVkAmJyrOfA"
+		Net::SFTP.start(@host, @user, :password => @password) do |sftp|
+			entries = sftp.dir.entries("/pedidos")
+			entries.each do |entry|
+				#break if counter == 4
+				counter +=1
+				if counter > 2
+					time_file = DateTime.strptime(entry.attributes.mtime.to_s,'%s')
+					if time_file > (time - 5.hours)
+						data_xml = sftp.download!("pedidos/#{entry.name}")
+	  					data_json = Hash.from_xml(data_xml).to_json
+	  					data_json = JSON.parse data_json
+	  					order_id = data_json["order"]['id']
+	  					orden_compra = obtener_oc(order_id)
+	  					if orden_compra[0]["estado"] == "creada"
+	  						aceptar_o_rechazar_oc_producto_final(orden_compra[0])
+	  					end
+					end
+					
+  				end
+			end
+		end
+	end
+
+	def notificar(url, status)
+		data = "POST"
+		notificacion = HTTParty.post(url,
+		   body:{
+		  	"status": status
+		  }.to_json,
+		  headers:{
+		    "Content-Type": "application/json"
+		  })
+		if @@print_valores
+			puts "ORDEN DE COMPRA CREADA"
+			puts JSON.pretty_generate(notificacion)
+		end
+		return notificacion
+	end
+
+	def aceptar_o_rechazar_oc_producto_final(orden_compra)
+		@order_id = orden_compra["_id"]
+		@sku = orden_compra["sku"]
+		@cantidad = orden_compra["cantidad"]
+		@proveedor = orden_compra["proveedor"]
+		@fecha_entrega = orden_compra["fechaEntrega"]
+		@estado = orden_compra["estado"]
+
+		if (@sku.length == 5)
+			respuesta_cocina = cocinar(@sku, @cantidad)
+			if respuesta_cocina
+				puts "hay en cocina"
+				if @fecha_entrega > respuesta_cocina
+					crear_documento_oc(orden_compra)
+					aceptar_oc(@order_id)
+					return ["aceptada", 0]
+				else
+					rechazar_oc(@order_id, "No podemos complir con los plazos entregados")
+					return ["rechazada","No podemos complir con los plazos entregados"]
+				end
+			else
+				puts "no hay en cocina"
+				rechazar_oc(@order_id, "No hay inventario para realizar pedido")
+				return ["rechazada","No hay inventario para realizar pedido"]
+			end
+		end
+		return nil
+	end
+
+	def crear_documento_oc(orden_compra)
+		Document.create! do |document|
+			document.all = orden_compra['_id'],
+			document.cliente = orden_compra['cliente'],
+			document.proveedor = orden_compra['proveedor'],
+			document.sku = orden_compra['sku'],
+			document.fechaEntrega = orden_compra['fechaEntrega'],
+			document.cantidad = orden_compra['cantidad'],
+			document.cantidadDespachada = orden_compra['cantidadDespachada'],
+			document.precioUnitario = orden_compra['precioUnitario'],
+			document.canal = orden_compra['canal'],
+			document.estado = orden_compra['estado'],
+			document.notas = orden_compra['notas'],
+			document.rechazo = orden_compra['rechazo'], 
+			document.anulacion = orden_compra['anulacion'],
+			document.order_id = orden_compra['_id'],
+			document.urlNotificacion = orden_compra['urlNotificacion']
+		end
+	end
+
+	def borrar_todos_documentos_compra
+		@documents = Document.all
+		@documents.each do |document|
+		   document.destroy
+		end
 	end
 
 end

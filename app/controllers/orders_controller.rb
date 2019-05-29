@@ -89,7 +89,7 @@ class OrdersController < ApplicationController
 								contador = 0
 								for item in lista_id_productos
 									productoId = item["_id"]
-									despachado = despachar_producto(@@api_key, productoId, @order_id, "frescos", 1)
+									despachado = mover_producto_entre_bodegas(@@api_key, productoId, @almacenId, @order_id, 1)
 									contador += 1
 									break if contador == @cantidad
 								end
@@ -142,12 +142,12 @@ class OrdersController < ApplicationController
 					return res
 				elsif respuesta_oc[0] == "rechazada"
 					notificar(@urlNotificacion,"reject")
-					res = respuesta_oc[1]
-					render plain: res, :status => 404
+					res = {"error": respuesta_oc[1]}
+					render json: res, :status => 404
 				else
 					notificar(@urlNotificacion,"reject")
-		 			res = "No se creó el pedido por un error del cliente en la solicitud. Por ejemplo, falta un parámetro obligatorio"
-					render plain: res, :status => 400
+					res = {"error": "No se creó el pedido por un error del cliente en la solicitud. Por ejemplo, falta un parámetro obligatorio"}
+					render json: res, :status => 404
 				end
 			end
 		end
