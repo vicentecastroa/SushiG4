@@ -450,8 +450,8 @@ module AppController
 	end
 
 	def getProductosMinimos
-		# p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101')
-		p_minimos = Producto.where('sku = ?', '1101')
+		p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101')
+		# p_minimos = Producto.where('sku = ?', '1101')
 		# p_minimos = Producto.where('stock_minimo != ?', 0)
 		p_minimos.each do |p_referencia|
 			if p_referencia.sku == '1101'
