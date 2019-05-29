@@ -131,11 +131,11 @@ class ReviewWorker < ApplicationJob
 			values.each do |value|
 				if value["_id"].to_s == sku.to_s
 					if value["total"] >= cantidad 
-						espacho_todos(@@id_cocina, sku, cantidad, order_id)
+						despacho_todos(@@id_cocina, sku, cantidad, order_id)
+						document.destroy
 					end
 				end
 			end
 		end
 	end
-
 end
