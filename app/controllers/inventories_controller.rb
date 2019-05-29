@@ -17,7 +17,6 @@ class InventoriesController < ApplicationController
 		render plain: response
 	end
 
-
 	def init_inventory_worker
 		InventoryWorker::perform()
 		# SchedulerWorker.perform_async unless SchedulerWorker.new.scheduled?
@@ -51,7 +50,7 @@ class InventoriesController < ApplicationController
 	end
 
 	def index
-		# start
+		start
 		StockAvailableToSell() #no borrar esta funcion debe llamarse entrando al endpoint root/inventories
 		# despacho_a_recepcion()
 		# mover_a_almacen(@@api_key, @@id_pulmon, @@id_recepcion, 5)

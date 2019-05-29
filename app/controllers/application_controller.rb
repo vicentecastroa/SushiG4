@@ -19,12 +19,20 @@ class ApplicationController < ActionController::Base
 	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
 
 	@@id_produccion = "5cc66e378820160004a4c3bf"
-	#IDs Desarrollo
-	#@@id_recepcion = "5cbd3ce444f67600049431c5"
-	#@@id_despacho = "5cbd3ce444f67600049431c6"
-	#@@id_pulmon = "5cbd3ce444f67600049431c9"
-	#@@id_cocina = "5cbd3ce444f67600049431ca"
-	#@@url = "https://integracion-2019-dev.herokuapp.com/bodega"
+	@@id_produccion_1 = "5cc66e378820160004a4c3bc"
+	@@id_produccion_2 = "5cc66e378820160004a4c3bd"
+	@@id_produccion_3 = "5cc66e378820160004a4c3be"
+	@@id_produccion_4 = "5cc66e378820160004a4c3bf"
+	@@id_produccion_5 = "5cc66e378820160004a4c3c0"
+	@@id_produccion_6 = "5cc66e378820160004a4c3c1"
+	@@id_produccion_7 = "5cc66e378820160004a4c3c2"
+	@@id_produccion_8 = "5cc66e378820160004a4c3c3"
+	@@id_produccion_9 = "5cc66e378820160004a4c3c4"
+	@@id_produccion_10 = "5cc66e378820160004a4c3c5"
+	@@id_produccion_11 = "5cc66e378820160004a4c3c6"
+	@@id_produccion_12 = "5cc66e378820160004a4c3c7"
+	@@id_produccion_13 = "5cc66e378820160004a4c3c8"
+	@@id_produccion_14 = "5cc66e378820160004a4c3c9"
 
 	@@print_valores = false
 
@@ -53,8 +61,42 @@ class ApplicationController < ActionController::Base
 	CONTENT_SERVER_FTP_PORT = 22
 
 	def start
-		nueva = nueva_oc(@@id_produccion, "5cc66e378820160004a4c3c3", "1002", nil, "50", true, 8)
-		puts nueva
+		#borrar_todos_documentos_compra
+		#cocinar("30002", 1)
+		#revisar_oc
+		#for i in 0..1
+		#	nueva = nueva_oc(@@id_produccion, @@id_produccion_14, "1014", nil, "1", true, 14)
+			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1003", nil, "5", true, 7)
+			# puts "1003"
+			# puts nueva
+			# puts ''
+			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1006", nil, "20", true, 7)
+			# puts "1006"
+			# puts nueva
+			# puts ''
+			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1008", nil, "5", true, 7)
+			# puts "1008"
+			# puts nueva
+			# puts ''
+			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1011", nil, "5", true, 7)
+			# puts "1011"
+			# puts nueva
+			# puts ''
+			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1016", nil, "5", true, 7)
+			# puts "1016"
+			# puts nueva
+			# puts ''
+			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1014", nil, "30", true, 11)
+			# puts nueva
+			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1016", nil, "30", true, 11)
+			# puts nueva
+			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1012", nil, "30", true, 11)
+			# puts nueva
+			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1007", nil, "30", true, 11)
+			# puts nueva
+			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1011", nil, "30", true, 11)
+			# puts nueva
+		#end
 	end
 
 	def solicitar_inventario(grupo_id)
@@ -91,64 +133,6 @@ class ApplicationController < ActionController::Base
 		return pedido_producto
 	end
 
-	def mover_a_almacen(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
-		puts "Vaciando Almacen " + almacen_id_origen.to_s + "a Almacen " + almacen_id_destino.to_s + "\n"
-		cantidad = cantidad_a_mover
-		# Obtenemos el espacio disponible en destino
-		almacenes = (get_almacenes(api_key)).to_a
-		for almacen in almacenes do
-			if almacen["_id"] == almacen_id_destino
-				puts "Almacen de destino usedSpace: " + almacen["usedSpace"].to_s + "\n"
-				if almacen["usedSpace"] <= almacen["totalSpace"]
-					espacio_disponible = almacen["totalSpace"] - almacen["usedSpace"]
-					puts "Espacio disponible en destino: " + espacio_disponible.to_s + "\n"
-					puts "Vaciando Origen\n"
-
-					# Obtenemos los skus en el almacen de origen
-					skus_origen = obtener_skus_con_stock(api_key, almacen_id_origen)
-					# Para cada sku, obtenemos productos
-					for sku_origen in skus_origen
-						puts "SKU en Origen: " + sku_origen["_id"]
-						sku_origen_num = sku_origen["_id"]
-						
-						# Verificamos que el sku se encuentre en la lista de skus a mover
-						if skus_a_mover.include? sku_origen_num
-							# Obtenemos los productos asociados a ese sku
-							productos_origen = get_products_from_almacenes(api_key, almacen_id_origen, sku_origen_num)
-							#puts "Productos_origen: " + productos_origen.to_s + "\n"
-
-							# Movemos cada producto de Origen a Destino
-							for producto_origen in productos_origen
-								if espacio_disponible <= 0
-									puts "Destino lleno\n"
-									return cantidad_a_mover - cantidad
-								end
-								mover_producto_entre_almacenes(producto_origen["_id"], almacen_id_destino)
-								puts "Producto movido de Origen a Destino"
-
-								# Disminuyo en 1 el espacio disponible
-								espacio_disponible -=1
-
-								# Si cantidad a mover es 0, se interpreta como mover todo los productos
-								if cantidad != 0
-									cantidad -= 1
-									puts "Productos a mover restantes: " + cantidad.to_s + "\n"
-									if cantidad == 0
-										return cantidad_a_mover - cantidad
-									end
-								end
-							end
-
-							cantidad_movida = cantidad_a_mover - cantidad
-							return cantidad_movida
-
-						end						
-					end
-				end
-			end
-		end
-	end
-
 	def recepcion_a_cocina(api_key)
 
 		# Vaciamos Pulmón
@@ -169,8 +153,6 @@ class ApplicationController < ActionController::Base
 		# D Cocina
 		mover_a_almacen(@@api_key, @@id_despacho, @@id_recepcion, @@materias_primas_propias, 200)
 		mover_a_almacen(@@api_key, @@id_despacho, @@id_pulmon, @@materias_primas_propias, 200)
-		
-	
 	end
 
 	def getSkuOnStock
@@ -221,22 +203,24 @@ class ApplicationController < ActionController::Base
 		return response.to_json
 	end
 
-	def cocinar (sku_a_cocinar, cantidad_a_cocinar)
+	def cocinar(sku_a_cocinar, cantidad_a_cocinar)
 		ingredientes = IngredientesAssociation.where(producto_id: sku_a_cocinar)
 		ingredientes.each do |ingrediente|
 			a_mover = cantidad_a_cocinar * ingrediente.unidades_bodega
+			puts 'a mover'
+			puts a_mover
 			if a_mover > 0
-				movidos = mover_a_almacen(@@api_key, @@id_recepcion, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
+				movidos = mover_a_almacen_cocinar(@@api_key, @@id_recepcion, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover = a_mover - movidos
 			end
 
 			if a_mover > 0
-				movidos = mover_a_almacen(@@api_key, @@id_pulmon, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
+				movidos = mover_a_almacen_cocinar(@@api_key, @@id_pulmon, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover = a_mover - movidos
 			end
 
 			if a_mover > 0
-				movidos = mover_a_almacen(@@api_key, @@id_despacho, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
+				movidos = mover_a_almacen_cocinar(@@api_key, @@id_despacho, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover = a_mover - movidos
 			end
 			
@@ -367,7 +351,6 @@ class ApplicationController < ActionController::Base
 		end
 	end
 
-
 	def pedir_producto_grupos(sku_a_pedir, cantidad_a_pedir)
 
 		puts "\nPEDIR PRODUCTO A GRUPOS\npedir_producto_grupos(" + sku_a_pedir.to_s + ", " + cantidad_a_pedir.to_s + ")\n"
@@ -422,16 +405,15 @@ class ApplicationController < ActionController::Base
 		time = Time.now
 		counter = 0
 		@host = "fierro.ing.puc.cl"
-		@user = "grupo4_dev"
-		@password = "1ccWcVkAmJyrOfA"
+		@user = "grupo4"
+		@password = "p6FByxRf5QYbrDC80"
 		Net::SFTP.start(@host, @user, :password => @password) do |sftp|
 			entries = sftp.dir.entries("/pedidos")
 			entries.each do |entry|
-				#break if counter == 4
-				counter +=1
-				if counter > 2
+				file_name = entry.name.to_s
+				if file_name.length >= 10
 					time_file = DateTime.strptime(entry.attributes.mtime.to_s,'%s')
-					if time_file > (time - 5.hours)
+					if time_file > (time - 1.hours)
 						data_xml = sftp.download!("pedidos/#{entry.name}")
 	  					data_json = Hash.from_xml(data_xml).to_json
 	  					data_json = JSON.parse data_json
@@ -492,11 +474,9 @@ class ApplicationController < ActionController::Base
 		@proveedor = orden_compra["proveedor"]
 		@fecha_entrega = orden_compra["fechaEntrega"]
 		@estado = orden_compra["estado"]
-
 		if (@sku.length == 5)
 			respuesta_cocina = cocinar(@sku, @cantidad)
 			if respuesta_cocina
-				puts "hay en cocina"
 				if @fecha_entrega > respuesta_cocina
 					crear_documento_oc(orden_compra)
 					aceptar_oc(@order_id)
@@ -506,7 +486,6 @@ class ApplicationController < ActionController::Base
 					return ["rechazada","No podemos complir con los plazos entregados"]
 				end
 			else
-				puts "no hay en cocina"
 				rechazar_oc(@order_id, "No hay inventario para realizar pedido")
 				return ["rechazada","No hay inventario para realizar pedido"]
 			end
@@ -540,5 +519,6 @@ class ApplicationController < ActionController::Base
 		   document.destroy
 		end
 	end
+
 end
 
