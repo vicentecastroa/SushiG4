@@ -2,6 +2,8 @@ module ApplicationHelper
 	@@print_valores = true
 	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
 	@@nuestros_productos = ["1004", "1005", "1006", "1009", "1014", "1015"]
+	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
+	
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
 		signature = Base64.encode64(hmac).chomp
@@ -187,5 +189,4 @@ module ApplicationHelper
 		render plain: res, :status => 200
 		return response.to_json
 	end
-
 end
