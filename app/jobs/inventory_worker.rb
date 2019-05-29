@@ -63,7 +63,7 @@ class InventoryWorker < ApplicationJob
 
 				# Calculamos la cantidad a fabricar del producto
 				cantidad_a_producir = lotes_faltantes * lote_produccion
-
+				total_produccion = cantidad_a_producir
 				puts "\nCantidad Faltante: " + cantidad_faltante.to_s + " -> Lotes Faltantes: " + lotes_faltantes.to_s
 				puts "\n****************************\n\n"
 				puts "Ingredientes: \n"
@@ -75,6 +75,7 @@ class InventoryWorker < ApplicationJob
 						nos_entregan = pedir_producto_grupos("1013", orden)
 						puts "Nos entregan #{nos_entregan} unidades"
 						cantidad_a_producir -= nos_entregan
+						puts "Hemos producido #{total_produccion-cantidad_a_producir} de #{total_produccion}\n"
 						if nos_entregan == 0
 							puts "\nNINGUN grupo tienen mas MASAGO\n"
 							break
@@ -93,7 +94,7 @@ class InventoryWorker < ApplicationJob
 					contador_ingredientes = 0
 					ingredientes.each do |ingrediente|
 						
-						lista_ingredientes << [ingrediente.ingrediente_id, ingrediente.unidades_bodega]
+						lista_ingredientes << [ingrediente.ingrediente_id, ingrediente.unidades_bodega.to_i]
 						
 						puts "\t ID Ingrediente: " + ingrediente.ingrediente_id + "\n"
 						
@@ -119,9 +120,11 @@ class InventoryWorker < ApplicationJob
 							puts "contadores: #{contador_ingredientes} = #{numero_ingredientes}\n"
 							if contador_ingredientes == numero_ingredientes
 								puts "\t ¡Tenemos TODOS LOS ingredienteS! \n"
+								puts "Comenzamos la produccion de #{cantidad_a_producir} productos"
 
 								while cantidad_a_producir > 0 do
-								# Enviamos ingredientes a despacho
+									# Enviamos ingredientes a despacho
+
 									lista_ingredientes.each do |item|
 										mover_ingrediente_a_despacho(item[0], item[1])
 									end
@@ -129,9 +132,12 @@ class InventoryWorker < ApplicationJob
 									puts fabricar_sin_pago(@@api_key, p_minimo.sku, lote_produccion)
 									cantidad_a_producir -= lote_produccion
 									cantidad_a_producir = [cantidad_a_producir, 0].max
+									puts "Hemos producido #{total_produccion-cantidad_a_producir} de #{total_produccion}\n"
+
 
 									# fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, cantidad_ingrediente)
-								end 
+								end
+
 							end
 							###### Enviar ingredientes en tandas de 80 unidades y mandar a producir producto proporcional a 80 unidades de ingrediente
 

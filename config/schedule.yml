@@ -1,9 +1,14 @@
-control_de_inventario:
-  cron: "16 * * * *"
-  class: InventoryWorker
+pedir_productos_worker:
+  cron: "3 * * * *"
+  class: OcFinales
   queue: default
 
-control_de_inventario:
-  cron: "*/10 * * * *"
-  class: ReviewWorker
-  queue: default
+# control_de_inventario:
+#   cron: "34 * * * *"
+#   class: InventoryWorker
+#   queue: default
+
+# review_worker:
+#   cron: "*/10 * * * *"
+#   class: ReviewWorker
+#   queue: default

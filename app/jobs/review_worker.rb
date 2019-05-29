@@ -9,13 +9,22 @@ require 'orders_helper'
 
 class ReviewWorker < ApplicationJob
 	include OcHelper
+	include ApplicationHelper
 	queue_as :default
 
-	def perform
-		revisar_oc
-		revisar_cocina_worker
+	
+	def job_start
+		puts "\n**********************************************"
+		puts "\n************** INICIO DEL JOB ****************"
+		puts "\n**********************************************\n\n"
 	end
-
+	
+	def job_end
+		puts "\n**********************************************"
+		puts "\n************** FIN DEL JOB *******************"
+		puts "\n**********************************************\n\n"
+	end
+	
 	def revisar_oc
 		time = Time.now
 		counter = 0
@@ -30,17 +39,16 @@ class ReviewWorker < ApplicationJob
 					time_file = DateTime.strptime(entry.attributes.mtime.to_s,'%s')
 					if time_file > (time - 1.hours)
 						data_xml = sftp.download!("pedidos/#{entry.name}")
-	  					data_json = Hash.from_xml(data_xml).to_json
-	  					data_json = JSON.parse data_json
-	  					order_id = data_json["order"]['id']
-	  					orden_compra = obtener_oc(order_id)
-	  					if orden_compra[0]["estado"] == "creada"
-	  						if orden_compra[0]["canal"] == "ftp"
+						data_json = Hash.from_xml(data_xml).to_json
+						data_json = JSON.parse data_json
+						order_id = data_json["order"]['id']
+						orden_compra = obtener_oc(order_id)
+						if orden_compra[0]["estado"] == "creada"
+							if orden_compra[0]["canal"] == "ftp"
 	  							aceptar_o_rechazar_oc_producto_final(orden_compra[0])
 	  						end
 	  					end
 					end
-					
   				end
 			end
 		end
@@ -96,9 +104,13 @@ class ReviewWorker < ApplicationJob
 		ingredientes = IngredientesAssociation.where(producto_id: sku_a_cocinar)
 		ingredientes.each do |ingrediente|
 			a_mover = cantidad_a_cocinar * ingrediente.unidades_bodega
-			puts 'a mover'
-			puts a_mover
+			# FiXME            
+			puts "Moviendo #{a_mover} ingredientes a la Cocina\n"
+
+			movidos = 0
+
 			if a_mover > 0
+				# review Que  mover a almacern cocinar usa y que retorna
 				movidos = mover_a_almacen_cocinar(@@api_key, @@id_recepcion, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover = a_mover - movidos
 			end
@@ -117,6 +129,7 @@ class ReviewWorker < ApplicationJob
 				return nil
 			end
 		end
+		# review Que fabricar sin pago usa y que retorna
 		response = fabricar_sin_pago(@@api_key, sku_a_cocinar, cantidad_a_cocinar)
 		return response["disponible"]
 	end
@@ -127,6 +140,8 @@ class ReviewWorker < ApplicationJob
 			sku = document["sku"]
 			cantidad = document["cantidad"]
 			order_id = document["order_id"]
+
+			# review                      
 			values = obtener_skus_con_stock(@@api_key ,@@id_cocina)
 			values.each do |value|
 				if value["_id"].to_s == sku.to_s
@@ -137,5 +152,14 @@ class ReviewWorker < ApplicationJob
 				end
 			end
 		end
+	end
+
+
+	def perform
+		job_start()
+		revisar_oc()
+		# revisar_cocina()
+		revisar_cocina_worker()
+		job_end()
 	end
 end
