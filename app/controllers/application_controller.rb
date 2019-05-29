@@ -17,7 +17,7 @@ class ApplicationController < ActionController::Base
 	@@id_despacho = "5cc7b139a823b10004d8e6e0"
 	@@id_pulmon = "5cc7b139a823b10004d8e6e3"
 	@@id_cocina = "5cc7b139a823b10004d8e6e4"
-	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
+	@@url = "http://integracion-2019-prod.herokuapp.com/bodega"
 
 	@@id_produccion = "5cc66e378820160004a4c3bf"
 	@@id_produccion_1 = "5cc66e378820160004a4c3bc"
@@ -473,9 +473,9 @@ class ApplicationController < ActionController::Base
 		time = Time.now.tomorrow.to_date
 		precio = Producto.find(sku).precio_venta
 		if materia_prima
-			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "https://tuerca4.ing.puc.cl/documents/{_id}/notification")
+			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "http://tuerca4.ing.puc.cl/documents/{_id}/notification")
 		else
-			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "https://tuerca4.ing.puc.cl/documents/{_id}/notification")
+			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "http://tuerca4.ing.puc.cl/documents/{_id}/notification")
 		end
 		respuesta = solicitar_orden(orden_creada['sku'], orden_creada['cantidad'], nro_grupo, orden_creada['_id'])
 		if respuesta["sku"]

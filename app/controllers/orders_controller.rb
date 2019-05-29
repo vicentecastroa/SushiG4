@@ -89,7 +89,7 @@ class OrdersController < ApplicationController
 								contador = 0
 								for item in lista_id_productos
 									productoId = item["_id"]
-									despachado = despachar_producto(@@api_key, productoId, @order_id, "frescos", 1)
+									despachado = mover_producto_entre_bodegas(@@api_key, productoId, @almacenId, @order_id, 1)
 									contador += 1
 									break if contador == @cantidad
 								end
