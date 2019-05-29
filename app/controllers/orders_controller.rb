@@ -34,7 +34,7 @@ class OrdersController < ApplicationController
 		if @cantidad.blank? || @group.blank? || @sku.blank? || @almacenId.blank? || @order_id.blank?
 			res = "No se creó el pedido por un error del cliente en la solicitud. Por ejemplo, falta un parámetro obligatorio"
 			render plain: res, :status => 400
-			return res
+			#return res
 		end
 
 		# ACEPTAR O RECHAZAR MANDAR MATERIAS PRIMAS A OTRO GRUPO
