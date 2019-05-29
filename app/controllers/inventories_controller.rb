@@ -17,7 +17,6 @@ class InventoriesController < ApplicationController
 		render plain: response
 	end
 
-	private
 	def init_inventory_worker
 		InventoryWorker::perform()
 		# SchedulerWorker.perform_async unless SchedulerWorker.new.scheduled?
