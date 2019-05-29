@@ -1,4 +1,4 @@
 control_de_inventario:
-  cron: "16 * * * *"
+  cron: "20 * * * *"
   class: InventoryWorker
   queue: default

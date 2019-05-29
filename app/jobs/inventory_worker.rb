@@ -1,12 +1,14 @@
 require 'httparty'
 require 'json'
 require 'groups_module'
+require 'oc_helper'
 # require "#{Rails.root}/app/controllers/concerns/app_controller_module"
 
 
 class InventoryWorker < ApplicationJob
 
-	include GroupsModule
+	# include GroupsModule
+	include OcHelper
 	# include AppController
 
 	
@@ -46,9 +48,11 @@ class InventoryWorker < ApplicationJob
 			## Por cada producto que deba mantener stock minimo, comparo y encuentro el producto en el inventario
 			sku = p_minimo_inventario["sku"]
 			cantidad = p_minimo_inventario["cantidad"].to_i
+
+			puts "\nCantidad Actual: " + cantidad.to_s
+
 			if cantidad < stock_minimo # Si la cantidad es mayor o igual al stock minimo, no hago nada
 
-				puts "\nCantidad Actual: " + cantidad.to_s
 
 				# Calculamos la cantidad faltante de producto como la diferencia entre el stock minimo y la cantidad actual en inventario
 				cantidad_faltante = stock_minimo - cantidad
@@ -68,7 +72,7 @@ class InventoryWorker < ApplicationJob
 
 				# Si el producto es MASAGO, lo pido a los grupos productores correspondientes
 				if sku.to_i == 1013
-					puts pedir_producto_grupos("1013", cantidad_a_producir)
+					# puts pedir_producto_grupos("1013", cantidad_a_producir)
 					#break #cambio a revisar al siguiente producto de p_minimos
 
 				# Si el producto NO es MASAGO, debo verificar el stock de sus ingredientes antes de fabricar
@@ -86,6 +90,7 @@ class InventoryWorker < ApplicationJob
 						p_ingrediente = Producto.find(ingrediente.ingrediente_id)
 
 						# Obtenemos el inventario del ingrediente
+						# fixme cachar que solo busque en pulmon y en recepcion                             
 						p_ingrediente_inventario = getInventoriesOne(p_ingrediente.sku)
 
 						# Obtenemos la cantidad de ingrediente requerido para producir un lote de producto
@@ -95,6 +100,7 @@ class InventoryWorker < ApplicationJob
 						cantidad_ingrediente = unidades_bodega * lotes_faltantes
 
 						# Si el stock actual es mayor o igual a la cantidad de ingrediente requerido, enviamos ingrediente a despacho y reponemos la misma cantidad
+						# fixme solo enviar ingredientes a despacho si es que podemos enviar TODOS lo ingredientes para cocinar             
 						if p_ingrediente_inventario["cantidad"] >= cantidad_ingrediente
 							puts "\t ¡Tenemos el ingrediente! Enviamos a despacho " + cantidad_ingrediente.to_s + " unidades.\n"
 
@@ -126,10 +132,12 @@ class InventoryWorker < ApplicationJob
 
 								# Fabricamos sin costo la cantidad a producir del ingrediente
 								puts fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, (cantidad_a_producir_ingrediente).ceil)
+								puts "Fabricamos sin pago el ingrediente: " + p_minimo.sku + ", una cantidad de " + cantidad_a_producir.to_s + "\n"
 
 							# Si el producto no es nuestro, lo pedimos a otro grupo
 							else
-								pedir_producto_grupos(ingrediente.ingrediente_id, cantidad_a_producir_ingrediente)
+								pedir_producto_grupos(ingrediente.ingrediente_id, cantidad_faltante_ingrediente)
+
 								#get_producto_grupo(p_ingrediente.sku, cantidad_faltante_ingrediente)
 
 							end
@@ -138,7 +146,8 @@ class InventoryWorker < ApplicationJob
 					end
 
 					#fabricar_sin_pago(@@api_key, p_referencia.sku, lotes_faltantes_p_referencia)
-					puts "Fabricamos sin pago el sku " + p_minimo.sku + ", una cantidad de " + cantidad_a_producir.to_s + "\n"
+
+					# fixme Mandar esto pa arriba cuando chequee cuantos ingredientes tengo, producir is tengo ingredientes, else pedir hasta que tenga los ingredientes y break
 					puts fabricar_sin_pago(@@api_key, p_minimo.sku, cantidad_a_producir)
 					puts "\nFabricado"
 				end

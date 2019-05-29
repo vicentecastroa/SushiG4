@@ -1,6 +1,6 @@
 module OcHelper
 	@@print_valores = false
-	@@estado = 'dev'
+	@@estado = 'prod'
 
 	def obtener_oc(id)
 		orden_compra = HTTParty.get("https://integracion-2019-#{@@estado}.herokuapp.com/oc/obtener/#{id}", 
@@ -87,9 +87,4 @@ module OcHelper
 		return orden_compra_rechazada
 	end
 
-	def chequeo_ordenes_compra
-		for orden in ordenes
-			
-		end
-	end
 end

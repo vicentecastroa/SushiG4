@@ -1,6 +1,7 @@
 module AppController
 
 	@@api_key = "o5bQnMbk@:BxrE"
+	@@estado = 'prod'
 
 	#IDs Producción
 	@@id_recepcion = "5cc7b139a823b10004d8e6df"
@@ -15,6 +16,38 @@ module AppController
 	#@@id_pulmon = "5cbd3ce444f67600049431c9"
 	#@@id_cocina = "5cbd3ce444f67600049431ca"
 	#@@url = "https://integracion-2019-dev.herokuapp.com/bodega"
+
+	#IDs Grupos Producción
+	@@IDs_Grupos = {"1"=>"5cc66e378820160004a4c3bc",
+	"2"=>"5cc66e378820160004a4c3bd",
+	"3"=>"5cc66e378820160004a4c3be",
+	"4"=>"5cc66e378820160004a4c3bf",
+	"5"=>"5cc66e378820160004a4c3c0",
+	"6"=>"5cc66e378820160004a4c3c1",
+	"7"=>"5cc66e378820160004a4c3c2",
+	"8"=>"5cc66e378820160004a4c3c3",
+	"9"=>"5cc66e378820160004a4c3c4",
+	"10"=>"5cc66e378820160004a4c3c5",
+	"11"=>"5cc66e378820160004a4c3c6",
+	"12"=>"5cc66e378820160004a4c3c7",
+	"13"=>"5cc66e378820160004a4c3c8",
+	"14"=>"5cc66e378820160004a4c3c9"}
+
+	#IDs Grupos Desarrollo
+	# @@IDs_Grupos = {"1"=>"5cbd31b7c445af0004739be3",
+	# "2"=>"5cbd31b7c445af0004739be4",
+	# "3"=>"5cbd31b7c445af0004739be5",
+	# "4"=>"5cbd31b7c445af0004739be6",
+	# "5"=>"5cbd31b7c445af0004739be7",
+	# "6"=>"5cbd31b7c445af0004739be8",
+	# "7"=>"5cbd31b7c445af0004739be9",
+	# "8"=>"5cbd31b7c445af0004739bea",
+	# "9"=>"5cbd31b7c445af0004739beb",
+	# "10"=>"5cbd31b7c445af0004739bec",
+	# "11"=>"5cbd31b7c445af0004739bed",
+	# "12"=>"5cbd31b7c445af0004739bee",
+	# "13"=>"5cbd31b7c445af0004739bef",
+	# "14"=>"5cbd31b7c445af0004739bf0"}
 
 	@@print_valores = false
 	#@@print_valores = true
@@ -52,7 +85,7 @@ module AppController
 		puts "\n**********************************************\n\n"
 	end
 
-	
+
 	def get_almacenes(api_key)
 		data = "GET"
 		hash_value = hashing(data, api_key)
@@ -206,6 +239,29 @@ module AppController
 		return pedido_producto	
 	end
 
+	def crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+		data = "PUT"
+		order_creada = HTTParty.put("https://integracion-2019-#{@@estado}.herokuapp.com/oc/crear",
+		   body:{
+		  	"cliente": cliente,
+		  	"proveedor": proveedor,
+		  	"sku": sku,
+		  	"fechaEntrega": fechaEntrega,
+		  	"cantidad": cantidad,
+		  	"precioUnitario": precioUnitario,
+		  	"canal": canal,
+		  	"urlNotificacion": url
+		  }.to_json,
+		  headers:{
+		    "Content-Type": "application/json"
+		  })
+		if @@print_valores
+			puts "ORDEN DE COMPRA CREADA"
+			puts JSON.pretty_generate(order_creada)
+		end
+		return order_creada
+	end
+	
 	def solicitar_orden_OC(sku, cantidad, grupo_id)
 
 		# Primero debemos crear la OC
@@ -220,14 +276,14 @@ module AppController
 		canal = "b2b"
 		url = "https://tuerca4.ing.puc.cl/documents/{_id}/notification"
 
-		OC_creada = crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
-		puts OC_creada.to_s
+		oc_creada = crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
 
 		# Luego debemos solicitar el producto al grupo, incluyendo el id de la OC
-
-		oc_id = OC_creada["_id"]
-
-		puts "\n********************\n" + OC_creada["_id"] + "\n********************\n" 
+		
+		oc_id = oc_creada["_id"]
+		puts '\n'
+		puts "OC ID: #{oc_id}"
+		puts "\n********************\n" + oc_creada["_id"] + "\n********************\n" 
 
 		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
 		# Ejemplo: solicitar_orden("1001", 10, 13)
@@ -248,6 +304,7 @@ module AppController
 			#puts JSON.pretty_generate(pedido_producto)
 			puts pedido_producto.to_s
 		end
+		puts pedido_producto.to_s
 		return pedido_producto	
 	end
 
@@ -514,28 +571,30 @@ module AppController
 			end
 			puts "Grupo: " + grupo.group_id.to_s + ", URL: " + grupo.url.to_s + "\n"
 			inventario_grupo = solicitar_inventario(grupo.group_id)
-			inventario_grupo.each do |p_inventario|
-				#puts "sku_a_pedir: " + sku_a_pedir + "\n"
-				#puts "p_inventario[sku]: " + p_inventario['sku'] + "\n"
-				# Si el grupo productor tiene inventario, lo pedimos
-				if sku_a_pedir == p_inventario["sku"]
-					puts p_inventario.to_s
-					cantidad_inventario = p_inventario["total"]
-					puts "Inventario: " + cantidad_inventario.to_s + "\n"
+			if inventario_grupo
+				inventario_grupo.each do |p_inventario|
+					#puts "sku_a_pedir: " + sku_a_pedir + "\n"
+					#puts "p_inventario[sku]: " + p_inventario['sku'] + "\n"
+					# Si el grupo productor tiene inventario, lo pedimos
+					if sku_a_pedir == p_inventario["sku"]
+						puts p_inventario.to_s
+						cantidad_inventario = p_inventario["total"]
+						puts "Inventario: " + cantidad_inventario.to_s + "\n"
 
-					# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
-					if cantidad_inventario >= cantidad_faltante
-						puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante"
-						solicitar_orden_OC(sku_a_pedir, cantidad_faltante, grupo.group_id)
-						cantidad_faltante = 0
+						# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
+						if cantidad_inventario >= cantidad_faltante
+							puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante"
+							solicitar_orden_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
+							cantidad_faltante = 0
 
-					# Si el inventario es menor a la cantidad faltante, pedimos todo el inventario
-					else
-						puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario"
-						solicitar_orden_OC(sku_a_pedir, cantidad_inventario, grupo.group_id)
-						cantidad_faltante -= cantidad_inventario
+						# Si el inventario es menor a la cantidad faltante, pedimos todo el inventario
+						else
+							puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario"
+							solicitar_orden_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
+							cantidad_faltante -= cantidad_inventario
+						end
+
 					end
-
 				end
 			end
 		end
