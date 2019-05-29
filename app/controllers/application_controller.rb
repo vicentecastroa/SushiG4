@@ -42,7 +42,7 @@ class ApplicationController < ActionController::Base
 	@@tamaño_despacho = 80
 	@@tamaño_pulmon = 99999999
 
-	@@nuestros_productos = ["1004", "1005", "1006", "1009", "1014", "1015"]
+	@@nuestros_productos = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
 	@@id_almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon]
 
 	# Materia primas producidas por nosotros

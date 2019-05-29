@@ -1,8 +1,9 @@
 module ApplicationHelper
 	@@print_valores = true
-	@@api_key = "o5bQnMbk@:BxrE"
+
 	@@nuestros_productos = ["1004", "1005", "1006", "1009", "1014", "1015"]
 	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
+	@@api_key = "o5bQnMbk@:BxrE"
 	
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
@@ -170,6 +171,63 @@ module ApplicationHelper
 			product_name = prod.nombre
 
 			if skus_quantity.key?(product_sku)
+				if prod.stock_minimo != nil
+					if skus_quantity[product_sku] > prod.stock_minimo
+						diferencia = skus_quantity[product_sku] - prod.stock_minimo
+						if diferencia > 80
+							skus_quantity[product_sku] = 80
+						else
+							skus_quantity[product_sku] = diferencia
+						end
+					else
+						skus_quantity[product_sku] = 0
+					end
+				else
+					if skus_quantity[product_sku] > 50
+						diferencia = skus_quantity[product_sku] - 50
+						if diferencia > 80
+							skus_quantity[product_sku] = 80
+						else
+							skus_quantity[product_sku] = diferencia
+						end
+					else
+						skus_quantity[product_sku] = 0
+					end
+				end
+			end
+		end
+		skus_quantity.each_key do |key|
+			line = {"sku" => key, "nombre" => sku_name[key], "total" => skus_quantity[key]}
+			response << line
+		end
+
+		res = response.to_json
+		render plain: res, :status => 200
+		return response.to_json
+	end
+
+	def StockAvailableToSellAll
+		response = []
+		skus_quantity = {}
+		sku_name = {}
+		lista_skus = getSkuOnStock
+		productos_all = Producto.all
+		for sku in lista_skus
+			product_sku = sku["sku"]
+			product_name = sku["nombre"]
+			quantity = sku["cantidad"]
+			if skus_quantity.key?(product_sku)
+				skus_quantity[product_sku] += quantity
+			else
+				sku_name[product_sku] = product_name
+				skus_quantity[product_sku] = quantity
+			end
+		end
+		for prod in productos_all
+			product_sku = prod.sku
+			product_name = prod.nombre
+
+			if skus_quantity.key?(product_sku)
 				if prod.stock_minimo
 					if skus_quantity[product_sku] > prod.stock_minimo
 						skus_quantity[product_sku] = skus_quantity[product_sku] - prod.stock_minimo
@@ -184,8 +242,6 @@ module ApplicationHelper
 			response << line
 		end
 
-		res = response.to_json
-		render plain: res, :status => 200
 		return response.to_json
 	end
 
@@ -281,4 +337,26 @@ module ApplicationHelper
 		end
 		return 0
 	end
+
+	def despachar_producto(api_key, productoId, oc, direccion, precio)
+		data = "DELETE#{productoId}#{direccion}#{precio}#{oc}"
+		hash_value = hashing(data, api_key)
+		producto_despachado = HTTParty.delete("#{@@url}/stock",
+		  body:{
+		  	"productoId": productoId,
+				"oc": oc,
+				"direccion": direccion,
+		  	"precio": precio
+		  }.to_json,
+		  headers:{
+		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
+		    "Content-Type": "application/json"
+		  })
+		if @@print_valores
+			puts "\nMOVER PRODUCTO ENTRE BODEGAS\n"
+			puts JSON.pretty_generate(producto_movido)
+		end
+		return producto_despachado
+	end
+
 end
