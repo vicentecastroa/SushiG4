@@ -44,7 +44,7 @@ class OrdersController < ApplicationController
 
 					if producto["sku"] == @sku
 						#si el sku esta bajo nuestro stock minimo o nos piden mas de lo que podemos dar: RECHAZAR
-						if producto["total"] <= 0 || @cantidad >= producto["total"]
+						if producto["total"].to_i <= 0 || @cantidad.to_i >= producto["total"].to_i
 							
 							#rechazar la OC con la API del profesor
 							rechazar_oc(@order_id,"rechazada por frescos")
