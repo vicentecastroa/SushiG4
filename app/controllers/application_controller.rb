@@ -35,7 +35,7 @@ class ApplicationController < ActionController::Base
 	@@tamaño_despacho = 80
 	@@tamaño_pulmon = 99999999
 
-	@@nuestros_productos = ["1004", "1005", "1006", "1009", "1014", "1015"]
+	@@nuestros_productos = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
 	@@id_almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon]
 
 	# Materia primas producidas por nosotros
@@ -44,7 +44,6 @@ class ApplicationController < ActionController::Base
 	@@materias_primas_ajenas = ["1002", "1003", "1007", "1008", "1010", "1011", "1012", "1013"]
 	# Productos procesados
 	@@productos_procesados = ["1105", "1106", "1107", "1108", "1109", "1110", "1111", "1112", "1114", "1115", "1116", "1201", "1207", "1209", "1210", "1211", "1215", "1216", "1301", "1307", "1309", "1310", "1407"]
-
 	
 	#desarrollo es true y produccion es false
 	@@status_of_work = false
@@ -461,7 +460,7 @@ class ApplicationController < ActionController::Base
 		end
 		respuesta = solicitar_orden(orden_creada['sku'], orden_creada['cantidad'], nro_grupo, orden_creada['_id'])
 		if respuesta["sku"]
-			if respuesta["aceptado"] == "true"
+			if respuesta["aceptado"] == true
 				return 'oc_aceptada'
 			else
 				return 'oc_rechazada'
