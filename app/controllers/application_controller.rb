@@ -249,13 +249,9 @@ class ApplicationController < ActionController::Base
 				a_mover = a_mover - movidos
 			end
 
-			
-
 			if a_mover > 0
 				movidos = mover_a_almacen_cocinar(@@api_key, @@id_pulmon, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover = a_mover - movidos
-			end
-
 			end
 		
 			if a_mover > 0
@@ -268,7 +264,7 @@ class ApplicationController < ActionController::Base
 			end
 		end
 		response = fabricar_sin_pago(@@api_key, sku_a_cocinar, cantidad_a_cocinar)
-		return response["disponible"]
+		return response
 	end
 
 	def have_producto(sku, cantidad_minima, inventario_total)
