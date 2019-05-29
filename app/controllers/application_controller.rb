@@ -41,6 +41,37 @@ class ApplicationController < ActionController::Base
 	# Productos procesados
 	@@productos_procesados = ["1105", "1106", "1107", "1108", "1109", "1110", "1111", "1112", "1114", "1115", "1116", "1201", "1207", "1209", "1210", "1211", "1215", "1216", "1301", "1307", "1309", "1310", "1407"]
 
+	#IDs Grupos Producción
+	@@IDs_Grupos = {"1"=>"5cc66e378820160004a4c3bc",
+					"2"=>"5cc66e378820160004a4c3bd",
+					"3"=>"5cc66e378820160004a4c3be",
+					"4"=>"5cc66e378820160004a4c3bf",
+					"5"=>"5cc66e378820160004a4c3c0",
+					"6"=>"5cc66e378820160004a4c3c1",
+					"7"=>"5cc66e378820160004a4c3c2",
+					"8"=>"5cc66e378820160004a4c3c3",
+					"9"=>"5cc66e378820160004a4c3c4",
+					"10"=>"5cc66e378820160004a4c3c5",
+					"11"=>"5cc66e378820160004a4c3c6",
+					"12"=>"5cc66e378820160004a4c3c7",
+					"13"=>"5cc66e378820160004a4c3c8",
+					"14"=>"5cc66e378820160004a4c3c9"}
+
+	#IDs Grupos Desarrollo
+	@@IDs_Grupos = {"1"=>"5cbd31b7c445af0004739be3",
+					"2"=>"5cbd31b7c445af0004739be4",
+					"3"=>"5cbd31b7c445af0004739be5",
+					"4"=>"5cbd31b7c445af0004739be6",
+					"5"=>"5cbd31b7c445af0004739be7",
+					"6"=>"5cbd31b7c445af0004739be8",
+					"7"=>"5cbd31b7c445af0004739be9",
+					"8"=>"5cbd31b7c445af0004739bea",
+					"9"=>"5cbd31b7c445af0004739beb",
+					"10"=>"5cbd31b7c445af0004739bec",
+					"11"=>"5cbd31b7c445af0004739bed",
+					"12"=>"5cbd31b7c445af0004739bee",
+					"13"=>"5cbd31b7c445af0004739bef",
+					"14"=>"5cbd31b7c445af0004739bf0"}
 
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
@@ -225,6 +256,50 @@ class ApplicationController < ActionController::Base
 				"sku": sku,
 				"cantidad": cantidad,
 				"almacenId": @@id_recepcion
+			}.to_json,
+			headers:{
+				"group": "4",
+				"Content-Type": "application/json"
+			})
+		if @@print_valores
+			puts "\nSolicitar Orden a Otro Grupo\n"
+			#puts JSON.pretty_generate(pedido_producto)
+			puts pedido_producto.to_s
+		end
+		return pedido_producto	
+	end
+
+	def solicitar_orden_OC(sku, cantidad, grupo_id)
+
+		# Primero debemos crear la OC
+
+		# crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+		cliente = @@IDs_Grupos[grupo_id.to_s]
+		proveedor = @@IDs_Grupos["4"]
+		sku = sku.to_s
+		fechaEntrega = "1607742000000" #12/12/2020
+		cantidad = cantidad.to_s
+		precioUnitario = "1"
+		canal = "b2b"
+		url = "https://tuerca4.ing.puc.cl/documents/{_id}/notification"
+
+		OC_creada = crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+
+		# Luego debemos solicitar el producto al grupo, incluyendo el id de la OC
+
+		oc_id = OC_creada["_id"]
+
+		puts "\n********************\n" + OC_creada["_id"] + "\n********************\n" 
+
+		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
+		# Ejemplo: solicitar_orden("1001", 10, 13)
+
+		pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
+			body:{
+				"sku": sku,
+				"cantidad": cantidad,
+				"almacenId": @@id_recepcion,
+				"oc": oc_id
 			}.to_json,
 			headers:{
 				"group": "4",
@@ -585,13 +660,13 @@ class ApplicationController < ActionController::Base
 					# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
 					if cantidad_inventario >= cantidad_faltante
 						puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante"
-						solicitar_orden(sku_a_pedir, cantidad_faltante, grupo.group_id)
+						solicitar_orden_OC(sku_a_pedir, cantidad_faltante, grupo.group_id)
 						cantidad_faltante = 0
 
 					# Si el inventario es menor a la cantidad faltante, pedimos todo el inventario
 					else
 						puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario"
-						solicitar_orden(sku_a_pedir, cantidad_inventario, grupo.group_id)
+						solicitar_orden_OC(sku_a_pedir, cantidad_inventario, grupo.group_id)
 						cantidad_faltante -= cantidad_inventario
 					end
 
