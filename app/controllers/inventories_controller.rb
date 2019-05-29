@@ -6,6 +6,16 @@ class InventoriesController < ApplicationController
 
 	def show
 	end
+	
+	def total_products
+		response = getInventories()
+		render plain: response
+	end
+
+	def sku_stock
+		response = getSkuOnStock()
+		render plain: response
+	end
 
 	private
 	def init_inventory_worker
