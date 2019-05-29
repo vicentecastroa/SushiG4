@@ -12,7 +12,6 @@ class InventoryWorker < ApplicationJob
 	
 	queue_as :default
 
-		
 	def perform
 		
 		puts "\n****************************\nInventory worker checkeando inventario\n****************************\n\n"
@@ -68,8 +67,7 @@ class InventoryWorker < ApplicationJob
 
 				# Si el producto es MASAGO, lo pido a los grupos productores correspondientes
 				if sku.to_i == 1013
-					#get_producto_grupo(1013, cantidad_faltante)
-					#break #cambio a revisar al siguiente producto de p_minimos
+					pedir_producto_grupos(sku, cantidad_a_producir)
 
 				# Si el producto NO es MASAGO, debo verificar el stock de sus ingredientes antes de fabricar
 				else
@@ -129,9 +127,7 @@ class InventoryWorker < ApplicationJob
 
 							# Si el producto no es nuestro, lo pedimos a otro grupo
 							else
-
-								#get_producto_grupo(p_ingrediente.sku, cantidad_faltante_ingrediente)
-
+								pedir_producto_grupos(ingrediente.ingrediente_id, cantidad_faltante_ingrediente)
 							end
 						end
 

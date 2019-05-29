@@ -18,6 +18,7 @@ class ApplicationController < ActionController::Base
 	@@id_cocina = "5cc7b139a823b10004d8e6e4"
 	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
 
+	@@id_produccion = "5cc66e378820160004a4c3bf"
 	#IDs Desarrollo
 	#@@id_recepcion = "5cbd3ce444f67600049431c5"
 	#@@id_despacho = "5cbd3ce444f67600049431c6"
@@ -32,6 +33,9 @@ class ApplicationController < ActionController::Base
 	@@tamaño_recepcion = 133
 	@@tamaño_despacho = 80
 	@@tamaño_pulmon = 99999999
+
+	@@nuestros_productos = ["1004", "1005", "1006", "1009", "1014", "1015"]
+	@@id_almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon]
 
 	# Materia primas producidas por nosotros
 	@@materias_primas_propias = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
@@ -191,15 +195,8 @@ class ApplicationController < ActionController::Base
 	CONTENT_SERVER_FTP_PORT = 22
 
 	def start
-		revisar_oc
-		#orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1568039052000, "10", "10", "b2b", "https://tuerca4.ing.puc.cl/document/{_id}/notification")
-		#nueva_oc
-		#orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1558039052000, "10", "10", "b2b")
-		#obtener_oc(orden_creada['_id'])
-		#aceptar_oc('1557965482159')
-		#rechazar_oc(orden_creada["_id"], "RECHAZADO POR X RAZON")
-		#anular_oc(orden_creada["_id"], "MUCHOS PRODUCTOS")
-		#verificar_conexion(CONTENT_SERVER_DOMAIN_NAME, CONTENT_SERVER_FTP_LOGIN, CONTENT_SERVER_FTP_PASSWORD, CONTENT_SERVER_FTP_PORT)
+		nueva = nueva_oc(@@id_produccion, "5cc66e378820160004a4c3c3", "1002", nil, "50", true, 8)
+		puts nueva
 	end
 
 	def solicitar_inventario(grupo_id)
@@ -214,34 +211,31 @@ class ApplicationController < ActionController::Base
 		return inventario_grupo
 	end
 
-	def solicitar_orden(sku, cantidad, grupo_id)
-
-		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
-		# Ejemplo: solicitar_orden("1001", 10, 13)
-
+	def solicitar_orden(sku, cantidad, grupo_id, order_id)
 		pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
 			body:{
 				"sku": sku,
 				"cantidad": cantidad,
-				"almacenId": @@id_recepcion
+				"almacenId": @@id_recepcion,
+				"oc": order_id
 			}.to_json,
 			headers:{
 				"group": "4",
 				"Content-Type": "application/json"
 			})
-		if @@print_valores
-			puts "\nSolicitar Orden a Otro Grupo\n"
-			#puts JSON.pretty_generate(pedido_producto)
-			puts pedido_producto.to_s
+
+		case response.code
+			when 201
+		    	return pedido_producto
+		    when 500
+		    	return nil
 		end
-		return pedido_producto	
+		return pedido_producto
 	end
 
 	def mover_a_almacen(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
-
 		puts "Vaciando Almacen " + almacen_id_origen.to_s + "a Almacen " + almacen_id_destino.to_s + "\n"
 		cantidad = cantidad_a_mover
-
 		# Obtenemos el espacio disponible en destino
 		almacenes = (get_almacenes(api_key)).to_a
 		for almacen in almacenes do
@@ -254,7 +248,6 @@ class ApplicationController < ActionController::Base
 
 					# Obtenemos los skus en el almacen de origen
 					skus_origen = obtener_skus_con_stock(api_key, almacen_id_origen)
-
 					# Para cada sku, obtenemos productos
 					for sku_origen in skus_origen
 						puts "SKU en Origen: " + sku_origen["_id"]
@@ -370,40 +363,23 @@ class ApplicationController < ActionController::Base
 		return response.to_json
 	end
 
-
-	## NEW ENTREGA 2 ##
-
 	def cocinar (sku_a_cocinar, cantidad_a_cocinar)
 		ingredientes = IngredientesAssociation.where(producto_id: sku_a_cocinar)
 		ingredientes.each do |ingrediente|
-			# Para cada ingrediente cuento cuantos hay en la cocina
-			contador_cocina = 0
-			en_cocina = (obtener_skus_con_stock(@@api_key, @@id_cocina)).to_a
-			en_cocina.each do |ing_cocina|
-				if ing_cocina["_id"]["sku"] == ingrediente.sku
-					contador_cocina += 1
-				end
-			end
-			
-			if contador_cocina >= ingrediente.unidades_bodega * cantidad_a_cocinar
-				a_mover = 0
-			else
-				a_mover = ingrediente.unidades_bodega * cantidad_a_cocinar - contador_cocina
+			a_mover = cantidad_a_cocinar * ingrediente.unidades_bodega
+			if a_mover > 0
+				movidos = mover_a_almacen(@@api_key, @@id_recepcion, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
+				a_mover = a_mover - movidos
 			end
 
 			if a_mover > 0
-				movidos = mover_a_almacen(@@api_key, @@id_recepcion, @@id_cocina, inventario["sku"], a_mover)
-				a_mover -= movidos
+				movidos = mover_a_almacen(@@api_key, @@id_pulmon, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
+				a_mover = a_mover - movidos
 			end
 
 			if a_mover > 0
-				movidos = mover_a_almacen(@@api_key, @@id_pulmon, @@id_cocina, inventario["sku"], a_mover)
-				a_mover -= movidos
-			end
-
-			if a_mover > 0
-				movidos = mover_a_almacen(@@api_key, @@id_despacho, @@id_cocina, inventario["sku"], a_mover)
-				a_mover -= movidos
+				movidos = mover_a_almacen(@@api_key, @@id_despacho, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
+				a_mover = a_mover - movidos
 			end
 			
 			if a_mover > 0
@@ -411,12 +387,8 @@ class ApplicationController < ActionController::Base
 			end
 		end
 		response = fabricar_sin_pago(@@api_key, sku_a_cocinar, cantidad_a_cocinar)
-		return response
+		return response["disponible"]
 	end
-
-	@@nuestros_productos = ["1004", "1005", "1006", "1009", "1014", "1015"]
-	@@id_almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon]
-	
 
 	def have_producto(sku, cantidad_minima, inventario_total)
 		#inventario_total = getInventoriesCero()
@@ -525,7 +497,6 @@ class ApplicationController < ActionController::Base
 		#return response.to_json
 
 		return response
-
 	end
 
 	def getInventoriesOne(sku) # Retorna stock de un solo producto
@@ -602,13 +573,17 @@ class ApplicationController < ActionController::Base
 				counter +=1
 				if counter > 2
 					time_file = DateTime.strptime(entry.attributes.mtime.to_s,'%s')
-					if time_file > (time - 10.hours)
+					if time_file > (time - 5.hours)
 						data_xml = sftp.download!("pedidos/#{entry.name}")
 	  					data_json = Hash.from_xml(data_xml).to_json
 	  					data_json = JSON.parse data_json
 	  					order_id = data_json["order"]['id']
 	  					orden_compra = obtener_oc(order_id)
-	  					aceptar_o_rechazar(orden_compra[0])
+	  					if orden_compra[0]["estado"] == "creada"
+	  						if orden_compra[0]["canal"] == "ftp"
+	  							aceptar_o_rechazar_oc_producto_final(orden_compra[0])
+	  						end
+	  					end
 					end
 					
   				end
@@ -616,28 +591,24 @@ class ApplicationController < ActionController::Base
 		end
 	end
 
-	def nueva_oc
-		orden_creada = crear_oc(@@id_desarrollo, @@id_desarrollo_14, "30001", 1568039052000, "10", "10", "b2b", "https://tuerca4.ing.puc.cl/documents/{_id}/notification")
-		order_id = orden_creada['_id']
-		puts order_id
-		Document.create! do |document|
-			document.all = order_id,
-			document.cliente = orden_creada['cliente'],
-			document.proveedor = orden_creada['proveedor'],
-			document.sku = orden_creada['sku'],
-			document.fechaEntrega = orden_creada['fechaEntrega'],
-			document.cantidad = orden_creada['cantidad'],
-			document.cantidadDespachada = orden_creada['cantidadDespachada'],
-			document.precioUnitario = orden_creada['precioUnitario'],
-			document.canal = orden_creada['canal'],
-			document.estado = orden_creada['estado'],
-			document.notas = orden_creada['notas'],
-			document.rechazo = orden_creada['rechazo'], 
-			document.anulacion = orden_creada['anulacion'],
-			document.order_id = order_id,
-			document.urlNotificacion = orden_creada['urlNotificacion']
+	def nueva_oc(cliente, proveedor, sku, fechaEntrega, cantidad, materia_prima, nro_grupo)
+		time = Time.now.tomorrow.to_date
+		precio = Producto.find(sku).precio_venta
+		if materia_prima
+			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "https://tuerca4.ing.puc.cl/documents/{_id}/notification")
+		else
+			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "https://tuerca4.ing.puc.cl/documents/{_id}/notification")
 		end
-		#anular_oc(orden_creada["_id"], "MUCHOS PRODUCTOS")
+		respuesta = solicitar_orden(orden_creada['sku'], orden_creada['cantidad'], nro_grupo, orden_creada['_id'])
+		if respuesta["sku"]
+			if respuesta["aceptado"] == "true"
+				return 'oc_aceptada'
+			else
+				return 'oc_rechazada'
+			end
+		else
+			return 'oc_rechazada'
+		end
 	end
 
 	def notificar(url, status)
@@ -656,40 +627,60 @@ class ApplicationController < ActionController::Base
 		return notificacion
 	end
 
-	def aceptar_o_rechazar(orden_compra)
+	def aceptar_o_rechazar_oc_producto_final(orden_compra)
+		@order_id = orden_compra["_id"]
 		@sku = orden_compra["sku"]
 		@cantidad = orden_compra["cantidad"]
 		@proveedor = orden_compra["proveedor"]
 		@fecha_entrega = orden_compra["fechaEntrega"]
 		@estado = orden_compra["estado"]
-	# 	elsif (@sku.length == 4)
-	# 		@skus_to_sell = StockAvailableToSell
-	# 		@skus_on_stock = getSkuOnStock
-	# 		#si el sku es de los asignados a nosotros
-	# 		if (@@nuestros_productos.include? @sku)
 
-	# 		#si el sku es de largo 4 pero no es de los asignados a nosotros RECHAZAR
-	# 		unless (@@nuestros_productos.include? @sku)
-	# 			#rechazar la OC con la API del profesor
-	# 			rechazar_oc(@order_id,"rechazada por frescos")
-	# 			#notificar rechazo al endpoint del grupo
-	# 			notificar(@urlNotificacion,"reject")
-	# 			#responder la request al grupo con status 404
-	# 			res = "Producto no se encuentra (el grupo no ofrece productos de este sku) o no tiene stock"
-	# 			render plain: res, :status => 404
-	# 			return res
-	# 		end
-		
-	# 	#ACEPTAR O RECHAZAR MANDAR A PRODUCIR PRODUCTOS FINALES
-	# 	#si el sku es de largo 5 significa que es un producto final
-	# 	#elsif (@sku.length == 5)
-	# 		#if #ver si tenemos los ingredientes para hacerlo
-	# 			#FALTA HACER EL FLUJO
-	# 		#else #rechazar
-	# 			#rechazar_oc(@order_id,"rechazado porque no tenemos los ingredientes")
-	# 			#notificar(@urlNotificacion,"reject")
-	# 		#end
-	# 	end
+		if (@sku.length == 5)
+			respuesta_cocina = cocinar(@sku, @cantidad)
+			if respuesta_cocina
+				puts "hay en cocina"
+				if @fecha_entrega > respuesta_cocina
+					crear_documento_oc(orden_compra)
+					aceptar_oc(@order_id)
+					return ["aceptada", 0]
+				else
+					rechazar_oc(@order_id, "No podemos complir con los plazos entregados")
+					return ["rechazada","No podemos complir con los plazos entregados"]
+				end
+			else
+				puts "no hay en cocina"
+				rechazar_oc(@order_id, "No hay inventario para realizar pedido")
+				return ["rechazada","No hay inventario para realizar pedido"]
+			end
+		end
+		return nil
+	end
+
+	def crear_documento_oc(orden_compra)
+		Document.create! do |document|
+			document.all = orden_compra['_id'],
+			document.cliente = orden_compra['cliente'],
+			document.proveedor = orden_compra['proveedor'],
+			document.sku = orden_compra['sku'],
+			document.fechaEntrega = orden_compra['fechaEntrega'],
+			document.cantidad = orden_compra['cantidad'],
+			document.cantidadDespachada = orden_compra['cantidadDespachada'],
+			document.precioUnitario = orden_compra['precioUnitario'],
+			document.canal = orden_compra['canal'],
+			document.estado = orden_compra['estado'],
+			document.notas = orden_compra['notas'],
+			document.rechazo = orden_compra['rechazo'], 
+			document.anulacion = orden_compra['anulacion'],
+			document.order_id = orden_compra['_id'],
+			document.urlNotificacion = orden_compra['urlNotificacion']
+		end
+	end
+
+	def borrar_todos_documentos_compra
+		@documents = Document.all
+		@documents.each do |document|
+		   document.destroy
+		end
 	end
 end
 

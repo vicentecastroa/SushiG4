@@ -21,14 +21,6 @@ class OrdersController < ApplicationController
 		@sku = params["sku"]
 		@cantidad = params["cantidad"]
 		@almacenId = params["almacenId"]
-		
-		# puts "Request POST"
-		# puts "Grupo: " + @group.to_s
-		# puts "Solicita SKU: " + @sku
-		# puts "Por una cantidad de: " + @cantidad.to_s
-		# puts "Entregar en el almacen: " + @almacenId
-		# puts "ID Orden de Compra: " + @order_id
-		#puts "URL Notificacion: " + @urlNotificacion
 
 		#Si alguno de los parametros necesarios no viene responder con error 400
 		if @cantidad.blank? || @group.blank? || @sku.blank? || @almacenId.blank? || @order_id.blank?
@@ -48,7 +40,6 @@ class OrdersController < ApplicationController
 
 			# Si el Sku nos corresponde
 			if (@@nuestros_productos.include? @sku)
-				
 				skus_to_sell.each do |producto|
 
 					if producto["sku"] == @sku
@@ -91,14 +82,10 @@ class OrdersController < ApplicationController
 								for item in lista_id_productos
 									productoId = item["_id"]
 									mover_producto_entre_bodegas(@@api_key, productoId, @almacenId, @order_id, 1)
-								
+								end
 								# Notificar
-								#aceptar la OC en la API del profesor
 								aceptar_oc(@order_id)
-								#notificar al endpoint del grupo oc aceptada
 								notificar(@urlNotificacion,"accept")
-
-								# Response
 								res = {
 										"sku": @sku,
 										"cantidad": @cantidad,
@@ -108,7 +95,6 @@ class OrdersController < ApplicationController
 										"despachado": true
 									}.to_json
 								render json: res, :status => 201
-								
 							else
 								res = "No se pudo realizar el envio por problemas internos."
 								render plain: res, :status => 404
@@ -122,19 +108,35 @@ class OrdersController < ApplicationController
 				res = "Producto no se encuentra (el grupo no ofrece productos de este sku) o no tiene stock"
 				puts res
 				render plain: res, :status => 404
-				#return res
-			end		
-		# Producto final		
+				return res
+			end
+		
+		# PRODUCTO FINAL
 		elsif (@sku.length == 5)
-			puts "producto final"
+			orden_compra = obtener_oc(@order_id)
+			if orden_compra[0]["estado"] == "creada"
+				respuesta_oc = aceptar_o_rechazar_oc_producto_final(orden_compra[0])
+				if respuesta_oc[0] == "aceptada"
+					res = {
+						"sku": @sku,
+						"cantidad": @cantidad,
+						"almacenId": @almacenId,
+						"grupoProveedor": 4,
+						"aceptado": true,
+						"despachado": false
+					}.to_json
+					render json: res, :status => 201
+					return res
+				elsif respuesta_oc[0] == "rechazada"
+					notificar(@urlNotificacion,"reject")
+					res = respuesta_oc[1]
+					render plain: res, :status => 404
+				else
+					notificar(@urlNotificacion,"reject")
+		 			res = "No se creó el pedido por un error del cliente en la solicitud. Por ejemplo, falta un parámetro obligatorio"
+					render plain: res, :status => 400
+				end
+			end
 		end
 	end
-
-	def destroy
-	end
-
-	def update
-	end
-
-
 end
