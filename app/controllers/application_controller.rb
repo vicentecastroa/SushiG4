@@ -63,9 +63,9 @@ class ApplicationController < ActionController::Base
 	def start
 		#borrar_todos_documentos_compra
 		#cocinar("30002", 1)
-		#revisar_oc
+		revisar_oc
 		#for i in 0..1
-		nueva = nueva_oc(@@id_produccion, @@id_produccion_13, "1013", nil, "10", true, 13)
+		#nueva = nueva_oc(@@id_produccion, @@id_produccion_13, "1013", nil, "10", true, 13)
 			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1003", nil, "5", true, 7)
 			# puts "1003"
 			# puts nueva
@@ -208,8 +208,6 @@ class ApplicationController < ActionController::Base
 		ingredientes = IngredientesAssociation.where(producto_id: sku_a_cocinar)
 		ingredientes.each do |ingrediente|
 			a_mover = cantidad_a_cocinar * ingrediente.unidades_bodega
-			puts 'a mover'
-			puts a_mover
 			if a_mover > 0
 				movidos = mover_a_almacen_cocinar(@@api_key, @@id_recepcion, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover = a_mover - movidos
@@ -414,7 +412,7 @@ class ApplicationController < ActionController::Base
 				file_name = entry.name.to_s
 				if file_name.length >= 10
 					time_file = DateTime.strptime(entry.attributes.mtime.to_s,'%s')
-					if time_file > (time - 1.hours)
+					if time_file > (time - 5.hours)
 						data_xml = sftp.download!("pedidos/#{entry.name}")
 	  					data_json = Hash.from_xml(data_xml).to_json
 	  					data_json = JSON.parse data_json
