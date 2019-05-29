@@ -72,7 +72,7 @@ class InventoryWorker < ApplicationJob
 				# Si el producto es MASAGO, lo pido a los grupos productores correspondientes
 				if sku.to_i == 1013
 					while cantidad_a_producir > 0 do
-						orden = [cantidad_a_producir, 10].min
+						orden = [cantidad_a_producir, 20].min
 						nos_entregan = pedir_producto_grupos("1013", orden)
 						puts "Nos entregan #{nos_entregan} unidades"
 						cantidad_a_producir -= nos_entregan
@@ -91,6 +91,7 @@ class InventoryWorker < ApplicationJob
 					lista_ingredientes = []
 					# Para cada ingrediente, calculamos el stock necesario para producir el producto y pedimos en caso de no tenerlo
 
+					contador_ingredientes = 0
 					ingredientes.each do |ingrediente|
 						
 						lista_ingredientes << [ingrediente.ingrediente_id, ingrediente.unidades_bodega]
@@ -111,14 +112,15 @@ class InventoryWorker < ApplicationJob
 
 						# Si el stock actual es mayor o igual a la cantidad de ingrediente requerido, enviamos ingrediente a despacho y reponemos la misma cantidad
 							
-						contador_ingredientes = 0
 
 						if p_ingrediente_inventario["cantidad"] >= cantidad_ingrediente
-							puts "\t ¡Tenemos el ingrediente! Enviamos a despacho " + cantidad_ingrediente.to_s + " unidades.\n"
-							contador_ingredientes += 1
+							puts "\t ¡Tenemos UN ingrediente! \n"
 							
+							contador_ingredientes += 1
+							puts "contadores: #{contador_ingredientes} = #{numero_ingredientes}\n"
 							if contador_ingredientes == numero_ingredientes
-								
+								puts "\t ¡Tenemos TODOS LOS ingredienteS! \n"
+
 								while cantidad_a_producir > 0 do
 								# Enviamos ingredientes a despacho
 									lista_ingredientes.each do |item|
@@ -136,10 +138,11 @@ class InventoryWorker < ApplicationJob
 
 						# Si el stock actual es menor a la cantidad de ingrediente requerido, calculamos la cantidad faltante de ingrediente
 						else
+							puts "No tenemos el ingrediente! \n"
 							cantidad_faltante_ingrediente = cantidad_ingrediente - p_ingrediente_inventario["cantidad"]
 
 							if @@materias_primas_propias.include? ingrediente.ingrediente_id 
-
+								puts "El ingrediente es nuestro\n"
 								# Obtenemos el tamaño de lote de producción del ingrediente
 								lote_produccion_ingrediente = p_ingrediente.lote_produccion
 
@@ -158,13 +161,14 @@ class InventoryWorker < ApplicationJob
 
 							# Si el producto no es nuestro, lo pedimos a otro grupo
 							else
+								puts "El ingrediente NO es nuestro\n"
 								while cantidad_faltante_ingrediente > 0
-									orden = [cantidad_a_producir_ingrediente, 10].min
+									orden = [cantidad_faltante_ingrediente, 20].min
 									nos_entregan = pedir_producto_grupos(ingrediente.ingrediente_id, orden)
 									puts "Nos entregan #{nos_entregan} unidades"
-									cantidad_a_producir_ingrediente -= nos_entregan
+									cantidad_faltante_ingrediente -= nos_entregan
 									if nos_entregan == 0
-										puts "\nNINGUN grupo tienen mas MASAGO\n"
+										puts "\nNINGUN grupo tienen mas Producto X\n"
 										break
 									end
 								end

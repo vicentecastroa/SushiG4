@@ -347,7 +347,7 @@ module AppController
 
 	def mover_ingrediente_a_despacho(sku, cantidad_ingrediente)
 		inventario =  getSkuOnStock()
-		puts "getSkuUnStock: \n" + inventario.to_s + "\n"
+		# puts "getSkuUnStock: \n" + inventario.to_s + "\n"
 		stock_en_almacen = Hash.new
 
 		# Partimos almacenes en 0
@@ -358,13 +358,13 @@ module AppController
 
 		# Agregamos los almacenes que tienen stock del producto
 		for producto in inventario
-			puts "producto[sku]: " + producto["sku"] + "\n"
+			# puts "producto[sku]: " + producto["sku"] + "\n"
 			if producto["sku"] == sku
 				puts "Encontramos el producto en esta bodega"
 				almacen = producto["almacenId"]
 				cantidad = producto["cantidad"]
 				stock_en_almacen[almacen] = producto
-				puts "stock_en_almacen[almacen]: " + stock_en_almacen[almacen].to_s + "\n"
+				# puts "stock_en_almacen[almacen]: " + stock_en_almacen[almacen].to_s + "\n"
 			end
 		end
 		unidades_por_mover = cantidad_ingrediente
@@ -450,7 +450,8 @@ module AppController
 	end
 
 	def getProductosMinimos
-		p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101')
+		# p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101')
+		p_minimos = Producto.where('sku = ?', '1101')
 		# p_minimos = Producto.where('stock_minimo != ?', 0)
 		p_minimos.each do |p_referencia|
 			if p_referencia.sku == '1101'
@@ -458,6 +459,53 @@ module AppController
 			end
 		end
 		return p_minimos
+	end
+
+	def solicitar_OC(sku, cantidad, grupo_id)
+
+		# Primero debemos crear la OC
+
+		# crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+		cliente = @@IDs_Grupos["4"]
+		proveedor = @@IDs_Grupos[grupo_id.to_s] 
+		sku = sku.to_s
+		fechaEntrega = "1607742000000" #12/12/2020
+		cantidad = cantidad.to_s
+		precioUnitario = "1"
+		canal = "b2b"
+		url = "https://tuerca4.ing.puc.cl/documents/{_id}/notification"
+
+		oc_creada = crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+
+		# Luego debemos solicitar el producto al grupo, incluyendo el id de la OC
+
+		oc_id = oc_creada["_id"]
+
+		puts "\n*******\n" + oc_creada["_id"] + "\n*******\n" 
+
+		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
+		# Ejemplo: solicitar_orden("1001", 10, 13)
+
+		pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
+			body:{
+				"sku": sku,
+				"cantidad": cantidad,
+				"almacenId": @@id_recepcion,
+				"oc": oc_id
+			}.to_json,
+			headers:{
+				"group": "4",
+				"Content-Type": "application/json"
+			})
+			#,timeout: 2)
+
+		if @@print_valores
+			puts "\nSolicitar Orden a Otro Grupo\n"
+			#puts JSON.pretty_generate(pedido_producto)
+			puts pedido_producto.to_s
+		end
+		puts pedido_producto
+		return pedido_producto	
 	end
 
 	def pedir_producto_grupos(sku_a_pedir, cantidad_a_pedir)
@@ -485,6 +533,8 @@ module AppController
 			lista_de_grupos << g
 		end
 		# Para cada grupo productor, revisamos su inventario
+		cantidad_entregada = 0
+
 		lista_de_grupos.each do |grupo|
 			if cantidad_faltante == 0
 				return 1
@@ -492,6 +542,7 @@ module AppController
 			if grupo.group_id == 4 || grupo.group_id == 12 || grupo.group_id == 14
 				next
 			end
+
 			puts "Grupo: " + grupo.group_id.to_s + ", URL: " + grupo.url.to_s + "\n"
 			inventario_grupo = solicitar_inventario(grupo.group_id)
 			
@@ -508,22 +559,24 @@ module AppController
 						# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
 						if cantidad_inventario >= cantidad_faltante
 							puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante"
-							solicitar_orden_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
-							cantidad_faltante = 0
-							return cantidad_faltante.to_i
+							# solicitar_orden_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
+							solicitar_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
+							# cantidad_faltante = 0
+							return cantidad_faltante
 
 						# Si el inventario es menor a la cantidad faltante, pedimos todo el inventario
 						else
 							puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario"
-							solicitar_orden_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
+							solicitar_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
+							# solicitar_orden_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
 							cantidad_faltante -= cantidad_inventario
-							return cantidad_inventario.to_i
+							cantidad_entregada += cantidad_inventario
 						end
 					end
 				end
 			end
 		end
-		return "\nno paso na\n"
+		return cantidad_entregada
 	end
 
 
@@ -551,15 +604,15 @@ module AppController
 		puts "order_id: #{order_id}, tipo #{order_id.class}"
 
 		
-		pedido_producto = HTTParty.post("https://tuerca#{grupo_id.to_s}.ing.puc.cl/orders",
+		pedido_producto = HTTParty.post("https://tuerca#{grupo_id}.ing.puc.cl/orders",
 			body:{
-				"sku": sku.to_s,
-				"cantidad": cantidad.to_i,
+				"sku": sku,
+				"cantidad": cantidad,
 				"almacenId": @@id_recepcion,
 				"oc": order_id
 			}.to_json,
 			headers:{
-				"group": 4,
+				"group": "4",
 				"Content-Type": "application/json"
 			})
 
