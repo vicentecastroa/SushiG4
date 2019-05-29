@@ -95,42 +95,7 @@ class ApplicationController < ActionController::Base
 	CONTENT_SERVER_FTP_PORT = 22
 
 	def start
-		#borrar_todos_documentos_compra
-		#cocinar("30002", 1)
-		revisar_oc
-		#for i in 0..1
-		#nueva = nueva_oc(@@id_produccion, @@id_produccion_13, "1013", nil, "10", true, 13)
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1003", nil, "5", true, 7)
-			# puts "1003"
-			# puts nueva
-			# puts ''
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1006", nil, "20", true, 7)
-			# puts "1006"
-			# puts nueva
-			# puts ''
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1008", nil, "5", true, 7)
-			# puts "1008"
-			# puts nueva
-			# puts ''
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1011", nil, "5", true, 7)
-			# puts "1011"
-			# puts nueva
-			# puts ''
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1016", nil, "5", true, 7)
-			# puts "1016"
-			# puts nueva
-			# puts ''
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1014", nil, "30", true, 11)
-			# puts nueva
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1016", nil, "30", true, 11)
-			# puts nueva
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1012", nil, "30", true, 11)
-			# puts nueva
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1007", nil, "30", true, 11)
-			# puts nueva
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1011", nil, "30", true, 11)
-			# puts nueva
-		#end
+
 	end
 
 	def solicitar_inventario(grupo_id)
@@ -461,8 +426,8 @@ class ApplicationController < ActionController::Base
 	  					end
 					end
 					
-  				end
-			end
+  			end
+			 end
 		end
 	end
 
