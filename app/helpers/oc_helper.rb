@@ -87,9 +87,4 @@ module OcHelper
 		return orden_compra_rechazada
 	end
 
-	def chequeo_ordenes_compra
-		for orden in ordenes
-			
-		end
-	end
 end

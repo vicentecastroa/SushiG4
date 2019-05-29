@@ -181,13 +181,13 @@ class InventoryWorker < ApplicationJob
 					# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
 					if cantidad_inventario >= cantidad_faltante
 						puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante"
-						solicitar_orden(sku_a_pedir, cantidad_faltante, grupo.group_id)
+						######solicitar_orden(sku_a_pedir, cantidad_faltante, grupo.group_id)
 						cantidad_faltante = 0
 
 					# Si el inventario es menor a la cantidad faltante, pedimos todo el inventario
 					else
 						puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario"
-						solicitar_orden(sku_a_pedir, cantidad_inventario, grupo.group_id)
+						#######solicitar_orden(sku_a_pedir, cantidad_inventario, grupo.group_id)
 						cantidad_faltante -= cantidad_inventario
 					end
 
@@ -253,8 +253,7 @@ class InventoryWorker < ApplicationJob
 
 				# Si el producto es MASAGO, lo pido a los grupos productores correspondientes
 				if sku.to_i == 1013
-					#get_producto_grupo(1013, cantidad_faltante)
-					#break #cambio a revisar al siguiente producto de p_minimos
+					pedir_producto_grupos(sku, cantidad_a_producir)
 
 				# Si el producto NO es MASAGO, debo verificar el stock de sus ingredientes antes de fabricar
 				else
@@ -314,9 +313,7 @@ class InventoryWorker < ApplicationJob
 
 							# Si el producto no es nuestro, lo pedimos a otro grupo
 							else
-
-								#get_producto_grupo(p_ingrediente.sku, cantidad_faltante_ingrediente)
-
+								pedir_producto_grupos(ingrediente.ingrediente_id, cantidad_faltante_ingrediente)
 							end
 						end
 

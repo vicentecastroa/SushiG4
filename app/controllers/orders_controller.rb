@@ -14,7 +14,6 @@ class OrdersController < ApplicationController
 	end
 
 	def create
-
 		@group = request.headers['group']
 		@order_id = params["oc"]
 		@orden_compra = obtener_oc(@order_id)
@@ -23,7 +22,6 @@ class OrdersController < ApplicationController
 		@cantidad = params["cantidad"]
 		@almacenId = params["almacenId"]
 
-		
 		puts "Request POST"
 		puts "Grupo: " + @group.to_s
 		puts "Solicita SKU: " + @sku
@@ -32,17 +30,14 @@ class OrdersController < ApplicationController
 		puts "ID Orden de Compra: " + @order_id
 		puts "URL Notificacion: " + @urlNotificacion
 
-
-		#Si alguno de los parametros necesarios no viene responder con error 400
-		 if @cantidad.blank? || @group.blank? || @sku.blank? || @almacenId.blank? || @order_id.blank?
+		#ERROR 400
+		if @cantidad.blank? || @group.blank? || @sku.blank? || @almacenId.blank? || @order_id.blank?
 		 	res = "No se creó el pedido por un error del cliente en la solicitud. Por ejemplo, falta un parámetro obligatorio"
 		 	render plain: res, :status => 400
 		 	return res
 		
-
-		# ACEPTAR O RECHAZAR MANDAR MATERIAS PRIMAS A OTRO GRUPO
-		#Si el sku es de largo 4
-		 elsif (@sku.length == 4)
+		# MATERIAS PRIMAS
+		elsif (@sku.length == 4)
 			@skus_to_sell = StockAvailableToSell
 			@skus_on_stock = getSkuOnStock
 			#si el sku es de los asignados a nosotros
@@ -122,18 +117,34 @@ class OrdersController < ApplicationController
 				return res
 			end
 		
-		#ACEPTAR O RECHAZAR MANDAR A PRODUCIR PRODUCTOS FINALES
-		#si el sku es de largo 5 significa que es un producto final
-		#elsif (@sku.length == 5)
-			#if #ver si tenemos los ingredientes para hacerlo
-				#FALTA HACER EL FLUJO
-			#else #rechazar
-				#rechazar_oc(@order_id,"rechazado porque no tenemos los ingredientes")
-				#notificar(@urlNotificacion,"reject")
-			#end
+		# PRODUCTO FINAL
+		elsif (@sku.length == 5)
+			orden_compra = obtener_oc(@order_id)
+			if orden_compra[0]["estado"] == "creada"
+				respuesta_oc = aceptar_o_rechazar_oc_producto_final(orden_compra[0])
+				if respuesta_oc[0] == "aceptada"
+					res = {
+						"sku": @sku,
+						"cantidad": @cantidad,
+						"almacenId": @almacenId,
+						"grupoProveedor": 4,
+						"aceptado": true,
+						"despachado": false
+					}.to_json
+					render json: res, :status => 201
+					return res
+				elsif respuesta_oc[0] == "rechazada"
+					notificar(@urlNotificacion,"reject")
+					res = respuesta_oc[1]
+					render plain: res, :status => 404
+				else
+					notificar(@urlNotificacion,"reject")
+		 			res = "No se creó el pedido por un error del cliente en la solicitud. Por ejemplo, falta un parámetro obligatorio"
+					render plain: res, :status => 400
+				end
+			end
 		end
-
-
+		
 	end
 
 	def destroy
@@ -141,6 +152,8 @@ class OrdersController < ApplicationController
 
 	def update
 	end
+
+	def responder_rechazo_oc
 
 
 end
