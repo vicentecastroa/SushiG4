@@ -117,7 +117,7 @@ class InventoryWorker < ApplicationJob
 							puts "\t ¡Tenemos UN ingrediente! \n"
 							
 							contador_ingredientes += 1
-							puts "contadores: #{contador_ingredientes} = #{numero_ingredientes}\n"
+							puts "contadores: #{contador_ingredientes} / #{numero_ingredientes}\n"
 							if contador_ingredientes == numero_ingredientes
 								puts "\t ¡Tenemos TODOS LOS ingredienteS! \n"
 								puts "Comenzamos la produccion de #{cantidad_a_producir} productos"
