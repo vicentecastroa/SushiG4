@@ -229,7 +229,11 @@ class ApplicationController < ActionController::Base
 			end
 		end
 		response = fabricar_sin_pago(@@api_key, sku_a_cocinar, cantidad_a_cocinar)
-		return response
+		respuesta = response["disponible"]
+		if respuesta
+			return response["disponible"]
+		end
+		return nil
 	end
 
 	def have_producto(sku, cantidad_minima, inventario_total)
