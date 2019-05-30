@@ -32,7 +32,7 @@ class OrdersController < ApplicationController
 		# ACEPTAR O RECHAZAR MANDAR MATERIAS PRIMAS A OTRO GRUPO
 		
 		# Materia prima
-		if (@sku.length == 4)
+		if (@sku.to_s.length == 4)
 
 			skus_to_sell = JSON.parse(StockAvailableToSellAll())
 			skus_on_stock = getSkuOnStock()
