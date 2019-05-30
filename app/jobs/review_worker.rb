@@ -66,14 +66,16 @@ class ReviewWorker < ApplicationJob
 			if respuesta_cocina
 				if @fecha_entrega > respuesta_cocina
 					crear_documento_oc(orden_compra)
-					aceptar_oc(@order_id)
+					puts aceptar_oc(@order_id)
 					return ["aceptada", 0]
 				else
-					rechazar_oc(@order_id, "No podemos complir con los plazos entregados")
+					puts "Se rechaza (de mentira) la orden\n"
+					# rechazar_oc(@order_id, "No podemos complir con los plazos entregados")
 					return ["rechazada","No podemos complir con los plazos entregados"]
 				end
 			else
-				rechazar_oc(@order_id, "No hay inventario para realizar pedido")
+				puts "Se rechaza (de mentira) la orden\n"
+				# rechazar_oc(@order_id, "No hay inventario para realizar pedido")
 				return ["rechazada","No hay inventario para realizar pedido"]
 			end
 		end

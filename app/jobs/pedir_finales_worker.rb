@@ -15,7 +15,7 @@ class PedirFinalesWorker < ApplicationJob
 		grupos_productores = (1..14).to_a
 		oc = false
 
-		lista_negra = [4]
+		lista_negra = [4, 5]
 		
 		lista_negra.each do |l|
 			grupos_productores.delete(l)
