@@ -4,7 +4,7 @@ pedir_productos_worker:
   queue: ordenes
 
 control_de_inventario:
-  cron: "*30 * * * *"
+  cron: "*/30 * * * *"
   class: InventoryWorker
   queue: default
 

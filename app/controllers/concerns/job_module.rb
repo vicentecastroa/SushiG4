@@ -471,7 +471,7 @@ module AppController
 
 	def getProductosMinimos
 		p_minimos = Producto.where('stock_minimo != ? OR sku = ? OR sku = ?', 0, '1101', '1111')
-		# p_minimos = Producto.where('sku = ?', '1101')
+		# p_minimos = Producto.where('sku = ?', '1111')
 		# p_minimos = Producto.where('stock_minimo != ?', 0)
 		p_minimos.each do |p_referencia|
 			if p_referencia.sku == '1101'
@@ -561,7 +561,20 @@ module AppController
 		grupos_productores.each do |g|
 			lista_de_grupos << g
 		end
-		lista_de_grupos.shuffle
+		
+		# blacklist black list lista negra
+		lista_negra = [4, 8, 10] #12, 8
+		
+		lista_negra.each do |l|
+			lista_de_grupos.each do |gr|
+				if gr.group_id == l
+					lista_de_grupos.delete(gr)
+				end
+			end
+		end
+		
+		lista_de_grupos = lista_de_grupos.shuffle
+
 		# Para cada grupo productor, revisamos su inventario
 		cantidad_entregada = 0
 
@@ -569,10 +582,9 @@ module AppController
 			if cantidad_faltante == 0
 				return 1
 			end
-			# blacklist black list lista negra
-			if grupo.group_id == 4 || grupo.group_id == 12 || grupo.group_id == 14 || grupo.group_id == 2 || grupo.group_id == 5
-				next
-			end
+			# if grupo.group_id == 4 || grupo.group_id == 12 || grupo.group_id == 14 || grupo.group_id == 10 || #grupo.group_id == 5
+			# 	next
+			# end
 
 			puts "Revisando grupo: " + grupo.group_id.to_s + ", URL: " + grupo.url.to_s + "\n"
 			inventario_grupo = solicitar_inventario(grupo.group_id)
