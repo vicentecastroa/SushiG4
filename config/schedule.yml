@@ -1,14 +1,14 @@
 pedir_productos_worker:
-  cron: "19 * * * *"
+  cron: "*/11 * * * *"
   class: PedirFinalesWorker
   queue: ordenes
 
-# control_de_inventario:
-#   cron: "34 * * * *"
-#   class: InventoryWorker
-#   queue: default
+control_de_inventario:
+  cron: "*/30 * * * *"
+  class: InventoryWorker
+  queue: default
 
-# review_worker:
-#   cron: "*/10 * * * *"
-#   class: ReviewWorker
-#   queue: default
+review_worker:
+  cron: "*/4 * * * *"
+  class: ReviewWorker
+  queue: default

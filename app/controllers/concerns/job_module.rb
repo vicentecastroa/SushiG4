@@ -501,7 +501,8 @@ module AppController
 
 		oc_id = oc_creada["_id"]
 
-		puts "\nSe creo la ordern id: " + oc_creada["_id"] + "\n" 
+		puts "\nSe creo la ordern id: " + oc_creada["_id"] + "\n"
+		puts "Para el producto sku: #{sku}\n"
 
 		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
 		# Ejemplo: solicitar_orden("1001", 10, 13)
@@ -512,24 +513,28 @@ module AppController
 				"cantidad": cantidad,
 				"almacenId": @@id_recepcion,
 				"oc": oc_id
-			}.to_json,
+			},
 			headers:{
 				"group": "4",
 				"Content-Type": "application/json"
-			})
-			# ,timeout: 2)
-
-		if @@print_valores
-			puts "\nSolicitar Orden a Otro Grupo\n"
-			#puts JSON.pretty_generate(pedido_producto)
-			puts pedido_producto.to_s
-		end
-		if pedido_producto["aceptado"]
+			},
+			timeout: 10
+			)
+		
+		codigo = pedido_producto.code
+		puts "Codigo request: #{codigo}, tipo #{codigo.class}\n"
+		# if true
+		# 	puts "\nSolicitar Orden\n"
+		# puts JSON.pretty_generate(pedido_producto)
+		# 	# puts pedido_producto.to_s
+		# end
+		
+		if codigo >= 200 && codigo < 300
 			response = true	
 		else
 			response = false
 		end
-		puts "Respuesta del grupo: #{response}"
+		# puts "Respuesta estructurado: #{JSON.pretty_generate(pedido_producto["aceptado"])}"
 		return response
 	end
 
@@ -558,7 +563,7 @@ module AppController
 			if cantidad_faltante == 0
 				return 1
 			end
-			# blacklist black list
+			# blacklist black list lista negra
 			if grupo.group_id == 4 || grupo.group_id == 12 || grupo.group_id == 14 || grupo.group_id == 2 || grupo.group_id == 5
 				next
 			end

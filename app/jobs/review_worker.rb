@@ -101,36 +101,48 @@ class ReviewWorker < ApplicationJob
 	end
 
 	def cocinar(sku_a_cocinar, cantidad_a_cocinar)
+
+		puts "\nCOCINAR\n"
+		puts "Voy a cocinar el sku: #{sku_a_cocinar}\n"
+
 		ingredientes = IngredientesAssociation.where(producto_id: sku_a_cocinar)
+
+		numero_ingredientes = ingredientes.length
+		lista_ingredientes = []
+
+		puts "Este producto necesita #{numero_ingredientes} ingredientes\n"
+
+		contador_ingredientes = 0
+
+		puts "Checkeamos disponibilidad de ingredientes\n"
 		ingredientes.each do |ingrediente|
-			a_mover = cantidad_a_cocinar * ingrediente.unidades_bodega
-			# FiXME            
-			puts "Moviendo #{a_mover} ingredientes a la Cocina\n"
-
-			movidos = 0
-
-			if a_mover > 0
-				# review Que  mover a almacern cocinar usa y que retorna
-				movidos = mover_a_almacen_cocinar(@@api_key, @@id_recepcion, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
-				a_mover = a_mover - movidos
+			cantidad_ingrediente = getInventoriesOne(ingrediente.ingrediente_id)
+			cantidad_necesaria = cantidad_a_cocinar * ingrediente.unidades_bodega
+			if cantidad_ingrediente["cantidad"]  < cantidad_necesaria
+				puts "Ingrediente no disponible"
+				return false
 			end
-
-			if a_mover > 0
-				movidos = mover_a_almacen_cocinar(@@api_key, @@id_pulmon, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
-				a_mover = a_mover - movidos
-			end
-
-			if a_mover > 0
-				movidos = mover_a_almacen_cocinar(@@api_key, @@id_despacho, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
-				a_mover = a_mover - movidos
-			end
-			
-			if a_mover > 0
-				return nil
-			end
+			puts "Ingrediente disponible"
 		end
-		# review Que fabricar sin pago usa y que retorna
+
+		ingredientes.each do |ingrediente|
+			
+			a_mover = cantidad_a_cocinar * ingrediente.unidades_bodega
+			puts "Moviendo #{a_mover} ingredientes a la Cocina\n"
+			movidos = 0
+			almacenes = [@@id_recepcion, @@id_pulmon, @@id_despacho]
+			
+			almacenes.each do |almacen|
+				if a_mover > 0
+					movidos = mover_a_almacen(@@api_key, almacen, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
+					puts "Movimos #{movidos} ingredientes\n"
+					a_mover = a_mover - movidos
+				end
+			end
+
+		end
 		response = fabricar_sin_pago(@@api_key, sku_a_cocinar, cantidad_a_cocinar)
+		puts response
 		return response["disponible"]
 	end
 
@@ -158,8 +170,8 @@ class ReviewWorker < ApplicationJob
 	def perform
 		job_start()
 		revisar_oc()
-		# revisar_cocina()
-		revisar_cocina_worker()
+		revisar_cocina()
+		# revisar_cocina_worker()
 		job_end()
 	end
 end
