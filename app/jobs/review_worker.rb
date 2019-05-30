@@ -152,26 +152,28 @@ class ReviewWorker < ApplicationJob
 		return nil
 	end
 
-	def revisar_cocina
+		def revisar_cocina
+		count = 0
 		@documents = Document.all
 		@documents.each do |document|
+			count += 1
 			sku = document["sku"]
 			cantidad = document["cantidad"]
 			order_id = document["order_id"]
-
-			# review                      
 			values = obtener_skus_con_stock(@@api_key ,@@id_cocina)
 			values.each do |value|
 				if value["_id"].to_s == sku.to_s
-					if value["total"] >= cantidad 
+					if value["total"] >= cantidad
+						break if value == 2
+						puts 'EMPIEZA DESPACHO...'
 						despacho_todos(@@id_cocina, sku, cantidad, order_id)
-						document.destroy
+						#document.destroy
+						puts 'TERMINA DESPACHO...'
 					end
 				end
 			end
 		end
 	end
-
 
 	def perform
 		job_start()

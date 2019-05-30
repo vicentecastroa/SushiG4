@@ -343,12 +343,20 @@ module ApplicationHelper
 	def despacho_todos(id_bodega, sku, cantidad, order_id)
 		lista_id_productos = get_products_from_almacenes(@@api_key, id_bodega, sku)
 		contador = 0
+		despacho_a_recepcion_2
+		puts 'Cantidad: ' + cantidad.to_s
+		mover_a_almacen(@@api_key, @@id_cocina, @@id_despacho, [sku], cantidad)
 		for item in lista_id_productos
 			productoId = item["_id"]
 			despachado = despachar_producto(@@api_key, productoId, order_id, "frescos", 1)
 			contador += 1
 			break if contador == cantidad
 		end
+	end
+
+	def despacho_a_recepcion_2
+		mover_a_almacen(@@api_key, @@id_despacho, @@id_recepcion, @@materias_primas_propias, 200)
+		mover_a_almacen(@@api_key, @@id_despacho, @@id_pulmon, @@materias_primas_propias, 200)
 	end
 
 	def StockAvailableToSell
