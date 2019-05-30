@@ -1,7 +1,7 @@
 pedir_productos_worker:
-  cron: "3 * * * *"
-  class: OcFinales
-  queue: default
+  cron: "19 * * * *"
+  class: PedirFinalesWorker
+  queue: ordenes
 
 # control_de_inventario:
 #   cron: "34 * * * *"
