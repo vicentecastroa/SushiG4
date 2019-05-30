@@ -470,12 +470,15 @@ module AppController
 	end
 
 	def getProductosMinimos
-		p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101')
+		p_minimos = Producto.where('stock_minimo != ? OR sku = ? OR sku = ?', 0, '1101', '1111')
 		# p_minimos = Producto.where('sku = ?', '1101')
 		# p_minimos = Producto.where('stock_minimo != ?', 0)
 		p_minimos.each do |p_referencia|
 			if p_referencia.sku == '1101'
 				p_referencia.stock_minimo = 300
+			end
+			if p_referencia.sku == '1111'
+				p_referencia.stock_minimo = 10
 			end
 		end
 		return p_minimos
@@ -517,25 +520,28 @@ module AppController
 			headers:{
 				"group": "4",
 				"Content-Type": "application/json"
-			},
-			timeout: 10
-			)
+			})
 		
 		codigo = pedido_producto.code
-		puts "Codigo request: #{codigo}, tipo #{codigo.class}\n"
+		puts "Codigo respuesta request: #{codigo}\n"
 		# if true
 		# 	puts "\nSolicitar Orden\n"
 		# puts JSON.pretty_generate(pedido_producto)
 		# 	# puts pedido_producto.to_s
 		# end
 		
-		if codigo >= 200 && codigo < 300
-			response = true	
-		else
-			response = false
-		end
+		# if codigo >= 200 && codigo < 300
+		# 	response = true	
+		# else
+		# 	response = false
+		# end
 		# puts "Respuesta estructurado: #{JSON.pretty_generate(pedido_producto["aceptado"])}"
-		return response
+		return true
+
+		# if pedido_producto["aceptado"]
+		# 	return true
+		# end
+		# return false
 	end
 
 	def pedir_producto_grupos(sku_a_pedir, cantidad_a_pedir)
@@ -587,7 +593,7 @@ module AppController
 							if solicitar_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
 								return cantidad_faltante
 							else
-								return 0
+								next
 							end
 							# cantidad_faltante = 0
 
@@ -602,6 +608,7 @@ module AppController
 						end
 					end
 				end
+				# return cantidad_faltante
 			end
 		end
 		return cantidad_entregada
