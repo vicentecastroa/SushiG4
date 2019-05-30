@@ -1,10 +1,24 @@
 module ApplicationHelper
-	@@print_valores = true
+	@@print_valores = false
 
 	@@nuestros_productos = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
 	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
 	@@api_key = "o5bQnMbk@:BxrE"
 	
+	#IDs Producción
+	@@id_recepcion = "5cc7b139a823b10004d8e6df"
+	@@id_despacho = "5cc7b139a823b10004d8e6e0"
+	@@id_pulmon = "5cc7b139a823b10004d8e6e3"
+	@@id_cocina = "5cc7b139a823b10004d8e6e4"
+	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
+
+	#IDs Desarrollo
+	#@@id_recepcion = "5cbd3ce444f67600049431c5"
+	#@@id_despacho = "5cbd3ce444f67600049431c6"
+	#@@id_pulmon = "5cbd3ce444f67600049431c9"
+	#@@id_cocina = "5cbd3ce444f67600049431ca"
+	#@@url = "https://integracion-2019-dev.herokuapp.com/bodega"
+
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
 		signature = Base64.encode64(hmac).chomp
@@ -188,24 +202,44 @@ module ApplicationHelper
 		return response.to_json
 	end
 
+	def nombre_almacen(id_almacen)
+		if id_almacen == @@id_despacho
+			return "Despacho"
+		elsif id_almacen == @@id_pulmon
+			return "Pulmon"
+		elsif id_almacen == @@id_recepcion
+			return "Recepcion"
+		elsif id_almacen == @@id_cocina
+			return "Cocina"
+		else
+			return "Destino"
+		end
+		return "Destino"
+	end
+
 	def mover_a_almacen(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
-		puts "Vaciando Almacen " + almacen_id_origen.to_s + "a Almacen " + almacen_id_destino.to_s + "\n"
+
+		# puts "Vaciando Almacen " + almacen_id_origen.to_s + "a Almacen " + almacen_id_destino.to_s + "\n"
 		cantidad = cantidad_a_mover
+
 		# Obtenemos el espacio disponible en destino
 		almacenes = (get_almacenes(api_key)).to_a
+		origen_inicial = nombre_almacen(almacen_id_origen)
+		destino_final = nombre_almacen(almacen_id_destino)
+		
 		for almacen in almacenes do
 			if almacen["_id"] == almacen_id_destino
-				puts "Almacen de destino usedSpace: " + almacen["usedSpace"].to_s + "\n"
+				# puts "Almacen de destino usedSpace: " + almacen["usedSpace"].to_s + "\n"
 				if almacen["usedSpace"] <= almacen["totalSpace"]
 					espacio_disponible = almacen["totalSpace"] - almacen["usedSpace"]
-					puts "Espacio disponible en destino: " + espacio_disponible.to_s + "\n"
-					puts "Vaciando Origen\n"
+					#puts "Espacio disponible en #{destino_final}: " + espacio_disponible.to_s + "\n"
 
 					# Obtenemos los skus en el almacen de origen
 					skus_origen = obtener_skus_con_stock(api_key, almacen_id_origen)
+
 					# Para cada sku, obtenemos productos
 					for sku_origen in skus_origen
-						puts "SKU en Origen: " + sku_origen["_id"]
+						#puts "SKU en Origen: " + sku_origen["_id"]
 						sku_origen_num = sku_origen["_id"]
 						
 						# Verificamos que el sku se encuentre en la lista de skus a mover
@@ -220,8 +254,10 @@ module ApplicationHelper
 									puts "Destino lleno\n"
 									return cantidad_a_mover - cantidad
 								end
+								#puts "Voy a mover el producto\n"
 								mover_producto_entre_almacenes(producto_origen["_id"], almacen_id_destino)
-								puts "Producto movido de Origen a Destino"
+								#puts "Producto movido de #{origen_inicial} a #{destino_final}\n"
+
 
 								# Disminuyo en 1 el espacio disponible
 								espacio_disponible -=1
@@ -229,7 +265,7 @@ module ApplicationHelper
 								# Si cantidad a mover es 0, se interpreta como mover todo los productos
 								if cantidad != 0
 									cantidad -= 1
-									puts "Productos a mover restantes: " + cantidad.to_s + "\n"
+									# puts "Productos a mover restantes: " + cantidad.to_s + "\n"
 									if cantidad == 0
 										return cantidad_a_mover - cantidad
 									end
@@ -241,10 +277,12 @@ module ApplicationHelper
 
 						end						
 					end
+					return 0
 				end
 			end
 		end
 	end
+	
 
 	def mover_a_almacen_cocinar(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
 		cantidad = cantidad_a_mover

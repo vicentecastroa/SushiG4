@@ -62,6 +62,7 @@ module AppController
 	@@productos_procesados = ["1105", "1106", "1107", "1108", "1109", "1110", "1111", "1112", "1114", "1115", "1116", "1201", "1207", "1209", "1210", "1211", "1215", "1216", "1301", "1307", "1309", "1310", "1407"]
 
 	@@nuestros_productos = ["1004", "1005", "1006", "1009", "1014", "1015"]
+	@@productos_finales = ["10001", "10002", "10003", "10004", "10005", "10006", "10007", "10008", "10009", "10010", "10011", "10012", "10013", "10014", "10015", "10016", "10017", "10018", "10019", "10020", "10021", "10022", "10023", "10024", "10025", "20001", "20002", "20003", "20004", "20005", "30001", "30002", "30003", "30004", "30005", "30006", "30007", "30008"]
 	@@id_almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon]
 
 
@@ -71,7 +72,22 @@ module AppController
 		return signature
 	end
 	
+	def nombre_almacen(id_almacen)
+		if id_almacen == @@id_despacho
+			return "Despacho"
+		elsif id_almacen == @@id_pulmon
+			return "Pulmon"
+		elsif id_almacen == @@id_recepcion
+			return "Recepcion"
+		elsif id_almacen == @@id_cocina
+			return "Cocina"
+		else
+			return "Destino"
+		end
+		return "Destino"
+	end
 	
+
 	def job_start
 		puts "\n**********************************************"
 		puts "\n************** INICIO DEL JOB ****************"
@@ -221,19 +237,20 @@ module AppController
 
 	def mover_a_almacen(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
 
-		puts "Vaciando Almacen " + almacen_id_origen.to_s + "a Almacen " + almacen_id_destino.to_s + "\n"
+		# puts "Vaciando Almacen " + almacen_id_origen.to_s + "a Almacen " + almacen_id_destino.to_s + "\n"
 		cantidad = cantidad_a_mover
 
 		# Obtenemos el espacio disponible en destino
 		almacenes = (get_almacenes(api_key)).to_a
+		origen_inicial = nombre_almacen(almacen_id_origen)
+		destino_final = nombre_almacen(almacen_id_destino)
+		
 		for almacen in almacenes do
 			if almacen["_id"] == almacen_id_destino
-				puts "Almacen de destino usedSpace: " + almacen["usedSpace"].to_s + "\n"
+				# puts "Almacen de destino usedSpace: " + almacen["usedSpace"].to_s + "\n"
 				if almacen["usedSpace"] <= almacen["totalSpace"]
 					espacio_disponible = almacen["totalSpace"] - almacen["usedSpace"]
-					puts "Espacio disponible en destino: " + espacio_disponible.to_s + "\n"
-
-					puts "Vaciando Origen\n"
+					puts "Espacio disponible en #{destino_final}: " + espacio_disponible.to_s + "\n"
 
 					# Obtenemos los skus en el almacen de origen
 					skus_origen = obtener_skus_con_stock(api_key, almacen_id_origen)
@@ -256,7 +273,8 @@ module AppController
 									return cantidad_a_mover - cantidad
 								end
 								mover_producto_entre_almacenes(producto_origen["_id"], almacen_id_destino)
-								puts "Producto movido de Origen a Destino"
+								puts "Producto movido de #{origen_inicial} a #{destino_final}\n"
+
 
 								# Disminuyo en 1 el espacio disponible
 								espacio_disponible -=1
@@ -383,7 +401,9 @@ module AppController
 			else
 			# Movemos las unidades en RECEPCIÓN, PULMÓN y COCINA a DESPACHO
 				if stock_en_almacen[almacen]["cantidad"]
-					if stock_en_almacen[almacen]["cantidad"] >= unidades_por_mover
+					puts "Comenzando a mover a despacho"
+					if stock_en_almacen[almacen]["cantidad"].to_i >= unidades_por_mover
+						puts "unidades por mover #{unidades_por_mover}"
 						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku], unidades_por_mover)
 						return 1
 					else 
@@ -450,12 +470,15 @@ module AppController
 	end
 
 	def getProductosMinimos
-		p_minimos = Producto.where('stock_minimo != ? OR sku = ?', 0, '1101')
-		# p_minimos = Producto.where('sku = ?', '1101')
+		p_minimos = Producto.where('stock_minimo != ? OR sku = ? OR sku = ?', 0, '1101', '1111')
+		# p_minimos = Producto.where('sku = ?', '1111')
 		# p_minimos = Producto.where('stock_minimo != ?', 0)
 		p_minimos.each do |p_referencia|
 			if p_referencia.sku == '1101'
 				p_referencia.stock_minimo = 300
+			end
+			if p_referencia.sku == '1111'
+				p_referencia.stock_minimo = 10
 			end
 		end
 		return p_minimos
@@ -481,7 +504,8 @@ module AppController
 
 		oc_id = oc_creada["_id"]
 
-		puts "\n*******\n" + oc_creada["_id"] + "\n*******\n" 
+		puts "\nSe creo la ordern id: " + oc_creada["_id"] + "\n"
+		puts "Para el producto sku: #{sku}\n"
 
 		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
 		# Ejemplo: solicitar_orden("1001", 10, 13)
@@ -492,25 +516,37 @@ module AppController
 				"cantidad": cantidad,
 				"almacenId": @@id_recepcion,
 				"oc": oc_id
-			}.to_json,
+			},
 			headers:{
 				"group": "4",
 				"Content-Type": "application/json"
 			})
-			#,timeout: 2)
+		
+		codigo = pedido_producto.code
+		puts "Codigo respuesta request: #{codigo}\n"
+		# if true
+		# 	puts "\nSolicitar Orden\n"
+		# puts JSON.pretty_generate(pedido_producto)
+		# 	# puts pedido_producto.to_s
+		# end
+		
+		# if codigo >= 200 && codigo < 300
+		# 	response = true	
+		# else
+		# 	response = false
+		# end
+		# puts "Respuesta estructurado: #{JSON.pretty_generate(pedido_producto["aceptado"])}"
+		return true
 
-		if @@print_valores
-			puts "\nSolicitar Orden a Otro Grupo\n"
-			#puts JSON.pretty_generate(pedido_producto)
-			puts pedido_producto.to_s
-		end
-		puts pedido_producto
-		return pedido_producto	
+		# if pedido_producto["aceptado"]
+		# 	return true
+		# end
+		# return false
 	end
 
 	def pedir_producto_grupos(sku_a_pedir, cantidad_a_pedir)
 
-		puts "\nPEDIR PRODUCTO A GRUPOS\npedir_producto_grupos(" + sku_a_pedir.to_s + ", " + cantidad_a_pedir.to_s + ")\n"
+		puts "\nPEDIR PRODUCTO A GRUPOS\n"
 
 		cantidad_faltante = cantidad_a_pedir
 
@@ -519,19 +555,26 @@ module AppController
 
 		# Obtenemos sus grupos productores
 		grupos_productores = producto.grupos
-		grupos_productores = grupos_productores.shuffle
 
-		lista_de_grupos = []
-		grupos_productores.each do |g|
-			lista_de_grupos << g.group_id
-		end
-		lista_de_grupos.shuffle
-		puts lista_de_grupos
-
+		
 		lista_de_grupos = []
 		grupos_productores.each do |g|
 			lista_de_grupos << g
 		end
+		
+		# blacklist black list lista negra
+		lista_negra = [4, 8, 10] #12, 8
+		
+		lista_negra.each do |l|
+			lista_de_grupos.each do |gr|
+				if gr.group_id == l
+					lista_de_grupos.delete(gr)
+				end
+			end
+		end
+		
+		lista_de_grupos = lista_de_grupos.shuffle
+
 		# Para cada grupo productor, revisamos su inventario
 		cantidad_entregada = 0
 
@@ -539,11 +582,11 @@ module AppController
 			if cantidad_faltante == 0
 				return 1
 			end
-			if grupo.group_id == 4 || grupo.group_id == 12 || grupo.group_id == 14
-				next
-			end
+			# if grupo.group_id == 4 || grupo.group_id == 12 || grupo.group_id == 14 || grupo.group_id == 10 || #grupo.group_id == 5
+			# 	next
+			# end
 
-			puts "Grupo: " + grupo.group_id.to_s + ", URL: " + grupo.url.to_s + "\n"
+			puts "Revisando grupo: " + grupo.group_id.to_s + ", URL: " + grupo.url.to_s + "\n"
 			inventario_grupo = solicitar_inventario(grupo.group_id)
 			
 			if inventario_grupo
@@ -554,26 +597,30 @@ module AppController
 					if sku_a_pedir == p_inventario["sku"]
 						puts p_inventario.to_s
 						cantidad_inventario = p_inventario["total"]
-						puts "Inventario: " + cantidad_inventario.to_s + "\n"
 
 						# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
 						if cantidad_inventario >= cantidad_faltante
 							puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante"
 							# solicitar_orden_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
-							solicitar_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
+							if solicitar_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
+								return cantidad_faltante
+							else
+								next
+							end
 							# cantidad_faltante = 0
-							return cantidad_faltante
 
-						# Si el inventario es menor a la cantidad faltante, pedimos todo el inventario
+						# Si el inventario del otro grupo es menor a la cantidad faltante, pedimos todo el inventario
 						else
 							puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario"
-							solicitar_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
-							# solicitar_orden_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
-							cantidad_faltante -= cantidad_inventario
-							cantidad_entregada += cantidad_inventario
+							if solicitar_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
+								# solicitar_orden_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
+								cantidad_faltante -= cantidad_inventario
+								cantidad_entregada += cantidad_inventario
+							end
 						end
 					end
 				end
+				# return cantidad_faltante
 			end
 		end
 		return cantidad_entregada
@@ -627,7 +674,7 @@ module AppController
 	end
 
 	def crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
-		puts "CREAR OC"
+		puts "CREANDO OC"
 
 		data = "PUT"
 		order_creada = HTTParty.put("https://integracion-2019-#{@@estado}.herokuapp.com/oc/crear",
