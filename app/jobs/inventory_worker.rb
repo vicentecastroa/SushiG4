@@ -1,6 +1,6 @@
 require 'httparty'
 require 'json'
-require 'groups_module'
+# require 'groups_module'
 # require 'oc_helper'
 # require "#{Rails.root}/app/controllers/concerns/app_controller_module"
 

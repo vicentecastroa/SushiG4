@@ -59,7 +59,7 @@ class PedirFinalesWorker < ApplicationJob
 		producto_id = @@productos_finales.sample
 		producto_final = Producto.find(producto_id)
 
-		grupos_productores = ("1".."15").to_a
+		grupos_productores = ("1".."14").to_a
 		grupos_productores.shuffle
 		oc = false
 		

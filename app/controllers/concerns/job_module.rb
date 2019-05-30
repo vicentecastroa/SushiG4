@@ -517,7 +517,7 @@ module AppController
 				"group": "4",
 				"Content-Type": "application/json"
 			})
-			#,timeout: 2)
+			# ,timeout: 2)
 
 		if @@print_valores
 			puts "\nSolicitar Orden a Otro Grupo\n"
