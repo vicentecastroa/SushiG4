@@ -510,19 +510,28 @@ module AppController
 		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
 		# Ejemplo: solicitar_orden("1001", 10, 13)
 
-		pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
-			body:{
-				"sku": sku,
-				"cantidad": cantidad,
-				"almacenId": @@id_recepcion,
-				"oc": oc_id
-			},
-			headers:{
-				"group": 4,
-				"Content-Type": "application/json"
-			})
-		
-		codigo = pedido_producto.code
+		codigo = 0
+		begin
+			pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
+				headers:{
+					"group": "4",
+					"Content-Type": "application/json"
+				},
+				body:{
+					"sku": sku,
+					"cantidad": cantidad.to_i,
+					"almacenId": @@id_recepcion,
+					"oc": oc_id
+				}.to_json, timeout: 12)
+		rescue Net::OpenTimeout
+			codigo = 601
+		rescue Timeout::Error
+			codigo = 602
+		rescue Net::ReadTimeout
+			codigo = 603
+		else	
+			codigo = pedido_producto.code
+		end
 		puts "Codigo respuesta request: #{codigo}\n"
 		# if true
 		# 	puts "\nSolicitar Orden\n"
@@ -530,14 +539,22 @@ module AppController
 		# 	# puts pedido_producto.to_s
 		# end
 		
-		# if codigo >= 200 && codigo < 300
-		# 	response = true	
-		# else
-		# 	response = false
-		# end
-		# puts "Respuesta estructurado: #{JSON.pretty_generate(pedido_producto["aceptado"])}"
-		return true
+		if codigo >= 200 && codigo < 300
+			response = true	
+			if pedido_producto["aceptado"]
+				puts "Nos han aceptado el pedido! #{pedido_producto["aceptado"]}\n"
+			else
+				puts "Nos han aceptado el pedido\n"
+			end
+		elsif codigo > 600
+			response = false
+			puts "Rechazado por Timeout\n"
+		else
+			response = false
+			puts "Nos han rechazado el pedido\n"
+		end
 
+		return response
 		# if pedido_producto["aceptado"]
 		# 	return true
 		# end
@@ -563,7 +580,7 @@ module AppController
 		end
 		
 		# blacklist black list lista negra
-		lista_negra = [4, 8, 10] #12, 8
+		lista_negra = [4, 8, 10, 12] #12, 8
 		
 		lista_negra.each do |l|
 			lista_de_grupos.each do |gr|
