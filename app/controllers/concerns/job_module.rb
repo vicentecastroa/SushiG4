@@ -493,7 +493,7 @@ module AppController
 		proveedor = @@IDs_Grupos[grupo_id.to_s] 
 		sku = sku.to_s
 		fechaEntrega = "1607742000000" #12/12/2020
-		cantidad = cantidad.to_s
+		cantidad = cantidad.to_i
 		precioUnitario = "1"
 		canal = "b2b"
 		url = "https://tuerca4.ing.puc.cl/documents/{_id}/notification"
@@ -518,7 +518,7 @@ module AppController
 				"oc": oc_id
 			},
 			headers:{
-				"group": "4",
+				"group": 4,
 				"Content-Type": "application/json"
 			})
 		
