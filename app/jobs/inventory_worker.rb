@@ -12,7 +12,7 @@ class InventoryWorker < ApplicationJob
 	# include AppController
 
 	queue_as :default
-	@@factor_multiplicador = 2
+	@@factor_multiplicador = 1.5
 
 	def perform
 		
@@ -73,7 +73,7 @@ class InventoryWorker < ApplicationJob
 				# Si el producto es MASAGO, lo pido a los grupos productores correspondientes
 				if sku.to_i == 1013
 					while cantidad_a_producir > 0 do
-						orden = [cantidad_a_producir, 10].min
+						orden = [cantidad_a_producir, 20].min
 						nos_entregan = pedir_producto_grupos("1013", orden)
 						puts "Nos entregan #{nos_entregan} unidades"
 						cantidad_a_producir -= nos_entregan
@@ -170,7 +170,7 @@ class InventoryWorker < ApplicationJob
 							else
 								puts "El ingrediente NO es nuestro\n"
 								while cantidad_faltante_ingrediente > 0
-									orden = [cantidad_faltante_ingrediente, 10].min
+									orden = [cantidad_faltante_ingrediente, 20].min
 									nos_entregan = pedir_producto_grupos(ingrediente.ingrediente_id, orden)
 									puts "Nos entregan #{nos_entregan} unidades"
 									cantidad_faltante_ingrediente -= nos_entregan
