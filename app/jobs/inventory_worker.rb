@@ -12,6 +12,7 @@ class InventoryWorker < ApplicationJob
 	# include AppController
 
 	queue_as :default
+	@@factor_multiplicador = 2
 
 	def perform
 		
@@ -36,6 +37,7 @@ class InventoryWorker < ApplicationJob
 
 			## Obtenemos el stock minimo que debe mantener el producto ##
 			stock_minimo = p_minimo.stock_minimo.to_i
+			stock_minimo = (stock_minimo * @@factor_multiplicador).ceil
 
 			puts "\n****************************\nProducto Minimo: " + p_minimo.nombre + "\n"
 			puts"\nStock Minimo: " + stock_minimo.to_s

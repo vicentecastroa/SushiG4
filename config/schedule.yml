@@ -9,6 +9,6 @@ control_de_inventario:
   queue: default
 
 review_worker:
-  cron: "*/4 * * * *"
+  cron: "*/3 * * * *"
   class: ReviewWorker
   queue: default

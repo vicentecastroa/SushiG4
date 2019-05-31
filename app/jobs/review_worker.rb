@@ -15,13 +15,13 @@ class ReviewWorker < ApplicationJob
 	
 	def job_start
 		puts "\n**********************************************"
-		puts "\n************** INICIO DEL JOB ****************"
+		puts "\n******** INICIO DE #{self.class} ********"
 		puts "\n**********************************************\n\n"
 	end
 	
 	def job_end
 		puts "\n**********************************************"
-		puts "\n************** FIN DEL JOB *******************"
+		puts "\n******* FIN DE #{self.class} ************"
 		puts "\n**********************************************\n\n"
 	end
 	
@@ -105,7 +105,7 @@ class ReviewWorker < ApplicationJob
 	def cocinar(sku_a_cocinar, cantidad_a_cocinar)
 
 		puts "\nCOCINAR\n"
-		puts "Voy a cocinar el sku: #{sku_a_cocinar}\n"
+		puts "SKU a cocinar: #{sku_a_cocinar}, Cantidad: #{cantidad_a_cocinar}\n"
 
 		ingredientes = IngredientesAssociation.where(producto_id: sku_a_cocinar)
 
@@ -120,6 +120,7 @@ class ReviewWorker < ApplicationJob
 		ingredientes.each do |ingrediente|
 			cantidad_ingrediente = getInventoriesOne(ingrediente.ingrediente_id)
 			cantidad_necesaria = cantidad_a_cocinar * ingrediente.unidades_bodega
+			puts "Necesitamos #{cantidad_necesaria} unidades del sku #{ingrediente.ingrediente_id}. Tenemos #{cantidad_ingrediente["cantidad"]} unidades\n"
 			if cantidad_ingrediente["cantidad"]  < cantidad_necesaria
 				puts "Ingrediente no disponible"
 				return false
@@ -130,22 +131,31 @@ class ReviewWorker < ApplicationJob
 		ingredientes.each do |ingrediente|
 			
 			a_mover = cantidad_a_cocinar * ingrediente.unidades_bodega
-			puts "Moviendo #{a_mover} ingredientes a la Cocina\n"
+			puts "Moviendo #{a_mover} unidades del sku #{ingrediente.ingrediente_id} a la Cocina\n"
 			movidos = 0
-			almacenes = [@@id_recepcion, @@id_pulmon, @@id_despacho]
+			almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon, @@id_despacho]
 			
 			almacenes.each do |almacen|
 				if a_mover > 0
 					movidos = mover_a_almacen(@@api_key, almacen, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
-					puts "Movimos #{movidos} ingredientes\n"
 					a_mover = a_mover - movidos
+					if movidos > 0
+						puts "Movimos #{movidos} unidades del sku #{ingrediente.ingrediente_id} a la Cocina. Faltan #{a_mover} por mover\n"
+					end
 				end
 			end
 
 		end
 		response = fabricar_sin_pago(@@api_key, sku_a_cocinar, cantidad_a_cocinar)
-		puts response
-		return response["disponible"]
+
+
+
+		respuesta = response["disponible"]
+		if respuesta
+			puts response
+			return response["disponible"]
+		end
+		return nil
 	end
 
 	def revisar_cocina
