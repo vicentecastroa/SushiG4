@@ -204,13 +204,13 @@ module AppController
 		products_produced = HTTParty.put("#{@@url}/fabrica/fabricarSinPago",
 		  body:{
 		  	"sku": sku,
-		  	"cantidad": cantidad
+		  	"cantidad": cantidad.to_i
 		  }.to_json,
 		  headers:{
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
+		if true
 			puts "\nFABRICAR SIN PAGO\n"
 			puts JSON.pretty_generate(products_produced)
 		end
@@ -225,7 +225,7 @@ module AppController
 		# Ejemplo: solicitar_inventario(13)
 		
 		begin
-			inventario_grupo = HTTParty.get("http://tuerca#{grupo_id}.ing.puc.cl/inventories", timeout: 40)
+			inventario_grupo = HTTParty.get("http://tuerca#{grupo_id}.ing.puc.cl/inventories", timeout: 90)
 		rescue Net::OpenTimeout
 			puts "Grupo sin conexion. Imposible acceder al inventario\n"
 			inventario_grupo = {"sku" => "9999", "nombre" => "No Stock", "total" => 0}
@@ -243,7 +243,7 @@ module AppController
 			puts "\nInventario de Grupo " + grupo_id.to_s + ": \n" + inventario_grupo.to_s + "\n"
 		end
 		
-		return inventario_grupo
+		return false
 	end
 
 
@@ -486,10 +486,10 @@ module AppController
 		# p_minimos = Producto.where('sku = ?', '1111')
 		# p_minimos = Producto.where('stock_minimo != ?', 0)
 		p_minimos.each do |p_referencia|
-			if p_referencia.sku == '1101'
+			if p_referencia.sku == "1101"
 				p_referencia.stock_minimo = 300
 			end
-			if p_referencia.sku == '1111'
+			if p_referencia.sku == "1111"
 				p_referencia.stock_minimo = 10
 			end
 		end
@@ -534,7 +534,8 @@ module AppController
 					"cantidad": cantidad.to_i,
 					"almacenId": @@id_recepcion,
 					"oc": oc_id
-				}.to_json, timeout: 40)
+				}.to_json,
+				timeout: 60)
 		rescue Net::OpenTimeout
 			codigo = 601
 		rescue Timeout::Error
@@ -672,6 +673,8 @@ module AppController
 		return oc_creada
 	end
 
+	
+	# Negro
 	def solicitar_orden(sku, cantidad, grupo_id, order_id)
 		puts "SOLICITAR ORDEN"
 		puts "sku: #{sku}, tipo #{sku.class}"
@@ -702,6 +705,7 @@ module AppController
 		return pedido_producto
 	end
 
+
 	def crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
 		puts "CREANDO OC"
 
@@ -720,7 +724,7 @@ module AppController
 		  headers:{
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
+		if true
 			puts "ORDEN DE COMPRA CREADA"
 			puts JSON.pretty_generate(order_creada)
 		end

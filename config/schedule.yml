@@ -1,7 +1,7 @@
-pedir_productos_worker:
-  cron: "*/11 * * * *"
-  class: PedirFinalesWorker
-  queue: ordenes
+# pedir_productos_worker:
+#   cron: "*/11 * * * *"
+#   class: PedirFinalesWorker
+#   queue: ordenes
 
 control_de_inventario:
   cron: "*/30 * * * *"
