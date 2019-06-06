@@ -1,6 +1,10 @@
 require 'net/ftp'
+
+# Require Helpers
 require 'ftp_helper'
 require 'application_helper'
+require 'variables_helper'
+
 require 'active_support/core_ext/hash'
 require 'date'
 
@@ -9,127 +13,11 @@ class ApplicationController < ActionController::Base
 	include ApplicationHelper
 	include FtpHelper
 	include OcHelper
-
-	@@api_key = "o5bQnMbk@:BxrE"
-
-	#IDs Producción
-	@@id_recepcion = '5cc7b139a823b10004d8e6df'
-	@@id_despacho = "5cc7b139a823b10004d8e6e0"
-	@@id_pulmon = "5cc7b139a823b10004d8e6e3"
-	@@id_cocina = "5cc7b139a823b10004d8e6e4"
-	@@url = "http://integracion-2019-prod.herokuapp.com/bodega"
-
-	@@id_produccion = "5cc66e378820160004a4c3bf"
-	@@id_produccion_1 = "5cc66e378820160004a4c3bc"
-	@@id_produccion_2 = "5cc66e378820160004a4c3bd"
-	@@id_produccion_3 = "5cc66e378820160004a4c3be"
-	@@id_produccion_4 = "5cc66e378820160004a4c3bf"
-	@@id_produccion_5 = "5cc66e378820160004a4c3c0"
-	@@id_produccion_6 = "5cc66e378820160004a4c3c1"
-	@@id_produccion_7 = "5cc66e378820160004a4c3c2"
-	@@id_produccion_8 = "5cc66e378820160004a4c3c3"
-	@@id_produccion_9 = "5cc66e378820160004a4c3c4"
-	@@id_produccion_10 = "5cc66e378820160004a4c3c5"
-	@@id_produccion_11 = "5cc66e378820160004a4c3c6"
-	@@id_produccion_12 = "5cc66e378820160004a4c3c7"
-	@@id_produccion_13 = "5cc66e378820160004a4c3c8"
-	@@id_produccion_14 = "5cc66e378820160004a4c3c9"
-
-	@@print_valores = false
-
-	# Capacidades Bodegas
-	@@tamaño_cocina = 1122
-	@@tamaño_recepcion = 133
-	@@tamaño_despacho = 80
-	@@tamaño_pulmon = 99999999
-
-	@@nuestros_productos = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
-	@@id_almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon]
-
-	# Materia primas producidas por nosotros
-	@@materias_primas_propias = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
-	# Materias primas prodcidas por otros grupos
-	@@materias_primas_ajenas = ["1002", "1003", "1007", "1008", "1010", "1011", "1012", "1013"]
-	# Productos procesados
-	@@productos_procesados = ["1105", "1106", "1107", "1108", "1109", "1110", "1111", "1112", "1114", "1115", "1116", "1201", "1207", "1209", "1210", "1211", "1215", "1216", "1301", "1307", "1309", "1310", "1407"]
-
-	#IDs Grupos Producción
-	@@IDs_Grupos = {"1"=>"5cc66e378820160004a4c3bc",
-					"2"=>"5cc66e378820160004a4c3bd",
-					"3"=>"5cc66e378820160004a4c3be",
-					"4"=>"5cc66e378820160004a4c3bf",
-					"5"=>"5cc66e378820160004a4c3c0",
-					"6"=>"5cc66e378820160004a4c3c1",
-					"7"=>"5cc66e378820160004a4c3c2",
-					"8"=>"5cc66e378820160004a4c3c3",
-					"9"=>"5cc66e378820160004a4c3c4",
-					"10"=>"5cc66e378820160004a4c3c5",
-					"11"=>"5cc66e378820160004a4c3c6",
-					"12"=>"5cc66e378820160004a4c3c7",
-					"13"=>"5cc66e378820160004a4c3c8",
-					"14"=>"5cc66e378820160004a4c3c9"}
-
-	# #IDs Grupos Desarrollo
-	# @@IDs_Grupos = {"1"=>"5cbd31b7c445af0004739be3",
-	# 				"2"=>"5cbd31b7c445af0004739be4",
-	# 				"3"=>"5cbd31b7c445af0004739be5",
-	# 				"4"=>"5cbd31b7c445af0004739be6",
-	# 				"5"=>"5cbd31b7c445af0004739be7",
-	# 				"6"=>"5cbd31b7c445af0004739be8",
-	# 				"7"=>"5cbd31b7c445af0004739be9",
-	# 				"8"=>"5cbd31b7c445af0004739bea",
-	# 				"9"=>"5cbd31b7c445af0004739beb",
-	# 				"10"=>"5cbd31b7c445af0004739bec",
-	# 				"11"=>"5cbd31b7c445af0004739bed",
-	# 				"12"=>"5cbd31b7c445af0004739bee",
-	# 				"13"=>"5cbd31b7c445af0004739bef",
-	# 				"14"=>"5cbd31b7c445af0004739bf0"}
-	
-	#desarrollo es true y produccion es false
-	@@status_of_work = false
-
-	CONTENT_SERVER_DOMAIN_NAME = 'fierro.ing.puc.cl'
-	CONTENT_SERVER_FTP_LOGIN = 'grupo4'
-	CONTENT_SERVER_FTP_PASSWORD = 'p6FByxRf5QYbrDC80'
-	CONTENT_SERVER_FTP_PORT = 22
+	include VariablesHelper
 
 	def start
-		#borrar_todos_documentos_compra
-		#cocinar("30002", 1)
+		# Funcion que llama a /inventories
 		revisar_oc
-		#for i in 0..1
-		#nueva = nueva_oc(@@id_produccion, @@id_produccion_13, "1013", nil, "10", true, 13)
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1003", nil, "5", true, 7)
-			# puts "1003"
-			# puts nueva
-			# puts ''
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1006", nil, "20", true, 7)
-			# puts "1006"
-			# puts nueva
-			# puts ''
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1008", nil, "5", true, 7)
-			# puts "1008"
-			# puts nueva
-			# puts ''
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1011", nil, "5", true, 7)
-			# puts "1011"
-			# puts nueva
-			# puts ''
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1016", nil, "5", true, 7)
-			# puts "1016"
-			# puts nueva
-			# puts ''
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1014", nil, "30", true, 11)
-			# puts nueva
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1016", nil, "30", true, 11)
-			# puts nueva
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1012", nil, "30", true, 11)
-			# puts nueva
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1007", nil, "30", true, 11)
-			# puts nueva
-			# nueva = nueva_oc(@@id_produccion, @@id_produccion_11, "1011", nil, "30", true, 11)
-			# puts nueva
-		#end
 	end
 
 	def solicitar_inventario(grupo_id)
@@ -167,26 +55,22 @@ class ApplicationController < ActionController::Base
 		return pedido_producto
 	end
 
-	def recepcion_a_cocina(api_key)
-
+	def recepcion_a_cocina
 		# Vaciamos Pulmón
-		mover_a_almacen(api_key, @@id_pulmon, @@id_cocina, @@materias_primas_propias, 5)
-
+		mover_a_almacen(@@id_pulmon, @@id_cocina, @@materias_primas_propias, 5)
 		# Vaciamos Recepción
-		mover_a_almacen(api_key, @@id_recepcion, @@id_cocina, @@materias_primas_propias, 5)
+		mover_a_almacen(@@id_recepcion, @@id_cocina, @@materias_primas_propias, 5)
 	end
 
-	def cocina_a_recepcion(api_key)
-
+	def cocina_a_recepcion
 		# Vaciamos Cocina
-		vaciar_almacen(api_key, @@id_cocina, @@id_recepcion, @@materias_primas_propias)
+		vaciar_almacen(@@id_cocina, @@id_recepcion, @@materias_primas_propias)
 	end
 
 	def despacho_a_recepcion
-
 		# D Cocina
-		mover_a_almacen(@@api_key, @@id_despacho, @@id_recepcion, @@materias_primas_propias, 200)
-		mover_a_almacen(@@api_key, @@id_despacho, @@id_pulmon, @@materias_primas_propias, 200)
+		mover_a_almacen(@@id_despacho, @@id_recepcion, @@materias_primas_propias, 200)
+		mover_a_almacen(@@id_despacho, @@id_pulmon, @@materias_primas_propias, 200)
 	end
 
 	def getSkuOnStock
@@ -194,7 +78,7 @@ class ApplicationController < ActionController::Base
 		id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
 
 		for almacen in id_almacenes
-			@request = (obtener_skus_con_stock(@@api_key, almacen)).to_a
+			@request = (obtener_skus_con_stock(almacen)).to_a
 			for element in @request do
 				sku = element["_id"]
 				@product = Producto.find(sku)
@@ -237,28 +121,28 @@ class ApplicationController < ActionController::Base
 		return response.to_json
 	end
 
-
 	def cocinar(sku_a_cocinar, cantidad_a_cocinar)
 		ingredientes = IngredientesAssociation.where(producto_id: sku_a_cocinar)
 		puts "\nIngredientes: " + ingredientes.to_s + "\n"
 		ingredientes.each do |ingrediente|
 			a_mover = cantidad_a_cocinar * ingrediente.unidades_bodega
 			if a_mover > 0
-				movidos = mover_a_almacen_cocinar(@@api_key, @@id_recepcion, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
+				movidos = mover_a_almacen_cocinar(@@id_recepcion, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover = a_mover - movidos
 			end
-
-			
 
 			if a_mover > 0
-				movidos = mover_a_almacen_cocinar(@@api_key, @@id_pulmon, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
+				movidos = mover_a_almacen_cocinar(@@id_pulmon, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover = a_mover - movidos
-			end
-
 			end
 		
 			if a_mover > 0
-				movidos = mover_a_almacen_cocinar(@@api_key, @@id_despacho, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
+				movidos = mover_a_almacen_cocinar(@@id_despacho, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
+				a_mover = a_mover - movidos
+			end
+
+			if a_mover > 0
+				movidos = mover_a_almacen_cocinar(@@id_cocina, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover = a_mover - movidos
 			end
 				
@@ -266,7 +150,7 @@ class ApplicationController < ActionController::Base
 				return nil
 			end
 		end
-		response = fabricar_sin_pago(@@api_key, sku_a_cocinar, cantidad_a_cocinar)
+		response = fabricar_sin_pago(sku_a_cocinar, cantidad_a_cocinar)
 		return response["disponible"]
 	end
 
@@ -325,10 +209,10 @@ class ApplicationController < ActionController::Base
 			# Movemos las unidades en RECEPCIÓN, PULMÓN y COCINA a DESPACHO
 				if stock_en_almacen[almacen]["cantidad"]
 					if stock_en_almacen[almacen]["cantidad"] >= unidades_por_mover
-						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku], unidades_por_mover)
+						mover_a_almacen(almacen, @@id_despacho, [sku], unidades_por_mover)
 						return 1
 					else 
-						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku], 0)
+						mover_a_almacen(almacen, @@id_despacho, [sku], 0)
 						unidades_por_mover -= stock_en_almacen[almacen]["cantidad"]
 					end
 				end
@@ -442,10 +326,7 @@ class ApplicationController < ActionController::Base
 	def revisar_oc
 		time = Time.now
 		counter = 0
-		@host = "fierro.ing.puc.cl"
-		@user = "grupo4"
-		@password = "p6FByxRf5QYbrDC80"
-		Net::SFTP.start(@host, @user, :password => @password) do |sftp|
+		Net::SFTP.start(@@host, @@user, :password => @@password) do |sftp|
 			entries = sftp.dir.entries("/pedidos")
 			entries.each do |entry|
 				file_name = entry.name.to_s

@@ -2,9 +2,11 @@ require 'httparty'
 require 'hmac-sha1'
 require 'json'
 
+require 'variables_helper'
 
 class OrdersController < ApplicationController
 	skip_before_action :verify_authenticity_token, :only => [:create]
+	include VariablesHelper
 
 	def show
 	end
@@ -72,10 +74,10 @@ class OrdersController < ApplicationController
 							skus_on_stock.each do |sku_stock|
 								if sku_stock["sku"] == @sku && count > 0
 									if sku_stock["cantidad"] < count
-										moved = mover_a_almacen(@@api_key, sku_stock["almacenId"], @@id_despacho, [@sku], sku_stock["cantidad"])
+										moved = mover_a_almacen(sku_stock["almacenId"], @@id_despacho, [@sku], sku_stock["cantidad"])
 										count -= moved
 									else
-										moved = mover_a_almacen(@@api_key, sku_stock["almacenId"], @@id_despacho, [@sku], count)
+										moved = mover_a_almacen(sku_stock["almacenId"], @@id_despacho, [@sku], count)
 										count -= moved
 									end
 								end
@@ -85,11 +87,11 @@ class OrdersController < ApplicationController
 							if count == 0
 								puts "moviendo a bodega del grupo"
 								# Mover desde despacho a la bodega del otro grupo
-								lista_id_productos = get_products_from_almacenes(@@api_key, @@id_despacho, @sku)
+								lista_id_productos = get_products_from_almacenes(@@id_despacho, @sku)
 								contador = 0
 								for item in lista_id_productos
 									productoId = item["_id"]
-									despachado = mover_producto_entre_bodegas(@@api_key, productoId, @almacenId, @order_id, 1)
+									despachado = mover_producto_entre_bodegas(productoId, @almacenId, @order_id, 1)
 									contador += 1
 									break if contador == @cantidad
 								end

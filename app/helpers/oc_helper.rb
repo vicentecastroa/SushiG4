@@ -1,6 +1,7 @@
+require 'variables_helper'
+
 module OcHelper
-	@@print_valores = false
-	@@estado = 'prod'
+	include VariablesHelper
 
 	def obtener_oc(id)
 		orden_compra = HTTParty.get("https://integracion-2019-#{@@estado}.herokuapp.com/oc/obtener/#{id}", 

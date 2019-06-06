@@ -1,33 +1,17 @@
-module ApplicationHelper
-	@@print_valores = false
+require 'variables_helper'
 
-	@@nuestros_productos = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
-	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
-	@@api_key = "o5bQnMbk@:BxrE"
-	
-	#IDs Producción
-	@@id_recepcion = "5cc7b139a823b10004d8e6df"
-	@@id_despacho = "5cc7b139a823b10004d8e6e0"
-	@@id_pulmon = "5cc7b139a823b10004d8e6e3"
-	@@id_cocina = "5cc7b139a823b10004d8e6e4"
-	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
+module ApplicationHelper	
+	include VariablesHelper
 
-	#IDs Desarrollo
-	#@@id_recepcion = "5cbd3ce444f67600049431c5"
-	#@@id_despacho = "5cbd3ce444f67600049431c6"
-	#@@id_pulmon = "5cbd3ce444f67600049431c9"
-	#@@id_cocina = "5cbd3ce444f67600049431ca"
-	#@@url = "https://integracion-2019-dev.herokuapp.com/bodega"
-
-	def hashing(data, api_key)
-		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
+	def hashing(data)
+		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), @@api_key.encode("ASCII"), data.encode("ASCII"))
 		signature = Base64.encode64(hmac).chomp
 		return signature
 	end
 
-  	def get_almacenes(api_key)
+  	def get_almacenes
 		data = "GET"
-		hash_value = hashing(data, api_key)
+		hash_value = hashing(data, @@api_key)
 		almacenes = HTTParty.get("#{@@url}/almacenes", 
 		  headers:{
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
@@ -40,10 +24,9 @@ module ApplicationHelper
 		return almacenes
 	end
 
-	# Funcionando bien
-	def get_products_from_almacenes(api_key, almacenId, sku)
+	def get_products_from_almacenes(almacenId, sku)
 		data = "GET#{almacenId}#{sku}"
-		hash_value = hashing(data, api_key)
+		hash_value = hashing(data)
 		products = HTTParty.get("#{@@url}/stock?almacenId=#{almacenId}&sku=#{sku}",
 		  headers:{
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
@@ -56,9 +39,9 @@ module ApplicationHelper
 		return products
 	end
 
-	def get_products_from_almacenes_limit_primeros(api_key, almacenId, sku, limit)
+	def get_products_from_almacenes_limit_primeros(almacenId, sku, limit)
 		data = "GET#{almacenId}#{sku}"
-		hash_value = hashing(data, api_key)
+		hash_value = hashing(data)
 		products = HTTParty.get("#{@@url}/stock?almacenId=#{almacenId}&sku=#{sku}&limit=#{limit}",
 		  headers:{
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
@@ -71,9 +54,9 @@ module ApplicationHelper
 		return products
 	end
 
-  	def mover_producto_entre_bodegas(api_key, productoId, almacenId, oc, precio)
+  	def mover_producto_entre_bodegas(productoId, almacenId, oc, precio)
 		data = "POST#{productoId}#{almacenId}"
-		hash_value = hashing(data, api_key)
+		hash_value = hashing(data)
 		producto_movido = HTTParty.post("#{@@url}/moveStockBodega",
 		  body:{
 		  	"productoId": productoId,
@@ -98,7 +81,7 @@ module ApplicationHelper
 		almacenId = id_destino
 
 		data = "POST#{productoId}#{almacenId}"
-		hash_value = hashing(data, @@api_key)
+		hash_value = hashing(data)
 		req = HTTParty.post("#{@@url}/moveStock",
 		  body:{
 				"productoId": productoId,
@@ -117,9 +100,9 @@ module ApplicationHelper
 		return req
 	end
 
-	def obtener_skus_con_stock(api_key, almacenId)
+	def obtener_skus_con_stock(almacenId)
 		data = "GET#{almacenId}"
-		hash_value = hashing(data, api_key)
+		hash_value = hashing(data)
 		skus = HTTParty.get("#{@@url}/skusWithStock?almacenId=#{almacenId}",
 		  headers:{
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
@@ -132,9 +115,9 @@ module ApplicationHelper
 		return skus
 	end
 
-	def fabricar_sin_pago(api_key, sku, cantidad)
+	def fabricar_sin_pago(sku, cantidad)
 		data = "PUT#{sku}#{cantidad}"
-		hash_value = hashing(data, api_key)
+		hash_value = hashing(data)
 		products_produced = HTTParty.put("#{@@url}/fabrica/fabricarSinPago",
 		  body:{
 		  	"sku": sku,
@@ -151,13 +134,13 @@ module ApplicationHelper
 		return products_produced
 	end
 
-	def fabricar_todo(api_key, lista_productos)
-		almacenes = (get_almacenes(api_key)).to_a
+	def fabricar_todo(lista_productos)
+		almacenes = (get_almacenes.to_a
 		puts "..................."
 		for almacen in almacenes do
 			almacenId = almacen["_id"]
 			for producto in lista_productos
-				get_products_from_almacenes(api_key, almacenId, producto)
+				get_products_from_almacenes(almacenId, producto)
 			end
 		end
 		puts "..................."
@@ -217,13 +200,13 @@ module ApplicationHelper
 		return "Destino"
 	end
 
-	def mover_a_almacen(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
+	def mover_a_almacen(almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
 
 		# puts "Vaciando Almacen " + almacen_id_origen.to_s + "a Almacen " + almacen_id_destino.to_s + "\n"
 		cantidad = cantidad_a_mover
 
 		# Obtenemos el espacio disponible en destino
-		almacenes = (get_almacenes(api_key)).to_a
+		almacenes = (get_almacenes).to_a
 		origen_inicial = nombre_almacen(almacen_id_origen)
 		destino_final = nombre_almacen(almacen_id_destino)
 		
@@ -235,7 +218,7 @@ module ApplicationHelper
 					#puts "Espacio disponible en #{destino_final}: " + espacio_disponible.to_s + "\n"
 
 					# Obtenemos los skus en el almacen de origen
-					skus_origen = obtener_skus_con_stock(api_key, almacen_id_origen)
+					skus_origen = obtener_skus_con_stock(almacen_id_origen)
 
 					# Para cada sku, obtenemos productos
 					for sku_origen in skus_origen
@@ -245,7 +228,7 @@ module ApplicationHelper
 						# Verificamos que el sku se encuentre en la lista de skus a mover
 						if skus_a_mover.include? sku_origen_num
 							# Obtenemos los productos asociados a ese sku
-							productos_origen = get_products_from_almacenes(api_key, almacen_id_origen, sku_origen_num)
+							productos_origen = get_products_from_almacenes(almacen_id_origen, sku_origen_num)
 							#puts "Productos_origen: " + productos_origen.to_s + "\n"
 
 							# Movemos cada producto de Origen a Destino
@@ -283,19 +266,18 @@ module ApplicationHelper
 		end
 	end
 	
-
-	def mover_a_almacen_cocinar(api_key, almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
+	def mover_a_almacen_cocinar(almacen_id_origen, almacen_id_destino, skus_a_mover, cantidad_a_mover)
 		cantidad = cantidad_a_mover
-		almacenes = (get_almacenes(api_key)).to_a
+		almacenes = (get_almacenes).to_a
 		for almacen in almacenes do
 			if almacen["_id"] == almacen_id_destino
 				if almacen["usedSpace"] <= almacen["totalSpace"]
 					espacio_disponible = almacen["totalSpace"] - almacen["usedSpace"]
-					skus_origen = obtener_skus_con_stock(api_key, almacen_id_origen)
+					skus_origen = obtener_skus_con_stock(almacen_id_origen)
 					for sku_origen in skus_origen
 						sku_origen_num = sku_origen["_id"]
 						if skus_a_mover.include? sku_origen_num
-							productos_origen = get_products_from_almacenes(api_key, almacen_id_origen, sku_origen_num)
+							productos_origen = get_products_from_almacenes(almacen_id_origen, sku_origen_num)
 							for producto_origen in productos_origen
 								if espacio_disponible <= 0
 									return cantidad_a_mover - cantidad
@@ -319,9 +301,9 @@ module ApplicationHelper
 		return 0
 	end
 
-	def despachar_producto(api_key, productoId, oc, direccion, precio)
+	def despachar_producto(productoId, oc, direccion, precio)
 		data = "DELETE#{productoId}#{direccion}#{precio}#{oc}"
-		hash_value = hashing(data, api_key)
+		hash_value = hashing(data)
 		producto_despachado = HTTParty.delete("#{@@url}/stock",
 		  body:{
 		  	"productoId": productoId,
@@ -341,11 +323,11 @@ module ApplicationHelper
 	end
 
 	def despacho_todos(id_bodega, sku, cantidad, order_id)
-		lista_id_productos = get_products_from_almacenes(@@api_key, id_bodega, sku)
+		lista_id_productos = get_products_from_almacenes(id_bodega, sku)
 		contador = 0
 		for item in lista_id_productos
 			productoId = item["_id"]
-			despachado = despachar_producto(@@api_key, productoId, order_id, "frescos", 1)
+			despachado = despachar_producto(productoId, order_id, "frescos", 1)
 			contador += 1
 			break if contador == cantidad
 		end
