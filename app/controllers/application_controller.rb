@@ -62,8 +62,11 @@ class ApplicationController < ActionController::Base
 
 	def start
 		#borrar_todos_documentos_compra
-		#cocinar("30002", 1)
 		revisar_oc
+		#revisar_cocina
+		#eliminar_documento('5ceed72f5cfa340004e407bf')
+
+		#values = obtener_skus_con_stock(@@api_key ,@@id_cocina)
 		#for i in 0..1
 		#nueva = nueva_oc(@@id_produccion, @@id_produccion_13, "1013", nil, "10", true, 13)
 			# nueva = nueva_oc(@@id_produccion, @@id_produccion_7, "1003", nil, "5", true, 7)
@@ -207,27 +210,48 @@ class ApplicationController < ActionController::Base
 	def cocinar(sku_a_cocinar, cantidad_a_cocinar)
 		ingredientes = IngredientesAssociation.where(producto_id: sku_a_cocinar)
 		ingredientes.each do |ingrediente|
+			puts '_________'
+			puts ingrediente.ingrediente_id
+			puts '_________'
 			a_mover = cantidad_a_cocinar * ingrediente.unidades_bodega
 			if a_mover > 0
+				
 				movidos = mover_a_almacen_cocinar(@@api_key, @@id_recepcion, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover = a_mover - movidos
+				puts 'A MOVER ' + a_mover.to_s
+				puts "MOVIDOS " + movidos.to_s
 			end
 
 			if a_mover > 0
+				
 				movidos = mover_a_almacen_cocinar(@@api_key, @@id_pulmon, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover = a_mover - movidos
+				puts 'A MOVER ' + a_mover.to_s
+				puts "MOVIDOS " + movidos.to_s
 			end
 
 			if a_mover > 0
+				
 				movidos = mover_a_almacen_cocinar(@@api_key, @@id_despacho, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 				a_mover = a_mover - movidos
+				puts 'A MOVER ' + a_mover.to_s
+				puts "MOVIDOS " + movidos.to_s
 			end
 			
+			if a_mover > 0
+				movidos = mover_a_almacen_cocinar(@@api_key, @@id_cocina, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
+				a_mover = a_mover - movidos
+				puts 'A MOVER ' + a_mover.to_s
+				puts "MOVIDOS " + movidos.to_s
+			end
+
 			if a_mover > 0
 				return nil
 			end
 		end
 		response = fabricar_sin_pago(@@api_key, sku_a_cocinar, cantidad_a_cocinar)
+		puts response
+		puts response['disponible']
 		return response["disponible"]
 	end
 
@@ -409,10 +433,12 @@ class ApplicationController < ActionController::Base
 		Net::SFTP.start(@host, @user, :password => @password) do |sftp|
 			entries = sftp.dir.entries("/pedidos")
 			entries.each do |entry|
+				counter += 1
+				break if counter == 60
 				file_name = entry.name.to_s
 				if file_name.length >= 10
 					time_file = DateTime.strptime(entry.attributes.mtime.to_s,'%s')
-					if time_file > (time - 5.hours)
+					if time_file > (time - 10.days)
 						data_xml = sftp.download!("pedidos/#{entry.name}")
 	  					data_json = Hash.from_xml(data_xml).to_json
 	  					data_json = JSON.parse data_json
@@ -420,6 +446,7 @@ class ApplicationController < ActionController::Base
 	  					orden_compra = obtener_oc(order_id)
 	  					if orden_compra[0]["estado"] == "creada"
 	  						if orden_compra[0]["canal"] == "ftp"
+	  							puts 'nueva'
 	  							aceptar_o_rechazar_oc_producto_final(orden_compra[0])
 	  						end
 	  					end
@@ -441,11 +468,14 @@ class ApplicationController < ActionController::Base
 		respuesta = solicitar_orden(orden_creada['sku'], orden_creada['cantidad'], nro_grupo, orden_creada['_id'])
 		if respuesta["sku"]
 			if respuesta["aceptado"] == true
+				puts 'aceptada'
 				return 'oc_aceptada'
 			else
+				puts 'rechazada'
 				return 'oc_rechazada'
 			end
 		else
+			puts 'rechazada'
 			return 'oc_rechazada'
 		end
 	end
@@ -476,16 +506,16 @@ class ApplicationController < ActionController::Base
 		if (@sku.length == 5)
 			respuesta_cocina = cocinar(@sku, @cantidad)
 			if respuesta_cocina
-				if @fecha_entrega > respuesta_cocina
+				#if @fecha_entrega > respuesta_cocina
 					crear_documento_oc(orden_compra)
 					aceptar_oc(@order_id)
 					return ["aceptada", 0]
-				else
-					rechazar_oc(@order_id, "No podemos complir con los plazos entregados")
-					return ["rechazada","No podemos complir con los plazos entregados"]
-				end
+				#else
+					#rechazar_oc(@order_id, "No podemos complir con los plazos entregados")
+					#return ["rechazada","No podemos complir con los plazos entregados"]
+				#end
 			else
-				rechazar_oc(@order_id, "No hay inventario para realizar pedido")
+				#rechazar_oc(@order_id, "No hay inventario para realizar pedido")
 				return ["rechazada","No hay inventario para realizar pedido"]
 			end
 		end
@@ -516,6 +546,41 @@ class ApplicationController < ActionController::Base
 		@documents = Document.all
 		@documents.each do |document|
 		   document.destroy
+		end
+	end
+
+	def revisar_cocina
+		count = 0
+		@documents = Document.all
+		@documents.each do |document|
+			count += 1
+			sku = document["sku"]
+			cantidad = document["cantidad"]
+			order_id = document["order_id"]
+			values = obtener_skus_con_stock(@@api_key ,@@id_cocina)
+			values.each do |value|
+				if value["_id"].to_s == sku.to_s
+					if value["total"] >= cantidad
+						break if value == 2
+						puts 'EMPIEZA DESPACHO...'
+						despacho_todos(@@id_cocina, sku, cantidad, order_id)
+						#document.destroy
+						puts 'TERMINA DESPACHO...'
+					end
+				end
+			end
+		end
+	end
+
+	def eliminar_documento(id)
+		@documents = Document.all
+		@documents.each do |document|
+			order_id = document["order_id"]
+			puts order_id
+			if order_id.to_s == id.to_s
+				document.destroy
+				puts 'DESTRUIDO'
+			end
 		end
 	end
 

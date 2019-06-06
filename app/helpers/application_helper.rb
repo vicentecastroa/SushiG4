@@ -4,6 +4,18 @@ module ApplicationHelper
 	@@nuestros_productos = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
 	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
 	@@api_key = "o5bQnMbk@:BxrE"
+	@@id_recepcion = '5cc7b139a823b10004d8e6df'
+	@@id_despacho = "5cc7b139a823b10004d8e6e0"
+	@@id_pulmon = "5cc7b139a823b10004d8e6e3"
+	@@id_cocina = "5cc7b139a823b10004d8e6e4"
+	@@url = "https://integracion-2019-prod.herokuapp.com/bodega"
+	# Materia primas producidas por nosotros
+	@@materias_primas_propias = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
+	# Materias primas prodcidas por otros grupos
+	@@materias_primas_ajenas = ["1002", "1003", "1007", "1008", "1010", "1011", "1012", "1013"]
+	# Productos procesados
+	@@productos_procesados = ["1105", "1106", "1107", "1108", "1109", "1110", "1111", "1112", "1114", "1115", "1116", "1201", "1207", "1209", "1210", "1211", "1215", "1216", "1301", "1307", "1309", "1310", "1407"]
+	
 	
 	def hashing(data, api_key)
 		hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), api_key.encode("ASCII"), data.encode("ASCII"))
@@ -287,30 +299,38 @@ module ApplicationHelper
 		producto_despachado = HTTParty.delete("#{@@url}/stock",
 		  body:{
 		  	"productoId": productoId,
-				"oc": oc,
-				"direccion": direccion,
+			"oc": oc,
+			"direccion": direccion,
 		  	"precio": precio
 		  }.to_json,
 		  headers:{
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
-			puts "\nMOVER PRODUCTO ENTRE BODEGAS\n"
-			puts JSON.pretty_generate(producto_movido)
-		end
+		#if @@print_valores
+			puts "\nDESPACHO\n"
+			puts JSON.pretty_generate(producto_despachado)
+		#end
 		return producto_despachado
 	end
 
 	def despacho_todos(id_bodega, sku, cantidad, order_id)
 		lista_id_productos = get_products_from_almacenes(@@api_key, id_bodega, sku)
 		contador = 0
+		despacho_a_recepcion_2
+		puts 'Cantidad: ' + cantidad.to_s
+		mover_a_almacen(@@api_key, @@id_cocina, @@id_despacho, [sku], cantidad)
 		for item in lista_id_productos
 			productoId = item["_id"]
 			despachado = despachar_producto(@@api_key, productoId, order_id, "frescos", 1)
 			contador += 1
 			break if contador == cantidad
 		end
+	end
+
+	def despacho_a_recepcion_2
+		mover_a_almacen(@@api_key, @@id_despacho, @@id_recepcion, @@materias_primas_propias, 200)
+		mover_a_almacen(@@api_key, @@id_despacho, @@id_pulmon, @@materias_primas_propias, 200)
 	end
 
 	def StockAvailableToSell
