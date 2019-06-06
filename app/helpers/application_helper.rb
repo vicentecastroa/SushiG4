@@ -11,7 +11,7 @@ module ApplicationHelper
 
   	def get_almacenes
 		data = "GET"
-		hash_value = hashing(data, @@api_key)
+		hash_value = hashing(data)
 		almacenes = HTTParty.get("#{@@url}/almacenes", 
 		  headers:{
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
@@ -135,15 +135,13 @@ module ApplicationHelper
 	end
 
 	def fabricar_todo(lista_productos)
-		almacenes = (get_almacenes.to_a
-		puts "..................."
+		almacenes = get_almacenes.to_a
 		for almacen in almacenes do
 			almacenId = almacen["_id"]
 			for producto in lista_productos
 				get_products_from_almacenes(almacenId, producto)
 			end
 		end
-		puts "..................."
 	end
 
 	def StockAvailableToSellAll

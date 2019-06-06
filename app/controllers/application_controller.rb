@@ -1,7 +1,6 @@
 require 'net/ftp'
 
 # Require Helpers
-require 'ftp_helper'
 require 'application_helper'
 require 'variables_helper'
 
@@ -11,13 +10,12 @@ require 'date'
 class ApplicationController < ActionController::Base
 	
 	include ApplicationHelper
-	include FtpHelper
 	include OcHelper
 	include VariablesHelper
 
 	def start
 		# Funcion que llama a /inventories
-		revisar_oc
+		# revisar_oc
 	end
 
 	def solicitar_inventario(grupo_id)

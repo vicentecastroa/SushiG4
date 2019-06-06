@@ -127,7 +127,9 @@ class OrdersController < ApplicationController
 			end
 		
 		# PRODUCTO FINAL
-		elsif (@sku.length == 5)
+		## NO ME PUEDEN PEDIR PRODUCTOS FINALES DE PARTE DE OTROS GRUPOS
+		## PARA CAMBIAR ESTO HAY QUE CAMBIAR EL 100 POR 5
+		elsif (@sku.length == 100)
 			orden_compra = obtener_oc(@order_id)
 			if orden_compra[0]["estado"] == "creada"
 				respuesta_oc = aceptar_o_rechazar_oc_producto_final(orden_compra[0])
