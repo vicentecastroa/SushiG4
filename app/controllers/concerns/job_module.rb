@@ -102,6 +102,7 @@ module AppController
 
 
 	def get_almacenes(api_key)
+		puts "------ Entro a get_almacenes -------"
 		data = "GET"
 		hash_value = hashing(data, api_key)
 		almacenes = HTTParty.get("#{@@url}/almacenes", 
@@ -183,6 +184,7 @@ module AppController
 
 	# Funcionando bien
 	def obtener_skus_con_stock(api_key, almacenId)
+		puts "------ ENTRO A obtener_skus_con_stock -------"
 		data = "GET#{almacenId}"
 		hash_value = hashing(data, api_key)
 		skus = HTTParty.get("#{@@url}/skusWithStock?almacenId=#{almacenId}",
@@ -472,6 +474,7 @@ module AppController
 	end
 
 	def getInventoriesOne(sku) # Retorna stock de un solo producto
+		puts "------- ENTRO A getInventoriesOne ------"
 		inventario_total = getInventoriesAll
 		inventario_total.each do |inventario|
 			sku_inventario = inventario["sku"]

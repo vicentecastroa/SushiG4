@@ -10,6 +10,7 @@ require 'orders_helper'
 class ReviewWorker < ApplicationJob
 	include OcHelper
 	include ApplicationHelper
+	include AppController
 	queue_as :default
 
 	
@@ -26,12 +27,10 @@ class ReviewWorker < ApplicationJob
 	end
 	
 	def revisar_oc
+		puts "------------- ENTRO A REVISAR_OC -------------"
 		time = Time.now
 		counter = 0
-		@host = "fierro.ing.puc.cl"
-		@user = "grupo4"
-		@password = "p6FByxRf5QYbrDC80"
-		Net::SFTP.start(@host, @user, :password => @password) do |sftp|
+		Net::SFTP.start(@@host, @@user, :password => @@password) do |sftp|
 			entries = sftp.dir.entries("/pedidos")
 			entries.each do |entry|
 				file_name = entry.name.to_s
@@ -55,6 +54,7 @@ class ReviewWorker < ApplicationJob
 	end
 
 	def aceptar_o_rechazar_oc_producto_final(orden_compra)
+		puts "--------- ENTRO A ACEPTAR_O_RECHAZAR_OC_PRODUCTO_FINAL ----------"
 		@order_id = orden_compra["_id"]
 		@sku = orden_compra["sku"]
 		@cantidad = orden_compra["cantidad"]
@@ -117,7 +117,9 @@ class ReviewWorker < ApplicationJob
 		contador_ingredientes = 0
 
 		puts "Checkeamos disponibilidad de ingredientes\n"
+		puts ingredientes
 		ingredientes.each do |ingrediente|
+			puts ingrediente
 			cantidad_ingrediente = getInventoriesOne(ingrediente.ingrediente_id)
 			cantidad_necesaria = cantidad_a_cocinar * ingrediente.unidades_bodega
 			puts "Necesitamos #{cantidad_necesaria} unidades del sku #{ingrediente.ingrediente_id}. Tenemos #{cantidad_ingrediente["cantidad"]} unidades\n"
@@ -159,13 +161,15 @@ class ReviewWorker < ApplicationJob
 	end
 
 	def revisar_cocina
+		puts "--------- ENTRO A REVISAR_COCINA --------"
 		@documents = Document.all
 		@documents.each do |document|
 			sku = document["sku"]
 			cantidad = document["cantidad"]
 			order_id = document["order_id"]
 
-			# review                      
+			# review
+			puts "---- antes de obtener_skus_con_stock ----"                      
 			values = obtener_skus_con_stock(@@api_key ,@@id_cocina)
 			values.each do |value|
 				if value["_id"].to_s == sku.to_s
