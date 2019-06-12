@@ -10,7 +10,7 @@ require 'date'
 class ApplicationController < ActionController::Base
 	
 	include ApplicationHelper
-	include OcHelper
+	include ApiOcHelper
 	include VariablesHelper
 
 	def start
@@ -28,29 +28,6 @@ class ApplicationController < ActionController::Base
 			puts "\nInventario de Grupo " + grupo_id.to_s + ": \n" + inventario_grupo.to_s + "\n"
 		end
 		return inventario_grupo
-	end
-
-	def solicitar_orden(sku, cantidad, grupo_id, order_id)
-		pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
-			body:{
-				"sku": sku,
-				"cantidad": cantidad,
-				"almacenId": @@id_recepcion,
-				"oc": order_id
-			}.to_json,
-			headers:{
-				"group": "4",
-				"Content-Type": "application/json"
-			})
-
-		case pedido_producto.code
-			when 201
-		    	return pedido_producto
-		    when 500
-		    	puts 'timeoooooout'
-		    	return nil
-		end
-		return pedido_producto
 	end
 
 	def recepcion_a_cocina
@@ -117,39 +94,6 @@ class ApplicationController < ActionController::Base
 		res = response.to_json
 		# render plain: res, :status => 200
 		return response.to_json
-	end
-
-	def cocinar(sku_a_cocinar, cantidad_a_cocinar)
-		ingredientes = IngredientesAssociation.where(producto_id: sku_a_cocinar)
-		puts "\nIngredientes: " + ingredientes.to_s + "\n"
-		ingredientes.each do |ingrediente|
-			a_mover = cantidad_a_cocinar * ingrediente.unidades_bodega
-			if a_mover > 0
-				movidos = mover_a_almacen_cocinar(@@id_recepcion, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
-				a_mover = a_mover - movidos
-			end
-
-			if a_mover > 0
-				movidos = mover_a_almacen_cocinar(@@id_pulmon, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
-				a_mover = a_mover - movidos
-			end
-		
-			if a_mover > 0
-				movidos = mover_a_almacen_cocinar(@@id_despacho, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
-				a_mover = a_mover - movidos
-			end
-
-			if a_mover > 0
-				movidos = mover_a_almacen_cocinar(@@id_cocina, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
-				a_mover = a_mover - movidos
-			end
-				
-			if a_mover > 0
-				return nil
-			end
-		end
-		response = fabricar_sin_pago(sku_a_cocinar, cantidad_a_cocinar)
-		return response["disponible"]
 	end
 
 	def have_producto(sku, cantidad_minima, inventario_total)
@@ -273,168 +217,81 @@ class ApplicationController < ActionController::Base
 
 	def pedir_producto_grupos(sku_a_pedir, cantidad_a_pedir)
 
-		puts "\nPEDIR PRODUCTO A GRUPOS\npedir_producto_grupos(" + sku_a_pedir.to_s + ", " + cantidad_a_pedir.to_s + ")\n"
-
+		puts "\nPEDIR PRODUCTO A GRUPOS\n"
 		cantidad_faltante = cantidad_a_pedir
-
 		# Obtenemos el producto en Producto
 		producto = Producto.find(sku_a_pedir)
-
 		# Obtenemos sus grupos productores
 		grupos_productores = producto.grupos
 
+		
+		lista_de_grupos = []
+		grupos_productores.each do |g|
+			lista_de_grupos << g
+		end
+		
+		# REVIEW blacklist black list lista negra
+		lista_negra = [4] # 8, 10, 12
+		
+		lista_negra.each do |l|
+			lista_de_grupos.each do |gr|
+				if gr.group_id == l
+					lista_de_grupos.delete(gr)
+				end
+			end
+		end
+		
+		lista_de_grupos = lista_de_grupos.shuffle
+
 		# Para cada grupo productor, revisamos su inventario
-		grupos_productores.each do |grupo|
+		cantidad_entregada = 0
+
+		lista_de_grupos.each do |grupo|
 			if cantidad_faltante == 0
 				return 1
 			end
-			if grupo.group_id == 4
-				next
-			end
-			puts "Grupo: " + grupo.group_id.to_s + ", URL: " + grupo.url.to_s + "\n"
+			# if grupo.group_id == 4 || grupo.group_id == 12 || grupo.group_id == 14 || grupo.group_id == 10 || #grupo.group_id == 5
+			# 	next
+			# end
+
+			puts "Revisando grupo: " + grupo.group_id.to_s + ", URL: " + grupo.url.to_s + "\n"
 			inventario_grupo = solicitar_inventario(grupo.group_id)
-			inventario_grupo.each do |p_inventario|
-				#puts "sku_a_pedir: " + sku_a_pedir + "\n"
-				#puts "p_inventario[sku]: " + p_inventario['sku'] + "\n"
-				# Si el grupo productor tiene inventario, lo pedimos
-				if sku_a_pedir == p_inventario["sku"]
-					puts p_inventario.to_s
-					cantidad_inventario = p_inventario["total"]
-					puts "Inventario: " + cantidad_inventario.to_s + "\n"
+			
+			if inventario_grupo
+				inventario_grupo.each do |p_inventario|
+					#puts "sku_a_pedir: " + sku_a_pedir + "\n"
+					#puts "p_inventario[sku]: " + p_inventario['sku'] + "\n"
+					# Si el grupo productor tiene inventario, lo pedimos
+					if sku_a_pedir == p_inventario["sku"]
+						puts p_inventario.to_s
+						cantidad_inventario = p_inventario["total"]
 
-					# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
-					if cantidad_inventario >= cantidad_faltante
-						puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante"
-						solicitar_orden_OC(sku_a_pedir, cantidad_faltante, grupo.group_id)
-						cantidad_faltante = 0
+						# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
+						if cantidad_inventario >= cantidad_faltante
+							puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante"
+							# solicitar_orden_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
+							if solicitar_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
+								return cantidad_faltante
+							else
+								next
+							end
+							# cantidad_faltante = 0
 
-					# Si el inventario es menor a la cantidad faltante, pedimos todo el inventario
-					else
-						puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario"
-						solicitar_orden_OC(sku_a_pedir, cantidad_inventario, grupo.group_id)
-						cantidad_faltante -= cantidad_inventario
+						# Si el inventario del otro grupo es menor a la cantidad faltante, pedimos todo el inventario
+						else
+							puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario"
+							if solicitar_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
+								# solicitar_orden_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
+								cantidad_faltante -= cantidad_inventario
+								cantidad_entregada += cantidad_inventario
+							end
+						end
 					end
-
 				end
+				# return cantidad_faltante
 			end
 		end
-		return 0
-	end
-
-	def revisar_oc
-		time = Time.now
-		counter = 0
-		Net::SFTP.start(@@host, @@user, :password => @@password) do |sftp|
-			entries = sftp.dir.entries("/pedidos")
-			entries.each do |entry|
-				file_name = entry.name.to_s
-				if file_name.length >= 10
-					time_file = DateTime.strptime(entry.attributes.mtime.to_s,'%s')
-					if time_file > (time - 5.hours)
-						data_xml = sftp.download!("pedidos/#{entry.name}")
-	  					data_json = Hash.from_xml(data_xml).to_json
-	  					data_json = JSON.parse data_json
-	  					order_id = data_json["order"]['id']
-	  					orden_compra = obtener_oc(order_id)
-	  					if orden_compra[0]["estado"] == "creada"
-	  						if orden_compra[0]["canal"] == "ftp"
-	  							aceptar_o_rechazar_oc_producto_final(orden_compra[0])
-	  						end
-	  					end
-					end
-					
-  				end
-			end
-		end
-	end
-
-	def nueva_oc(cliente, proveedor, sku, fechaEntrega, cantidad, materia_prima, nro_grupo)
-		time = Time.now.tomorrow.to_date
-		precio = Producto.find(sku).precio_venta
-		if materia_prima
-			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "http://tuerca4.ing.puc.cl/documents/{_id}/notification")
-		else
-			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "http://tuerca4.ing.puc.cl/documents/{_id}/notification")
-		end
-		respuesta = solicitar_orden(orden_creada['sku'], orden_creada['cantidad'], nro_grupo, orden_creada['_id'])
-		if respuesta["sku"]
-			if respuesta["aceptado"] == true
-				return 'oc_aceptada'
-			else
-				return 'oc_rechazada'
-			end
-		else
-			return 'oc_rechazada'
-		end
-	end
-
-	def notificar(url, status)
-		data = "POST"
-		notificacion = HTTParty.post(url,
-		   body:{
-		  	"status": status
-		  }.to_json,
-		  headers:{
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "ORDEN DE COMPRA CREADA"
-			puts JSON.pretty_generate(notificacion)
-		end
-		return notificacion
-	end
-
-	def aceptar_o_rechazar_oc_producto_final(orden_compra)
-		@order_id = orden_compra["_id"]
-		@sku = orden_compra["sku"]
-		@cantidad = orden_compra["cantidad"]
-		@proveedor = orden_compra["proveedor"]
-		@fecha_entrega = orden_compra["fechaEntrega"]
-		@estado = orden_compra["estado"]
-		if (@sku.length == 5)
-			respuesta_cocina = cocinar(@sku, @cantidad)
-			if respuesta_cocina
-				if @fecha_entrega > respuesta_cocina
-					crear_documento_oc(orden_compra)
-					aceptar_oc(@order_id)
-					return ["aceptada", 0]
-				else
-					rechazar_oc(@order_id, "No podemos complir con los plazos entregados")
-					return ["rechazada","No podemos complir con los plazos entregados"]
-				end
-			else
-				rechazar_oc(@order_id, "No hay inventario para realizar pedido")
-				return ["rechazada","No hay inventario para realizar pedido"]
-			end
-		end
-		return nil
-	end
-
-	def crear_documento_oc(orden_compra)
-		Document.create! do |document|
-			document.all = orden_compra['_id'],
-			document.cliente = orden_compra['cliente'],
-			document.proveedor = orden_compra['proveedor'],
-			document.sku = orden_compra['sku'],
-			document.fechaEntrega = orden_compra['fechaEntrega'],
-			document.cantidad = orden_compra['cantidad'],
-			document.cantidadDespachada = orden_compra['cantidadDespachada'],
-			document.precioUnitario = orden_compra['precioUnitario'],
-			document.canal = orden_compra['canal'],
-			document.estado = orden_compra['estado'],
-			document.notas = orden_compra['notas'],
-			document.rechazo = orden_compra['rechazo'], 
-			document.anulacion = orden_compra['anulacion'],
-			document.order_id = orden_compra['_id'],
-			document.urlNotificacion = orden_compra['urlNotificacion']
-		end
-	end
-
-	def borrar_todos_documentos_compra
-		@documents = Document.all
-		@documents.each do |document|
-		   document.destroy
-		end
+		return cantidad_entregada
 	end
 
 end
