@@ -66,5 +66,31 @@ module GruposHelper
     end
   end
 
+  def solicitar_inventario(grupo_id)
+
+		# Para ver e inventario de un grupo, debes indicar el id del grupo
+		# Ejemplo: solicitar_inventario(13)
+		
+		begin
+			inventario_grupo = HTTParty.get("http://tuerca#{grupo_id}.ing.puc.cl/inventories", timeout: 90)
+		rescue Net::OpenTimeout
+			puts "Grupo sin conexion. Imposible acceder al inventario\n"
+			inventario_grupo = {"sku" => "9999", "nombre" => "No Stock", "total" => 0}
+		rescue Timeout::Error
+			puts "Grupo sin conexion. Imposible acceder al inventario\n"
+			inventario_grupo = {"sku" => "9999", "nombre" => "No Stock", "total" => 0}
+		rescue Net::ReadTimeout
+			puts "Grupo sin conexion. Imposible acceder al inventario\n"
+			inventario_grupo = {"sku" => "9999", "nombre" => "No Stock", "total" => 0}
+		else	
+			return inventario_grupo
+		end
+		
+		if @@print_valores
+			puts "\nInventario de Grupo " + grupo_id.to_s + ": \n" + inventario_grupo.to_s + "\n"
+		end
+		
+		return false
+  end
   
 end

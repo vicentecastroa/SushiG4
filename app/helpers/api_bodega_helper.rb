@@ -36,22 +36,22 @@ module ApiBodegaHelper
 			puts JSON.pretty_generate(products)
 		end
 		return products
-	end
+  end
 
-	def get_products_from_almacenes_limit_primeros(almacenId, sku, limit)
-		data = "GET#{almacenId}#{sku}"
-		hash_value = hashing(data)
-		products = HTTParty.get("#{@@url}/stock?almacenId=#{almacenId}&sku=#{sku}&limit=#{limit}",
-		  headers:{
-		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
-		    "Content-Type": "application/json"
-		  })
-		if @@print_valores
-			puts "\nPRODUCTOS DE ALMACENES\n"
-			puts JSON.pretty_generate(products)
-		end
-		return products
+  def get_products_from_almacenes_limit_primeros(almacenId, sku, limit)
+	data = "GET#{almacenId}#{sku}"
+	hash_value = hashing(data)
+	products = HTTParty.get("#{@@url}/stock?almacenId=#{almacenId}&sku=#{sku}&limit=#{limit}",
+		headers:{
+		"Authorization": "INTEGRACION grupo4:#{hash_value}",
+		"Content-Type": "application/json"
+		})
+	if @@print_valores
+		puts "\nPRODUCTOS DE ALMACENES\n"
+		puts JSON.pretty_generate(products)
 	end
+	return products
+  end
 
   def mover_producto_entre_bodegas(productoId, almacenId, oc, precio)
 		data = "POST#{productoId}#{almacenId}"
@@ -72,7 +72,7 @@ module ApiBodegaHelper
 			puts JSON.pretty_generate(producto_movido)
 		end
 		return producto_movido
-	end
+  end
 
 	def mover_producto_entre_almacenes(producto_json, id_destino)
 		productoId = producto_json

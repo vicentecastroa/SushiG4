@@ -3,30 +3,10 @@ require 'json'
 require 'net/ftp'
 require 'date'
 require 'active_support/core_ext/hash'
-require 'oc_helper'
-require 'application_helper'
-require 'orders_helper'
 
 class ReviewWorker < ApplicationJob
-	include ApiOcHelper
-	include ApplicationHelper
-	include AppController
 	queue_as :default
-
 	
-	def job_start
-		puts "\n**********************************************"
-		puts "\n******** INICIO DE #{self.class} ********"
-		puts "\n**********************************************\n\n"
-	end
-	
-	def job_end
-		puts "\n**********************************************"
-		puts "\n******* FIN DE #{self.class} ************"
-		puts "\n**********************************************\n\n"
-	end
-	
-
 	def cocinar(sku_a_cocinar, cantidad_a_cocinar)
 
 		puts "\nCOCINAR\n"
@@ -93,9 +73,8 @@ class ReviewWorker < ApplicationJob
 			cantidad = document["cantidad"]
 			order_id = document["order_id"]
 
-			# review
-			puts "---- antes de obtener_skus_con_stock ----"                      
-			values = obtener_skus_con_stock(@@api_key ,@@id_cocina)
+			# review                    
+			values = obtener_skus_con_stock(@@id_cocina)
 			values.each do |value|
 				if value["_id"].to_s == sku.to_s
 					if value["total"] >= cantidad 

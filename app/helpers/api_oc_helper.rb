@@ -1,8 +1,10 @@
 require 'variables_helper'
 
 module ApiOcHelper
+	include ApplicationHelper
 	include VariablesHelper
-
+	include ApiBodegaHelper
+	include GruposHelper
 	# Requests directas a la API OC del profesor
 	def obtener_oc(id)
 		puts "----- Entro a obtener_oc en api_oc_helper -----"
