@@ -27,6 +27,12 @@ class InventoriesController < ApplicationController
 		# render text: "El worker esta funcionanto"
 	end
 
+	def pedir_todo
+		pedir_todo_materias_primas()
+		#pedir_producto_grupo('1', '1010', 1)
+		render plain: 'funcion pedir todo'
+	end
+
 	def index
 		start
 		StockAvailableToSell()
