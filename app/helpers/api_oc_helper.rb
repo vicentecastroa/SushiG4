@@ -1,4 +1,3 @@
-
 module ApiOcHelper
 	include VariablesHelper
 	include ApiBodegaHelper

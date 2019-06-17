@@ -133,18 +133,27 @@ module ApiBodegaHelper
 		return products_produced
   end
   
-  def pedir_todo_materias_primas
-    puts "Pedir todas las materias primas propias"
-    @@materias_primas_propias.each do |sku|
-      fabricar_sin_pago(sku, 100)
-    end
-    if @@estado == "dev"
-      puts "DEV: Pedir materias primas ajenas"
-      @@materias_primas_ajenas.each do |sku|
-        fabricar_sin_pago(sku, 100)
-      end
-    end
-  end
+	def pedir_todo_materias_primas
+		factor_orden = 10
+		
+		if @@estado == "dev"
+			@@materias_primas_ajenas.each do |sku|
+				producto = Producto.find(sku)
+				lote_produccion = producto.lote_produccion
+				fabricar_sin_pago(sku, lote_produccion * factor_orden)
+			end
+		else
+			@@materias_primas_propias.each do |sku|
+				producto = Producto.find(sku)
+				lote_produccion = producto.lote_produccion
+				fabricar_sin_pago(sku, lote_produccion * factor_orden)
+			end
+			@@materias_primas_ajenas.each do |sku|
+				producto = Producto.find(sku)
+				lote_produccion = producto.lote_produccion
+				nos_entregan = pedir_producto_grupos(sku, lote_produccion * factor_orden)
+			end
+		end
+  	end
 
-  
 end
