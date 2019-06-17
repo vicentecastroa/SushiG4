@@ -27,6 +27,7 @@ class InventoryWorker < ApplicationJob
 		
 	# 	puts "\n****************************\nInventory worker checkeando inventario\n****************************\n\n"
   
+
 	# 	pedidos = Hash.new
 
 	# 	## Obtenemos el inventario total de cada producto ##

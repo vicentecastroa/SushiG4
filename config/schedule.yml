@@ -4,11 +4,16 @@
 #   queue: ordenes
 
 control_de_inventario:
-  cron: "*/30 * * * *"
+  cron: "17 * * * *"
   class: InventoryWorker
   queue: default
 
-review_worker:
-  cron: "*/3 * * * *"
-  class: ReviewWorker
-  queue: default
+# review_worker:
+#   cron: "*/3 * * * *"
+#   class: ReviewWorker
+#   queue: default
+
+# control_materias_primas:
+#   cron: "15,45 * * * *"
+#   class: MateriaPrimaWorker
+#   queue: default
