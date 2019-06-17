@@ -10,28 +10,26 @@ module GruposHelper
 		begin
 			inventario_grupo = HTTParty.get("http://tuerca#{grupo_id}.ing.puc.cl/inventories", timeout: 90)
 		rescue Net::OpenTimeout
-			puts "Grupo sin conexion. Imposible acceder al inventario\n"
+			if @@debug_mode; puts "Grupo sin conexion. Imposible acceder al inventario\n" end
 			inventario_grupo = {"sku" => "9999", "nombre" => "No Stock", "total" => 0}
 		rescue Timeout::Error
-			puts "Grupo sin conexion. Imposible acceder al inventario\n"
+			if @@debug_mode; puts "Grupo sin conexion. Imposible acceder al inventario\n" end
 			inventario_grupo = {"sku" => "9999", "nombre" => "No Stock", "total" => 0}
 		rescue Net::ReadTimeout
-			puts "Grupo sin conexion. Imposible acceder al inventario\n"
+			if @@debug_mode; puts "Grupo sin conexion. Imposible acceder al inventario\n" end
 			inventario_grupo = {"sku" => "9999", "nombre" => "No Stock", "total" => 0}
 		else	
 			return inventario_grupo
 		end
 		
-		if @@print_valores
-			puts "\nInventario de Grupo " + grupo_id.to_s + ": \n" + inventario_grupo.to_s + "\n"
-		end
+		if @@debug_mode; puts "\nInventario de Grupo " + grupo_id.to_s + ": \n" + inventario_grupo.to_s + "\n"	end
 		
 		return false
   end
 
   # Obtener stock de un producto determinado de otro grupo
-  def get_stock_producto_grupo(grupo, sku)
-    puts "Get stock de sku: #{sku} de grupo #{grupo}"
+	def get_stock_producto_grupo(grupo, sku)
+		if @@debug_mode; puts "Get stock de sku: #{sku} de grupo #{grupo}" end
 
     inventario = get_inventario_grupo(grupo).to_a
     producto = nil
@@ -46,19 +44,19 @@ module GruposHelper
   end
 
   # Pedir un producto a un determinado grupo. Retorna la cantidad pedida. 
-  def pedir_producto_grupo(grupo_id, sku, cantidad)
-    puts "Pedir #{cantidad} de #{sku} a grupo #{grupo_id}"
+	def pedir_producto_grupo(grupo_id, sku, cantidad)
+		if @@debug_mode; puts "Pedir #{cantidad} de #{sku} a grupo #{grupo_id}" end
 
     stock_disponible = get_stock_producto_grupo(grupo_id, sku)["cantidad"]
     cantidad_a_pedir = cantidad
     
-    if stock_disponible >= cantidad_a_pedir
-      puts "Hay stock. Pedir #{cantidad_a_pedir}"
+		if stock_disponible >= cantidad_a_pedir
+			if @@debug_mode; puts "Hay stock. Pedir #{cantidad_a_pedir}" end
       if solicitar_OC(sku, cantidad_a_pedir.to_i, grupo_id)
         return cantidad_a_pedir
       end
-    else
-      puts "No hay suficiente. Pedir #{stock_disponible}"
+		else
+			if @@debug_mode; puts "No hay suficiente. Pedir #{stock_disponible}" end
       if solicitar_OC(sku, stock_disponible.to_i, grupo_id)
         cantidad_pedida = stock_disponible
         return cantidad_pedida
@@ -74,19 +72,19 @@ module GruposHelper
 		begin
 			inventario_grupo = HTTParty.get("http://tuerca#{grupo_id}.ing.puc.cl/inventories", timeout: 90)
 		rescue Net::OpenTimeout
-			puts "Grupo sin conexion. Imposible acceder al inventario\n"
+			if @@debug_mode; puts "Grupo sin conexion. Imposible acceder al inventario\n" end
 			inventario_grupo = {"sku" => "9999", "nombre" => "No Stock", "total" => 0}
 		rescue Timeout::Error
-			puts "Grupo sin conexion. Imposible acceder al inventario\n"
+			if @@debug_mode; puts "Grupo sin conexion. Imposible acceder al inventario\n" end
 			inventario_grupo = {"sku" => "9999", "nombre" => "No Stock", "total" => 0}
 		rescue Net::ReadTimeout
-			puts "Grupo sin conexion. Imposible acceder al inventario\n"
+			if @@debug_mode; puts "Grupo sin conexion. Imposible acceder al inventario\n" end
 			inventario_grupo = {"sku" => "9999", "nombre" => "No Stock", "total" => 0}
 		else	
 			return inventario_grupo
 		end
 		
-		if @@print_valores
+		if @debug_mode
 			puts "\nInventario de Grupo " + grupo_id.to_s + ": \n" + inventario_grupo.to_s + "\n"
 		end
 		
