@@ -34,7 +34,6 @@ class InventoriesController < ApplicationController
 	end
 
 	def index
-		start
 		StockAvailableToSell()
 	end
 

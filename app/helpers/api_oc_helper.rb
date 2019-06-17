@@ -1,7 +1,4 @@
-require 'variables_helper'
-
 module ApiOcHelper
-	include ApplicationHelper
 	include VariablesHelper
 	include ApiBodegaHelper
 	include GruposHelper
