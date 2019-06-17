@@ -18,15 +18,13 @@ class InventoryWorker < ApplicationJob
 		
 		puts "\n****************************\nInventory worker checkeando inventario\n****************************\n\n"
   
-		pedidos = Hash.new
-
 		## Obtenemos el inventario total de cada producto ##
-		inventario_total = getInventoriesAll()
+		# inventario_total = getInventoriesAll()
 		# puts "Inventario Total: \n" + inventario_total.to_s
 		# [{"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}, {}, {}]
 		puts "Corrio getInventories"
 
-		p_all = Producto.all
+		# p_all = Producto.all
 
 		## Obtenemos los productos que deban mantener un stock minimo ##
 		p_minimos = getProductosMinimos()

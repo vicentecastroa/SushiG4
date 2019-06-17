@@ -12,3 +12,8 @@ review_worker:
   cron: "*/3 * * * *"
   class: ReviewWorker
   queue: default
+
+contro_materias_primas:
+  cron: "15,45 * * * *"
+  class: MateriaPrimaWorker
+  queue: default
