@@ -193,6 +193,40 @@ module PerformHelper
 
 	end
 
+	def perform_delivery
+
+		# Revisar OCs aceptadas
+
+		oc_aceptadas = obtener_oc_aceptadas()
+
+		# Revisar inventario
+
+		inventario_total = getInventoriesAll()
+		producto_enviado = 0
+
+		oc_aceptadas.each do |oc|
+			inventario_total.each do |inventario|
+				if inventario["sku"] == oc["sku"]
+					if inventario["cantidad"].to_i >= oc["cantidad"].to_i
+						productos_cocina = get_products_from_almacenes(@@id_cocina, oc["sku"])
+						productos_cocina.each do |producto_cocina|
+							despachar_producto(producto_cocina["_id"], oc["_id"], oc["_id"], oc["precioUnitario"])
+							producto_enviado += 1
+							if producto_enviado == oc["cantidad"]
+								break
+							end
+						end
+						#despachar_producto(productoId, oc, direccion, precio)
+						break
+					end
+				end
+			end
+		end
+
+		# Despachar
+
+	end
+
 
 
 end
