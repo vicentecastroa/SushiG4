@@ -525,10 +525,10 @@ module ApplicationHelper
 					puts "Comenzando a mover a despacho"
 					if stock_en_almacen[almacen]["cantidad"].to_i >= unidades_por_mover
 						puts "unidades por mover #{unidades_por_mover}"
-						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku], unidades_por_mover)
+						mover_a_almacen(almacen, @@id_despacho, [sku], unidades_por_mover)
 						return 1
 					else 
-						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku], 0)
+						mover_a_almacen(almacen, @@id_despacho, [sku], 0)
 						unidades_por_mover -= stock_en_almacen[almacen]["cantidad"]
 					end
 				end

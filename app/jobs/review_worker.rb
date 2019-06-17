@@ -55,14 +55,13 @@ class ReviewWorker < ApplicationJob
 		end
 		response = fabricar_sin_pago(@@api_key, sku_a_cocinar, cantidad_a_cocinar)
 
-
-
 		respuesta = response["disponible"]
 		if respuesta
 			puts response
 			return response["disponible"]
 		end
 		return nil
+
 	end
 
 	def revisar_cocina

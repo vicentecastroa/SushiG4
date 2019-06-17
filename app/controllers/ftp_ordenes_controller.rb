@@ -20,6 +20,5 @@ class FtpOrdenesController < ApplicationController
 				end
 			end
 		end
-		puts @ordenes[0]
   	end
 end

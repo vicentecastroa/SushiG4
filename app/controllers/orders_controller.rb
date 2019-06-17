@@ -25,7 +25,7 @@ class OrdersController < ApplicationController
 		@almacenId = params["almacenId"]
 
 		#Si alguno de los parametros necesarios no viene responder con error 400
-		if @cantidad.blank? || @group.blank? || @sku.blank? || @almacenId.blank? || @order_id.blank? || @cantidad > 80
+		if @cantidad.blank? || @group.blank? || @sku.blank? || @almacenId.blank? || @order_id.blank? || @cantidad.to_i > 80
 			res = {"error": "No se creó el pedido por un error del cliente en la solicitud. Por ejemplo, falta un parámetro obligatorio"}
 			render json: res, :status => 400
 			#return res
@@ -46,7 +46,7 @@ class OrdersController < ApplicationController
 
 					if producto["sku"] == @sku
 						#si el sku esta bajo nuestro stock minimo o nos piden mas de lo que podemos dar: RECHAZAR
-						if producto["total"] <= 0 || @cantidad >= producto["total"]
+						if producto["total"].to_i <= 0 || @cantidad.to_i >= producto["total"].to_i
 							
 							#rechazar la OC con la API del profesor
 							rechazar_oc(@order_id,"rechazada por frescos")
@@ -60,7 +60,7 @@ class OrdersController < ApplicationController
 							#return res
 
 						#si tenemos suficiente stock como para entregar y quedar con stock minimo: ACEPTAR
-						elsif producto["total"] > 0 && producto["total"] > @cantidad
+						elsif producto["total"].to_i > 0 && producto["total"].to_i > @cantidad.to_i
 							#NOTIFICAR
 							aceptar_oc(@order_id)
 							if @urlNotificacion.length > 5
