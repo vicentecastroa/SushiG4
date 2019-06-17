@@ -135,6 +135,12 @@ module ApiBodegaHelper
   
 	def pedir_todo_materias_primas
 		factor_orden = 10
+
+		@@materias_primas_propias.each do |sku|
+			producto = Producto.find(sku)
+			lote_produccion = producto.lote_produccion
+			fabricar_sin_pago(sku, lote_produccion * factor_orden)
+		end
 		
 		if @@estado == "dev"
 			@@materias_primas_ajenas.each do |sku|
@@ -143,11 +149,6 @@ module ApiBodegaHelper
 				fabricar_sin_pago(sku, lote_produccion * factor_orden)
 			end
 		else
-			@@materias_primas_propias.each do |sku|
-				producto = Producto.find(sku)
-				lote_produccion = producto.lote_produccion
-				fabricar_sin_pago(sku, lote_produccion * factor_orden)
-			end
 			@@materias_primas_ajenas.each do |sku|
 				producto = Producto.find(sku)
 				lote_produccion = producto.lote_produccion
