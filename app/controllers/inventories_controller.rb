@@ -4,6 +4,8 @@ require 'json'
 
 class InventoriesController < ApplicationController
 
+	include PerformHelper
+
 	def show
 	end
 	
@@ -17,8 +19,9 @@ class InventoriesController < ApplicationController
 		render plain: response
 	end
 
-	def init_inventory_worker
-		InventoryWorker::perform()
+	def init_check_inventory
+		perform_inventory()
+		# InventoryWorker::perform()
 		# SchedulerWorker.perform_async unless SchedulerWorker.new.scheduled?
 	end
 
