@@ -4,6 +4,7 @@ module VariablesHelper
 	@@print_valores = false
 	@@host = 'fierro.ing.puc.cl'
 	@@port = 22
+	@@debug_mode = true
 
 	# Capacidades Bodegas
 	@@tamaño_cocina = 1122

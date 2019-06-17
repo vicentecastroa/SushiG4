@@ -1,4 +1,3 @@
-require 'variables_helper'
 
 module ApplicationHelper	
 	include VariablesHelper
