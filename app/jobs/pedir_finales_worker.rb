@@ -15,7 +15,7 @@ class PedirFinalesWorker < ApplicationJob
 		grupos_productores = (1..14).to_a
 		oc = false
 
-		lista_negra = [4, 5]
+		lista_negra = [4] # 5
 		
 		lista_negra.each do |l|
 			grupos_productores.delete(l)
@@ -23,7 +23,9 @@ class PedirFinalesWorker < ApplicationJob
 		
 		grupos_productores = grupos_productores.shuffle
 		
-		until oc || grupos_productores.length == 0
+		# until oc || grupos_productores.length == 0
+		# TODO revisar si esta bien pedir como loco. agregar oc al until para que solo pida a un grupo.
+		until grupos_productores.length == 0
 			grupo_id = grupos_productores.pop
 			puts "Pidiendo #{producto_final.nombre} al grupo #{grupo_id}\n"
 			oc = solicitar_OC(producto_id, 1, grupo_id)
