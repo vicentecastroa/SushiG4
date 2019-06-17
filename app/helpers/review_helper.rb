@@ -42,7 +42,7 @@ module ReviewHelper
 			
 			almacenes.each do |almacen|
 				if a_mover > 0
-					movidos = mover_a_almacen(@@api_key, almacen, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
+					movidos = mover_a_almacen(almacen, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 					a_mover = a_mover - movidos
 					if movidos > 0
 						puts "Movimos #{movidos} unidades del sku #{ingrediente.ingrediente_id} a la Cocina. Faltan #{a_mover} por mover\n"
@@ -51,7 +51,7 @@ module ReviewHelper
 			end
 
 		end
-		response = fabricar_sin_pago(@@api_key, sku_a_cocinar, cantidad_a_cocinar)
+		response = fabricar_sin_pago(sku_a_cocinar, cantidad_a_cocinar)
 
 		respuesta = response["disponible"]
 		if respuesta
