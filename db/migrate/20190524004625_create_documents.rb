@@ -1,4 +1,4 @@
-class CreateDocuments < ActiveRecord::Migration[5.2]
+class CreateDocuments < ActiveRecord::Migration[5.1]
   def change
     create_table :documents, id:false, primary_key: :order_id do |t|
       t.integer :order_id, null: false
