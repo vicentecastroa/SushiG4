@@ -1,6 +1,6 @@
 require 'httparty'
 require 'json'
-require 'groups_module'
+# require 'groups_module'
 # require 'oc_helper'
 # require "#{Rails.root}/app/controllers/concerns/app_controller_module"
 
@@ -12,11 +12,12 @@ class InventoryWorker < ApplicationJob
 	# include AppController
 
 	queue_as :default
+	@@factor_multiplicador = 1.5
 
 	def perform
 		
 		puts "\n****************************\nInventory worker checkeando inventario\n****************************\n\n"
-
+  
 		pedidos = Hash.new
 
 		## Obtenemos el inventario total de cada producto ##
@@ -36,6 +37,7 @@ class InventoryWorker < ApplicationJob
 
 			## Obtenemos el stock minimo que debe mantener el producto ##
 			stock_minimo = p_minimo.stock_minimo.to_i
+			stock_minimo = (stock_minimo * @@factor_multiplicador).ceil
 
 			puts "\n****************************\nProducto Minimo: " + p_minimo.nombre + "\n"
 			puts"\nStock Minimo: " + stock_minimo.to_s
@@ -105,7 +107,7 @@ class InventoryWorker < ApplicationJob
 						p_ingrediente_inventario = getInventoriesOne(p_ingrediente.sku)
 						
 						# Obtenemos la cantidad de ingrediente requerido para producir un lote de producto
-						unidades_bodega = ingrediente.unidades_bodega
+						unidades_bodega = ingrediente.unidades_bodega.to_i
 
 						# Calculamos la cantidad de unidades requeridas multiplicando las unidades bodega por los lotes faltantes de producto
 						cantidad_ingrediente = unidades_bodega * lotes_faltantes
@@ -113,11 +115,11 @@ class InventoryWorker < ApplicationJob
 						# Si el stock actual es mayor o igual a la cantidad de ingrediente requerido, enviamos ingrediente a despacho y reponemos la misma cantidad
 							
 
-						if p_ingrediente_inventario["cantidad"] >= cantidad_ingrediente
+						if p_ingrediente_inventario["cantidad"].to_i >= cantidad_ingrediente
 							puts "\t ¡Tenemos UN ingrediente! \n"
 							
 							contador_ingredientes += 1
-							puts "contadores: #{contador_ingredientes} = #{numero_ingredientes}\n"
+							puts "contadores: #{contador_ingredientes} / #{numero_ingredientes}\n"
 							if contador_ingredientes == numero_ingredientes
 								puts "\t ¡Tenemos TODOS LOS ingredienteS! \n"
 								puts "Comenzamos la produccion de #{cantidad_a_producir} productos"
@@ -139,30 +141,30 @@ class InventoryWorker < ApplicationJob
 								end
 
 							end
-							###### Enviar ingredientes en tandas de 80 unidades y mandar a producir producto proporcional a 80 unidades de ingrediente
 
 						# Si el stock actual es menor a la cantidad de ingrediente requerido, calculamos la cantidad faltante de ingrediente
 						else
 							puts "No tenemos el ingrediente! \n"
 							cantidad_faltante_ingrediente = cantidad_ingrediente - p_ingrediente_inventario["cantidad"]
 
-							if @@materias_primas_propias.include? ingrediente.ingrediente_id 
+							if @@materias_primas_propias.include? ingrediente.ingrediente_id.to_s
 								puts "El ingrediente es nuestro\n"
 								# Obtenemos el tamaño de lote de producción del ingrediente
-								lote_produccion_ingrediente = p_ingrediente.lote_produccion
+								lote_produccion_ingrediente = p_ingrediente.lote_produccion.to_i
 
 								# Calculamos los lotes faltantes de ingrediente
 								lotes_faltantes_ingrediente = (cantidad_faltante_ingrediente / lote_produccion_ingrediente).ceil
 
 								# Definimos factor de multiplicacion de stock minimo para ingredientes propios
-								factor_ingredientes = 2
 
+								# factor_ingredientes = 2
 								# Calculamos la cantidad a producir del ingrediente
-								cantidad_a_producir_ingrediente = factor_ingredientes * lotes_faltantes_ingrediente * lote_produccion_ingrediente
+								# cantidad_a_producir_ingrediente = factor_ingredientes * lotes_faltantes_ingrediente * lote_produccion_ingrediente
+								cantidad_a_producir_ingrediente = (@@factor_multiplicador * lotes_faltantes_ingrediente * lote_produccion_ingrediente).ceil
 
 								# Fabricamos sin costo la cantidad a producir del ingrediente
-								puts fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, (cantidad_a_producir_ingrediente).ceil)
-								puts "Fabricamos sin pago el ingrediente: " + p_minimo.sku + ", una cantidad de " + cantidad_a_producir.to_s + "\n"
+								puts fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, cantidad_a_producir_ingrediente)
+								puts "Fabricamos SIN PAGO el ingrediente: " + p_minimo.sku + ", una cantidad de " + cantidad_a_producir.to_s + "\n"
 
 							# Si el producto no es nuestro, lo pedimos a otro grupo
 							else
@@ -172,6 +174,7 @@ class InventoryWorker < ApplicationJob
 									nos_entregan = pedir_producto_grupos(ingrediente.ingrediente_id, orden)
 									puts "Nos entregan #{nos_entregan} unidades"
 									cantidad_faltante_ingrediente -= nos_entregan
+									
 									if nos_entregan == 0
 										puts "\nNINGUN grupo tienen mas Producto X\n"
 										break
