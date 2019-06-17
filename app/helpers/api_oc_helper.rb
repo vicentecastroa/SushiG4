@@ -5,7 +5,7 @@ module ApiOcHelper
 	include GruposHelper
 	# Requests directas a la API OC del profesor
 	def obtener_oc(id)
-		puts "----- Entro a obtener_oc en api_oc_helper -----"
+		if @@debug_mode; puts "----- Entro a obtener_oc en api_oc_helper -----" end
 		orden_compra = HTTParty.get("https://integracion-2019-#{@@estado}.herokuapp.com/oc/obtener/#{id}", 
 		  params:{
 		  	"id": id,
@@ -13,7 +13,7 @@ module ApiOcHelper
 		  headers:{
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
+		if @@debug_mode
 			puts "ORDEN DE COMPRA OBTENIDA"
 			puts JSON.pretty_generate(orden_compra)
 		end
@@ -21,7 +21,7 @@ module ApiOcHelper
 	end
 
 	def crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
-		puts "----- Entro a crear_oc en api_oc_helper -----"
+		if @@debug_mode; puts "----- Entro a crear_oc en api_oc_helper -----" end
 		data = "PUT"
 		order_creada = HTTParty.put("https://integracion-2019-#{@@estado}.herokuapp.com/oc/crear",
 		   body:{
@@ -37,7 +37,7 @@ module ApiOcHelper
 		  headers:{
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
+		if @@debug_mode
 			puts "ORDEN DE COMPRA CREADA"
 			puts JSON.pretty_generate(order_creada)
 		end
@@ -45,7 +45,7 @@ module ApiOcHelper
 	end
 
 	def anular_oc(id, anulacion)
-		puts "----- Entro a anular_oc en api_oc_helper -----"
+		if @@debug_mode; puts "----- Entro a anular_oc en api_oc_helper -----" end
 		orden_compra_anulada = HTTParty.delete("https://integracion-2019-#{@@estado}.herokuapp.com/oc/anular/#{id}", 
 		  body:{
 		  	"id": id,
@@ -54,7 +54,7 @@ module ApiOcHelper
 		  headers:{
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
+		if @@debug_mode
 			puts "ORDEN DE COMPRA ANULADA"
 			puts JSON.pretty_generate(orden_compra_anulada)
 		end
@@ -62,7 +62,7 @@ module ApiOcHelper
 	end
 
 	def aceptar_oc(id)
-		puts "----- Entro a aceptar_oc en api_oc_helper -----"
+		if @@debug_mode; puts "----- Entro a aceptar_oc en api_oc_helper -----" end
 		orden_compra_recepcionada = HTTParty.post("https://integracion-2019-#{@@estado}.herokuapp.com/oc/recepcionar/#{id}", 
 		  body:{
 		  	"id": id,
@@ -70,7 +70,7 @@ module ApiOcHelper
 		  headers:{
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
+		if @@debug_mode
 			puts "ORDEN DE COMPRA ACEPTADA"
 			puts JSON.pretty_generate(orden_compra_recepcionada)
 		end
@@ -78,7 +78,7 @@ module ApiOcHelper
 	end
 
 	def rechazar_oc(id, rechazo)
-		puts "----- Entro a rechazar_oc en api_oc_helper -----"
+		if @@debug_mode; puts "----- Entro a rechazar_oc en api_oc_helper -----" end
 		orden_compra_rechazada = HTTParty.post("https://integracion-2019-#{@@estado}.herokuapp.com/oc/rechazar/#{id}", 
 		  body:{
 		  	"id": id,
@@ -87,7 +87,7 @@ module ApiOcHelper
 		  headers:{
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
+		if @@debug_mode
 			puts "ORDEN DE COMPRA RECHAZADA"
 			puts JSON.pretty_generate(orden_compra_rechazada)
 		end
@@ -96,7 +96,7 @@ module ApiOcHelper
 
 	# Funciones que trabajan con OCs
 	def revisar_oc
-		puts "----- Entro a revisar_oc en api_oc_helper -----"
+		if @@debug_mode; puts "----- Entro a revisar_oc en api_oc_helper -----" end
 		time = Time.now
 		counter = 0
 		Net::SFTP.start(@@host, @@user, :password => @@password) do |sftp|
@@ -124,7 +124,7 @@ module ApiOcHelper
 	end
 
 	def nueva_oc(cliente, proveedor, sku, fechaEntrega, cantidad, materia_prima, nro_grupo)
-		puts "----- Entro a nueva_oc en api_oc_helper -----"
+		if @@debug_mode; puts "----- Entro a nueva_oc en api_oc_helper -----" end
 		time = Time.now.tomorrow.to_date
 		precio = Producto.find(sku).precio_venta
 		if materia_prima
@@ -145,7 +145,7 @@ module ApiOcHelper
 	end
 
 	def notificar(url, status)
-		puts "----- Entro a notificar en api_oc_helper -----"
+		if @@debug_mode; puts "----- Entro a notificar en api_oc_helper -----" end
 		data = "POST"
 		notificacion = HTTParty.post(url,
 		   body:{
@@ -154,7 +154,7 @@ module ApiOcHelper
 		  headers:{
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
+		if @@debug_mode
 			puts "ORDEN DE COMPRA CREADA"
 			puts JSON.pretty_generate(notificacion)
 		end
@@ -162,7 +162,7 @@ module ApiOcHelper
 	end
 
 	def aceptar_o_rechazar_oc_producto_final(orden_compra)
-		puts "----- Entro a aceptar_o_rechazar_oc_producto_final en api_oc_helper -----"
+		if @@debug_mode; puts "----- Entro a aceptar_o_rechazar_oc_producto_final en api_oc_helper -----" end
 		@order_id = orden_compra["_id"]
 		@sku = orden_compra["sku"]
 		@cantidad = orden_compra["cantidad"]
@@ -189,7 +189,7 @@ module ApiOcHelper
 	end
 
 	def crear_documento_oc(orden_compra)
-		puts "----- Entro a crear_documento_oc en api_oc_helper -----"
+		if @@debug_mode; puts "----- Entro a crear_documento_oc en api_oc_helper -----" end
 		Document.create! do |document|
 			document.all = orden_compra['_id'],
 			document.cliente = orden_compra['cliente'],
@@ -210,7 +210,7 @@ module ApiOcHelper
 	end
 
 	def borrar_todos_documentos_compra
-		puts "----- Entro a borrar_todos_documentos_compra en api_oc_helper -----"
+		if @@debug_mode;	puts "----- Entro a borrar_todos_documentos_compra en api_oc_helper -----" end
 		@documents = Document.all
 		@documents.each do |document|
 		   document.destroy
@@ -218,13 +218,15 @@ module ApiOcHelper
 	end
 
 	def solicitar_orden(sku, cantidad, grupo_id, order_id)
-		puts "----- Entro a solicitar_orden en api_oc_helper -----"
-		puts "SOLICITAR ORDEN"
-		puts "sku: #{sku}, tipo #{sku.class}"
-		puts "cantidad: #{cantidad}, tipo #{cantidad.class}"
-		puts "grupo_id: #{grupo_id}, tipo #{grupo_id.class}"
-		puts "order_id: #{order_id}, tipo #{order_id.class}"
-		
+		if @@debug_mode
+			puts "----- Entro a solicitar_orden en api_oc_helper -----"
+			puts "SOLICITAR ORDEN"
+			puts "sku: #{sku}, tipo #{sku.class}"
+			puts "cantidad: #{cantidad}, tipo #{cantidad.class}"
+			puts "grupo_id: #{grupo_id}, tipo #{grupo_id.class}"
+			puts "order_id: #{order_id}, tipo #{order_id.class}"
+		end
+
 		pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
 			body:{
 				"sku": sku,
@@ -240,15 +242,15 @@ module ApiOcHelper
 		case pedido_producto.code
 			when 201
 		    	return pedido_producto
-		    when 500
-		    	puts 'timeoooooout'
+				when 500
+					if @@debug_mode; puts 'timeout' end
 		    	return nil
 		end
 		return pedido_producto
 	end
 
 	def solicitar_OC(sku, cantidad, grupo_id)
-		puts "----- Entro a solicitar_OC en api_oc_helper -----"
+		if @@debug_mode; puts "----- Entro a solicitar_OC en api_oc_helper -----" end
 		# Primero debemos crear la OC
 		# crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
 		cliente = @@IDs_Grupos["4"]
@@ -263,8 +265,10 @@ module ApiOcHelper
 
 		# Luego debemos solicitar el producto al grupo, incluyendo el id de la OC
 		oc_id = oc_creada["_id"]
-		puts "\nSe creo la ordern id: " + oc_creada["_id"] + "\n"
-		puts "Para el producto sku: #{sku}\n"
+		if @@debug_mode
+			puts "\nSe creo la ordern id: " + oc_creada["_id"] + "\n"
+			puts "Para el producto sku: #{sku}\n"
+		end
 
 		# Para solicitar producto a un grupo, debes indicar el sku a pedir, la cantidad a pedir y el id del grupo
 		# Ejemplo: solicitar_orden("1001", 10, 13)
@@ -292,33 +296,24 @@ module ApiOcHelper
 		else	
 			codigo = pedido_producto.code
 		end
-		puts "Codigo respuesta request: #{codigo}\n"
-		# if true
-		# 	puts "\nSolicitar Orden\n"
-		# puts JSON.pretty_generate(pedido_producto)
-		# 	# puts pedido_producto.to_s
-		# end
+		if @@debug_mode; puts "Codigo respuesta request: #{codigo}\n" end
 		
 		if codigo >= 200 && codigo < 300
 			response = true	
 			if pedido_producto["aceptado"]
-				puts "Nos han aceptado el pedido! #{pedido_producto["aceptado"]}\n"
+				if @@debug_mode; puts "Nos han aceptado el pedido! #{pedido_producto["aceptado"]}\n" end
 			else
-				puts "Nos han aceptado el pedido\n"
+				if @@debug_mode; puts "Nos han aceptado el pedido\n" end
 			end
 		elsif codigo > 600
 			response = false
-			puts "Rechazado por Timeout\n"
+			if @@debug_mode; puts "Rechazado por Timeout\n" end
 		else
 			response = false
-			puts "Nos han rechazado el pedido\n"
+			if @@debug_mode; puts "Nos han rechazado el pedido\n" end
 		end
 
 		return response
-		# if pedido_producto["aceptado"]
-		# 	return true
-		# end
-		# return false
 	end
 
 end
