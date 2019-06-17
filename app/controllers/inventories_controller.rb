@@ -25,6 +25,11 @@ class InventoriesController < ApplicationController
 		# SchedulerWorker.perform_async unless SchedulerWorker.new.scheduled?
 	end
 
+	def init_review
+		perform_review()
+		render plain: 'funcion review'
+	end
+
 	def init_test_worker
 		MeLlamoWorker::perform()
 		# render text: "El worker esta funcionanto"

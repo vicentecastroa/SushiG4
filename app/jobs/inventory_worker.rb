@@ -16,7 +16,9 @@ class InventoryWorker < ApplicationJob
 
 	def perform
 
+		job_start()
 		perform_inventory()
+		job_end()
 
 	end
 

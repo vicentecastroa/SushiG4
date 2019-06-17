@@ -4,8 +4,9 @@ module PerformHelper
 	include VariablesHelper
 	include ApiBodegaHelper
 	include GruposHelper
+	include ReviewHelper
 
-    @@factor_multiplicador = 1.5
+    @@factor_multiplicador = 1
 
 	def perform_inventory
 		
@@ -179,7 +180,17 @@ module PerformHelper
 				end
 			end			
 		end
-		job_end()
+		# job_end()
+	end
+
+	def perform_review
+
+		#job_start()
+		revisar_oc()
+		revisar_cocina()
+		# revisar_cocina_worker()
+		#job_end()
+
 	end
 
 

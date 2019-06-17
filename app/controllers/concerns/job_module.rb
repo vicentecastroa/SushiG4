@@ -5,6 +5,7 @@ module JobModule
 	include ApiBodegaHelper
 	include GruposHelper
 	include PerformHelper
+	include ReviewHelper
 
 
 	def job_start

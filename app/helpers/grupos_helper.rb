@@ -3,6 +3,8 @@ require 'json'
 
 # Este helper contiene todas las funciones que interactuan con las apis de los otros grupos.
 module GruposHelper
+
+	include VariablesHelper
   
   # Obtener el inventario total de un grupo
   def get_inventario_grupo(grupo_id)
@@ -73,6 +75,9 @@ module GruposHelper
 		
 		begin
 			inventario_grupo = HTTParty.get("http://tuerca#{grupo_id}.ing.puc.cl/inventories", timeout: 90)
+		rescue Errno::ECONNREFUSED
+			puts "Grupo sin conexion. Imposible acceder al inventario\n"
+			inventario_grupo = {"sku" => "9999", "nombre" => "No Stock", "total" => 0}
 		rescue Net::OpenTimeout
 			puts "Grupo sin conexion. Imposible acceder al inventario\n"
 			inventario_grupo = {"sku" => "9999", "nombre" => "No Stock", "total" => 0}
