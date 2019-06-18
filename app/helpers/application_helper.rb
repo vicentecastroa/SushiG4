@@ -598,10 +598,6 @@ module ApplicationHelper
 				if (response[prod.sku]["stock_minimo"].to_i - response[prod.sku]["cantidad"].to_i) > 0
 					response[prod.sku]["faltante"] =  response[prod.sku]["stock_minimo"].to_i - response[prod.sku]["cantidad"].to_i
 				end
-				a = nil
-				puts "AAAAAAAAAAAAA"
-				puts a.to_i
-				puts "AAAAAAAAAAAAA"
 				@stock << response[prod.sku]
 			end
 		end
