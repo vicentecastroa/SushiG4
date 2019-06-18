@@ -1,4 +1,3 @@
-
 module ApiOcHelper
 	include VariablesHelper
 	include ApiBodegaHelper
@@ -226,7 +225,6 @@ module ApiOcHelper
 			puts "grupo_id: #{grupo_id}, tipo #{grupo_id.class}"
 			puts "order_id: #{order_id}, tipo #{order_id.class}"
 		end
-
 		pedido_producto = HTTParty.post("http://tuerca#{grupo_id}.ing.puc.cl/orders",
 			body:{
 				"sku": sku,
@@ -296,8 +294,8 @@ module ApiOcHelper
 		else	
 			codigo = pedido_producto.code
 		end
-		if @@debug_mode; puts "Codigo respuesta request: #{codigo}\n" end
-		
+
+		if @@debug_mode; puts "Codigo respuesta request: #{codigo}\n" end		
 		if codigo >= 200 && codigo < 300
 			response = true	
 			if pedido_producto["aceptado"]

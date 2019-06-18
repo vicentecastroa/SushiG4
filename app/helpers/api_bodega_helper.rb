@@ -46,6 +46,7 @@ module ApiBodegaHelper
 		"Authorization": "INTEGRACION grupo4:#{hash_value}",
 		"Content-Type": "application/json"
 		})
+
 	if @@debug_mode
 		puts "\nPRODUCTOS DE ALMACENES\n"
 		puts JSON.pretty_generate(products)

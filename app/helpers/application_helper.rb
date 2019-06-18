@@ -262,6 +262,7 @@ module ApplicationHelper
 		skus_quantity = {}
 		sku_name = {}
 		lista_skus = getSkuOnStock
+
 		if @@debug_mode; puts "get inventories 1" end
 		for sku in lista_skus
 			product_sku = sku["sku"]
@@ -275,7 +276,6 @@ module ApplicationHelper
 			end
 		end
 		if @@debug_mode; puts "get inventories 2" end
-
 		skus_quantity.each_key do |key|
 			line = {"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}
 			response << line
@@ -287,9 +287,7 @@ module ApplicationHelper
 	end
 
 	def have_producto(sku, cantidad_minima, inventario_total)
-
 		if @@debug_mode; puts "have_producto(" + sku + ", " + cantidad_minima.to_s + ", " + ")\n" end
-
 		for producto in inventario_total
 			if producto["sku"].to_s == sku && producto["cantidad"].to_f < cantidad_minima.to_f
 				return 0
@@ -404,7 +402,6 @@ module ApplicationHelper
 	end
 
 	def pedir_producto_grupos(sku_a_pedir, cantidad_a_pedir)
-
 		if @@debug_mode; puts "\nPEDIR PRODUCTO A GRUPOS\n" end
 		cantidad_faltante = cantidad_a_pedir
 		# Obtenemos el producto en Producto
@@ -438,7 +435,6 @@ module ApplicationHelper
 			if cantidad_faltante == 0
 				return 1
 			end
-
 			if @@debug_mode; puts "Revisando grupo: " + grupo.group_id.to_s + ", URL: " + grupo.url.to_s + "\n" end
 			inventario_grupo = solicitar_inventario(grupo.group_id)
 			
@@ -543,4 +539,53 @@ module ApplicationHelper
 		return p_minimos
 	end
 
+	def getPrintStock
+		@stock = []
+		response = Hash.new()
+		id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
+		for prod in Producto.all
+			if prod.sku.length == 4
+				response[prod.sku] = Hash.new()
+				response[prod.sku] = {
+					"nombre" => prod.nombre,
+					"cantidadPulmon" => nil,
+					"cantidadRecepcion" => nil,
+					"cantidadCocina" => nil,
+					"cantidadDespacho" => nil,
+					"sku" => prod.sku,
+					"cantidad" => 0,
+					"stock_minimo" => prod.stock_minimo,
+					"faltante" => 0,
+				}
+			end
+		end
+
+		for almacen in id_almacenes
+			@request = (obtener_skus_con_stock(almacen)).to_a
+			for element in @request do
+				sku = element["_id"]
+
+				if almacen == @@id_despacho
+					response[sku]["cantidadDespacho"] = element["total"]
+				elsif almacen == @@id_pulmon
+					response[sku]["cantidadPulmon"] = element["total"]
+				elsif almacen == @@id_recepcion
+					response[sku]["cantidadRecepcion"] = element["total"]
+				elsif almacen == @@id_cocina
+					response[sku]["cantidadCocina"] = element["total"]
+				end
+				response[sku]["cantidad"] += element["total"]
+			end
+		end
+
+		for prod in Producto.all
+			if prod.sku.length == 4
+				if (response[prod.sku]["stock_minimo"].to_i - response[prod.sku]["cantidad"].to_i) > 0
+					response[prod.sku]["faltante"] =  response[prod.sku]["stock_minimo"].to_i - response[prod.sku]["cantidad"].to_i
+				end
+				@stock << response[prod.sku]
+			end
+		end
+		return @stock
+	end
 end

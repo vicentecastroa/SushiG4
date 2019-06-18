@@ -5,7 +5,6 @@ module JobModule
 	include ApiBodegaHelper
 	include GruposHelper
 
-
 	def job_start
 		puts "\n**********************************************"
 		puts "\n******** INICIO DE #{self.class} ********"

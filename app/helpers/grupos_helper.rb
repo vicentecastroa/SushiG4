@@ -50,19 +50,20 @@ module GruposHelper
     stock_disponible = get_stock_producto_grupo(grupo_id, sku)["cantidad"]
     cantidad_a_pedir = cantidad
     
+
 		if stock_disponible >= cantidad_a_pedir
 			if @@debug_mode; puts "Hay stock. Pedir #{cantidad_a_pedir}" end
-      if solicitar_OC(sku, cantidad_a_pedir.to_i, grupo_id)
-        return cantidad_a_pedir
-      end
+	    	if solicitar_OC(sku, cantidad_a_pedir.to_i, grupo_id)
+	    		return cantidad_a_pedir
+	    	end
 		else
 			if @@debug_mode; puts "No hay suficiente. Pedir #{stock_disponible}" end
-      if solicitar_OC(sku, stock_disponible.to_i, grupo_id)
-        cantidad_pedida = stock_disponible
-        return cantidad_pedida
-      end
-    end
-  end
+      		if solicitar_OC(sku, stock_disponible.to_i, grupo_id)
+        		cantidad_pedida = stock_disponible
+        		return cantidad_pedida
+      		end
+    	end
+  	end
 
   def solicitar_inventario(grupo_id)
 
