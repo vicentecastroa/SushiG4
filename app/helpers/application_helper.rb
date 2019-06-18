@@ -174,7 +174,7 @@ module ApplicationHelper
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
+		if @@debug_mode
 			puts "\nMOVER PRODUCTO ENTRE BODEGAS\n"
 			puts JSON.pretty_generate(producto_movido)
 		end
@@ -249,8 +249,7 @@ module ApplicationHelper
 				@product = Producto.find(sku)
 				product_name = @product.nombre
 				quantity = element["total"]
-				almacen_nombre = nombre_almacen(almacen)
-				line = {"almacenId" => almacen, "sku" => sku, "cantidad" => quantity, "nombre" => product_name, "almacen_nombre" => almacen_nombre}
+				line = {"almacenId" => almacen, "sku" => sku, "cantidad" => quantity, "nombre" => product_name}
 				response << line
 			end
 		end 
@@ -263,7 +262,8 @@ module ApplicationHelper
 		skus_quantity = {}
 		sku_name = {}
 		lista_skus = getSkuOnStock
-		puts "get inventories 1"
+
+		if @@debug_mode; puts "get inventories 1" end
 		for sku in lista_skus
 			product_sku = sku["sku"]
 			product_name = sku["nombre"]
@@ -275,8 +275,7 @@ module ApplicationHelper
 				skus_quantity[product_sku] = quantity
 			end
 		end
-		puts "get inventories 2"
-
+		if @@debug_mode; puts "get inventories 2" end
 		skus_quantity.each_key do |key|
 			line = {"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}
 			response << line
@@ -288,12 +287,8 @@ module ApplicationHelper
 	end
 
 	def have_producto(sku, cantidad_minima, inventario_total)
-		#inventario_total = getInventoriesCero()
-
-		puts "have_producto(" + sku + ", " + cantidad_minima.to_s + ", " + ")\n"
-
+		if @@debug_mode; puts "have_producto(" + sku + ", " + cantidad_minima.to_s + ", " + ")\n" end
 		for producto in inventario_total
-			#puts "Producto sku: " + producto["sku"]
 			if producto["sku"].to_s == sku && producto["cantidad"].to_f < cantidad_minima.to_f
 				return 0
 			elsif producto["sku"].to_s == sku && producto["cantidad"].to_f >= cantidad_minima.to_f
@@ -305,7 +300,7 @@ module ApplicationHelper
 
 	def mover_ingrediente_a_despacho(sku, cantidad_ingrediente)
 		inventario =  getSkuOnStock()
-		puts "getSkuOnStock: \n" + inventario.to_s + "\n"
+		if @@debug_mode; puts "getSkuOnStock: \n" + inventario.to_s + "\n" end
 		stock_en_almacen = Hash.new
 
 		# Partimos almacenes en 0
@@ -316,13 +311,13 @@ module ApplicationHelper
 
 		# Agregamos los almacenes que tienen stock del producto
 		for producto in inventario
-			puts "producto[sku]: " + producto["sku"] + "\n"
+			if @@debug_mode; puts "producto[sku]: " + producto["sku"] + "\n" end
 			if producto["sku"] == sku
-				puts "Encontramos el producto en esta bodega"
+				if @@debug_mode; puts "Encontramos el producto en esta bodega" end
 				almacen = producto["almacenId"]
 				cantidad = producto["cantidad"]
 				stock_en_almacen[almacen] = producto
-				puts "stock_en_almacen[almacen]: " + stock_en_almacen[almacen].to_s + "\n"
+				if @@debug_mode; puts "stock_en_almacen[almacen]: " + stock_en_almacen[almacen].to_s + "\n" end
 			end
 		end
 		unidades_por_mover = cantidad_ingrediente
@@ -407,8 +402,7 @@ module ApplicationHelper
 	end
 
 	def pedir_producto_grupos(sku_a_pedir, cantidad_a_pedir)
-
-		puts "\nPEDIR PRODUCTO A GRUPOS\n"
+		if @@debug_mode; puts "\nPEDIR PRODUCTO A GRUPOS\n" end
 		cantidad_faltante = cantidad_a_pedir
 		# Obtenemos el producto en Producto
 		producto = Producto.find(sku_a_pedir)
@@ -441,25 +435,19 @@ module ApplicationHelper
 			if cantidad_faltante == 0
 				return 1
 			end
-			# if grupo.group_id == 4 || grupo.group_id == 12 || grupo.group_id == 14 || grupo.group_id == 10 || #grupo.group_id == 5
-			# 	next
-			# end
-
-			puts "Revisando grupo: " + grupo.group_id.to_s + ", URL: " + grupo.url.to_s + "\n"
+			if @@debug_mode; puts "Revisando grupo: " + grupo.group_id.to_s + ", URL: " + grupo.url.to_s + "\n" end
 			inventario_grupo = solicitar_inventario(grupo.group_id)
 			
 			if inventario_grupo
 				inventario_grupo.each do |p_inventario|
-					#puts "sku_a_pedir: " + sku_a_pedir + "\n"
-					#puts "p_inventario[sku]: " + p_inventario['sku'] + "\n"
 					# Si el grupo productor tiene inventario, lo pedimos
 					if sku_a_pedir == p_inventario["sku"]
-						puts p_inventario.to_s
+						if @@debug_mode; puts p_inventario.to_s end
 						cantidad_inventario = p_inventario["total"]
 
 						# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
 						if cantidad_inventario >= cantidad_faltante
-							puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante"
+							if @@debug_mode; puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante" end
 							# solicitar_orden_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
 							if solicitar_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
 								return cantidad_faltante
@@ -470,7 +458,7 @@ module ApplicationHelper
 
 						# Si el inventario del otro grupo es menor a la cantidad faltante, pedimos todo el inventario
 						else
-							puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario"
+							if @@debug_mode; puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario" end
 							if solicitar_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
 								# solicitar_orden_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
 								cantidad_faltante -= cantidad_inventario
@@ -487,7 +475,6 @@ module ApplicationHelper
 
 	def mover_ingrediente_a_despacho(sku, cantidad_ingrediente)
 		inventario =  getSkuOnStock()
-		# puts "getSkuUnStock: \n" + inventario.to_s + "\n"
 		stock_en_almacen = Hash.new
 
 		# Partimos almacenes en 0
@@ -498,13 +485,11 @@ module ApplicationHelper
 
 		# Agregamos los almacenes que tienen stock del producto
 		for producto in inventario
-			# puts "producto[sku]: " + producto["sku"] + "\n"
 			if producto["sku"] == sku
-				puts "Encontramos el producto en esta bodega"
+				if @@debug_mode; puts "Encontramos el producto en esta bodega" end
 				almacen = producto["almacenId"]
 				cantidad = producto["cantidad"]
 				stock_en_almacen[almacen] = producto
-				# puts "stock_en_almacen[almacen]: " + stock_en_almacen[almacen].to_s + "\n"
 			end
 		end
 		unidades_por_mover = cantidad_ingrediente
@@ -523,13 +508,13 @@ module ApplicationHelper
 			else
 			# Movemos las unidades en RECEPCIÓN, PULMÓN y COCINA a DESPACHO
 				if stock_en_almacen[almacen]["cantidad"]
-					puts "Comenzando a mover a despacho"
+					if @@debug_mode; puts "Comenzando a mover a despacho" end
 					if stock_en_almacen[almacen]["cantidad"].to_i >= unidades_por_mover
-						puts "unidades por mover #{unidades_por_mover}"
-						mover_a_almacen(almacen, @@id_despacho, [sku], unidades_por_mover)
+						if @@debug_mode; puts "unidades por mover #{unidades_por_mover}" end
+						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku], unidades_por_mover)
 						return 1
 					else 
-						mover_a_almacen(almacen, @@id_despacho, [sku], 0)
+						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku], 0)
 						unidades_por_mover -= stock_en_almacen[almacen]["cantidad"]
 					end
 				end

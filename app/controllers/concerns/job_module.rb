@@ -4,8 +4,6 @@ module JobModule
 	include VariablesHelper
 	include ApiBodegaHelper
 	include GruposHelper
-	include PerformHelper
-
 
 	def job_start
 		puts "\n**********************************************"
