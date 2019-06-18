@@ -49,4 +49,8 @@ class InventoriesController < ApplicationController
 	def update
 	end
 
+	def allstock
+		@stock = getPrintStock()
+	end
+
 end

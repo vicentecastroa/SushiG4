@@ -249,7 +249,8 @@ module ApplicationHelper
 				@product = Producto.find(sku)
 				product_name = @product.nombre
 				quantity = element["total"]
-				line = {"almacenId" => almacen, "sku" => sku, "cantidad" => quantity, "nombre" => product_name}
+				almacen_nombre = nombre_almacen(almacen)
+				line = {"almacenId" => almacen, "sku" => sku, "cantidad" => quantity, "nombre" => product_name, "almacen_nombre" => almacen_nombre}
 				response << line
 			end
 		end 
@@ -553,4 +554,57 @@ module ApplicationHelper
 		return p_minimos
 	end
 
+	def getPrintStock
+		@stock = []
+		response = Hash.new()
+		id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
+		for prod in Producto.all
+			if prod.sku.length == 4
+				response[prod.sku] = Hash.new()
+				response[prod.sku] = {
+					"nombre" => prod.nombre,
+					"cantidadPulmon" => nil,
+					"cantidadRecepcion" => nil,
+					"cantidadCocina" => nil,
+					"cantidadDespacho" => nil,
+					"sku" => prod.sku,
+					"cantidad" => 0,
+					"stock_minimo" => prod.stock_minimo,
+					"faltante" => 0,
+				}
+			end
+		end
+
+		for almacen in id_almacenes
+			@request = (obtener_skus_con_stock(almacen)).to_a
+			for element in @request do
+				sku = element["_id"]
+
+				if almacen == @@id_despacho
+					response[sku]["cantidadDespacho"] = element["total"]
+				elsif almacen == @@id_pulmon
+					response[sku]["cantidadPulmon"] = element["total"]
+				elsif almacen == @@id_recepcion
+					response[sku]["cantidadRecepcion"] = element["total"]
+				elsif almacen == @@id_cocina
+					response[sku]["cantidadCocina"] = element["total"]
+				end
+				response[sku]["cantidad"] += element["total"]
+			end
+		end
+
+		for prod in Producto.all
+			if prod.sku.length == 4
+				if (response[prod.sku]["stock_minimo"].to_i - response[prod.sku]["cantidad"].to_i) > 0
+					response[prod.sku]["faltante"] =  response[prod.sku]["stock_minimo"].to_i - response[prod.sku]["cantidad"].to_i
+				end
+				a = nil
+				puts "AAAAAAAAAAAAA"
+				puts a.to_i
+				puts "AAAAAAAAAAAAA"
+				@stock << response[prod.sku]
+			end
+		end
+		return @stock
+	end
 end
