@@ -208,7 +208,7 @@ module PerformHelper
 		oc_aceptadas.each do |oc|
 			inventario_total.each do |inventario|
 				if inventario["sku"] == oc["sku"]
-					puts "Tenemos #{inventario["cantidad"]} de #{oc["cantidad"]} del sku #{inventario["sku"]}."
+					puts "Tenemos #{inventario["cantidad"]} de #{oc["cantidad"]} del sku #{inventario["sku"]}. Fecha de entrega #{oc["fechaEntrega"]}."
 					if inventario["cantidad"].to_i # >= oc["cantidad"].to_i
 						productos_cocina = get_products_from_almacenes(@@id_cocina, oc["sku"])
 						producto_enviado = 0
