@@ -15,5 +15,5 @@ get 'stock', to: 'inventories#allstock'
 post '/documents/:order_id/notification', to: 'documents#notificaciones'
 
 get '/pedir_todo', to: 'inventories#pedir_todo'
-
+# hola
 end
