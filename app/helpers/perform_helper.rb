@@ -209,22 +209,19 @@ module PerformHelper
 			inventario_total.each do |inventario|
 				if inventario["sku"] == oc["sku"]
 					puts "Tenemos #{inventario["cantidad"]} de #{oc["cantidad"]} del sku #{inventario["sku"]}. Fecha de entrega #{oc["fechaEntrega"]}."
-					if inventario["cantidad"].to_i # >= oc["cantidad"].to_i
+					if inventario["cantidad"].to_i >= oc["cantidad"].to_i
 						productos_cocina = get_products_from_almacenes(@@id_cocina, oc["sku"])
 						producto_enviado = 0
 						productos_cocina.each do |producto_cocina|
-							
 							despachar = despachar_producto(producto_cocina["_id"], oc["_id"], oc["cliente"], oc["precioUnitario"])
 							if despachar["despachado"] == true
 								puts "Producto enviado"
 							end
 							producto_enviado += 1
-							if producto_enviado == (oc["cantidad"] - oc["cantidadDespachada"])
-								
+							if producto_enviado == (oc["cantidad"])# - oc["cantidadDespachada"])
 								break
 							end
 						end
-						#despachar_producto(productoId, oc, direccion, precio)
 						break
 					else
 						puts ("No tenemos suficiente ingrediente")
@@ -232,11 +229,13 @@ module PerformHelper
 				end
 			end
 		end
-
-		# Despachar
-
 	end
 
 
+
+	def perform_arroz
+
+		
+	end
 
 end

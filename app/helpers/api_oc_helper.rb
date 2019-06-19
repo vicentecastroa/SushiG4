@@ -203,7 +203,7 @@ module ApiOcHelper
 					return ["rechazada","No podemos complir con los plazos entregados"]
 				end
 			else
-				rechazar_oc(@order_id, "No hay inventario para realizar pedido")
+				# rechazar_oc(@order_id, "No hay inventario para realizar pedido")
 				return ["rechazada","No hay inventario para realizar pedido"]
 			end
 		end

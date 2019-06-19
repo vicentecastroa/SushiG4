@@ -13,7 +13,17 @@ control_de_inventario:
 #   class: ReviewWorker
 #   queue: default
 
-# control_materias_primas:
-#   cron: "15,45 * * * *"
-#   class: MateriaPrimaWorker
+# arrocero:
+#   cron: "*/10 * * * *"
+#   class: HacerArrozWorker
 #   queue: default
+
+control_materias_primas:
+  cron: "15,45 * * * *"
+  class: MateriaPrimaWorker
+  queue: default
+
+despachadar_ftps:
+  cron: "*/2 * * * *"
+  class: DespacharWorker
+  queue: default
