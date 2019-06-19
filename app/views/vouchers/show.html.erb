@@ -1,0 +1,49 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Id:</strong>
+  <%= @voucher.id %>
+</p>
+
+<p>
+  <strong>Nombre:</strong>
+  <%= @voucher.nombre %>
+</p>
+
+<p>
+  <strong>Monto neto:</strong>
+  <%= @voucher.monto_neto %>
+</p>
+
+<p>
+  <strong>Iva pagado:</strong>
+  <%= @voucher.iva_pagado %>
+</p>
+
+<p>
+  <strong>Monto final:</strong>
+  <%= @voucher.monto_final %>
+</p>
+
+<p>
+  <strong>Productos:</strong>
+  <%= @voucher.productos %>
+</p>
+
+<p>
+  <strong>Ubicacion:</strong>
+  <%= @voucher.ubicacion %>
+</p>
+
+<p>
+  <strong>Hora entrega:</strong>
+  <%= @voucher.hora_entrega %>
+</p>
+
+<p>
+  <strong>Hora pedido:</strong>
+  <%= @voucher.hora_pedido %>
+</p>
+
+<%= link_to 'Edit', edit_voucher_path(@voucher) %> |
+<%= link_to 'Back', vouchers_path %>

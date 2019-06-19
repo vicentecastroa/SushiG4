@@ -10,10 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190524213253) do
+ActiveRecord::Schema.define(version: 2019_06_19_020755) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "boleta", primary_key: "id_boleta", id: :string, force: :cascade do |t|
+    t.string "nombre"
+    t.integer "monto_neto"
+    t.integer "iva_pagado"
+    t.integer "monto_final"
+    t.string "productos"
+    t.string "ubicacion"
+    t.date "hora_entrega"
+    t.date "hora_pedido"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "documents", primary_key: "order_id", id: :string, force: :cascade do |t|
     t.string "cliente"
@@ -71,6 +84,28 @@ ActiveRecord::Schema.define(version: 20190524213253) do
     t.float "tiempo_produccion_min"
     t.string "lugar_fabricacion"
     t.integer "costo_prod_lote"
+  end
+
+  create_table "stores", primary_key: "sku", id: :string, force: :cascade do |t|
+    t.string "nombre"
+    t.integer "cantidad_disponible"
+    t.integer "cantidad_seleccionada"
+    t.string "voucher"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "vouchers", primary_key: "id_voucher", id: :string, force: :cascade do |t|
+    t.string "nombre"
+    t.integer "monto_neto"
+    t.integer "iva_pagado"
+    t.integer "monto_final"
+    t.string "productos"
+    t.string "ubicacion"
+    t.date "hora_entrega"
+    t.date "hora_pedido"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
 end

@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  id: MyString
+  nombre: MyString
+  monto_neto: 1
+  iva_pagado: 1
+  monto_final: 1
+  productos: MyString
+  ubicacion: MyString
+  hora_entrega: 2019-06-18
+  hora_pedido: 2019-06-18
+
+two:
+  id: MyString
+  nombre: MyString
+  monto_neto: 1
+  iva_pagado: 1
+  monto_final: 1
+  productos: MyString
+  ubicacion: MyString
+  hora_entrega: 2019-06-18
+  hora_pedido: 2019-06-18

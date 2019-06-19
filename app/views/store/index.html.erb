@@ -1,0 +1,38 @@
+<div class="pull-right">
+  <form class="form-inline">
+    <input type="nombre" class="form-control" id="name" placeholder="Ingresa tu nombre">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Ir al Carrito</button>
+  </form>
+</div>
+
+<p id="notice"><%= notice %></p>
+
+<h3>SALA DE VENTAS</h3>
+
+<table class="table table-striped">
+  <thead >
+    <tr>
+      <th scope="col">SKU</th>
+      <th scope="col">NOMBRE</th>
+      <th scope="col">CANTIDAD DISPONIBLE</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @stock.each do |product| %>
+      <tr>
+        <td scope="row"><%= product['sku'] %></td>
+        <td><%= product['nombre'] %></td>
+        <td><%= product['cantidad'] %></td>
+        <td>
+          <form class="form-inline">
+            <label for="example-number-input" class="col-7 col-form-label">Seleccione Cantidad:</label>
+            <input class="form-control" type="number" value="0" id="example-number-input">
+            <button type="submit" class="btn btn-primary">Agregar al carrito</button>
+          </form>
+        </td>
+
+      </tr>
+    <% end %>
+  </tbody>
+</table>

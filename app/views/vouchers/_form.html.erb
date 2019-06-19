@@ -1,0 +1,62 @@
+<%= form_with(model: voucher, local: true) do |form| %>
+  <% if voucher.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(voucher.errors.count, "error") %> prohibited this voucher from being saved:</h2>
+
+      <ul>
+      <% voucher.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :id %>
+    <%= form.text_field :id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :nombre %>
+    <%= form.text_field :nombre %>
+  </div>
+
+  <div class="field">
+    <%= form.label :monto_neto %>
+    <%= form.number_field :monto_neto %>
+  </div>
+
+  <div class="field">
+    <%= form.label :iva_pagado %>
+    <%= form.number_field :iva_pagado %>
+  </div>
+
+  <div class="field">
+    <%= form.label :monto_final %>
+    <%= form.number_field :monto_final %>
+  </div>
+
+  <div class="field">
+    <%= form.label :productos %>
+    <%= form.text_field :productos %>
+  </div>
+
+  <div class="field">
+    <%= form.label :ubicacion %>
+    <%= form.text_field :ubicacion %>
+  </div>
+
+  <div class="field">
+    <%= form.label :hora_entrega %>
+    <%= form.date_select :hora_entrega %>
+  </div>
+
+  <div class="field">
+    <%= form.label :hora_pedido %>
+    <%= form.date_select :hora_pedido %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
