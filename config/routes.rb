@@ -9,8 +9,11 @@ resources :inventories, :productos, :orders, :group
 
 get '/totalproducts', to: 'inventories#total_products'
 get '/getskustock', to: 'inventories#sku_stock'
+
+#Jobs
 get '/checkin_init', to: 'inventories#init_check_inventory'
 get '/review_init', to: 'inventories#init_review'
+get '/delivery_init', to: 'inventories#init_delivery'
 get 'ftp', to: 'ftp_ordenes#index'
 post '/documents/:order_id/notification', to: 'documents#notificaciones'
 

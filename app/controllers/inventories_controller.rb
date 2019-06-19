@@ -30,6 +30,11 @@ class InventoriesController < ApplicationController
 		render plain: 'funcion review'
 	end
 
+	def init_delivery
+		perform_delivery()
+		render plain: 'funcion delivery'
+	end
+
 	def init_test_worker
 		MeLlamoWorker::perform()
 		# render text: "El worker esta funcionanto"
