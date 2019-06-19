@@ -548,10 +548,10 @@ module ApplicationHelper
 				response[prod.sku] = Hash.new()
 				response[prod.sku] = {
 					"nombre" => prod.nombre,
-					"cantidadPulmon" => nil,
-					"cantidadRecepcion" => nil,
-					"cantidadCocina" => nil,
-					"cantidadDespacho" => nil,
+					"cantidadPulmon" => 0,
+					"cantidadRecepcion" => 0,
+					"cantidadCocina" => 0,
+					"cantidadDespacho" => 0,
 					"sku" => prod.sku,
 					"cantidad" => 0,
 					"stock_minimo" => prod.stock_minimo,
