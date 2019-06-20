@@ -3,27 +3,27 @@
 #   class: PedirFinalesWorker
 #   queue: ordenes
 
-control_de_inventario:
-  cron: "*/30 * * * *"
-  class: InventoryWorker
-  queue: default
-
-review_worker:
-  cron: "*/2 * * * *"
-  class: ReviewWorker
-  queue: despacho
-
-# el_arrocero:
-#   cron: "*/10 * * * *"
-#   class: HacerArrozWorker
+# control_de_inventario:
+#   cron: "*/30 * * * *"
+#   class: InventoryWorker
 #   queue: default
 
-control_materias_primas:
-  cron: "15,45 * * * *"
-  class: MateriaPrimaWorker
+# review_worker:
+#   cron: "*/2 * * * *"
+#   class: ReviewWorker
+#   queue: despacho
+
+arrocero_worker:
+  cron: "32 * * * *"
+  class: ArroceroWorker
   queue: default
 
-despachadar_ftps:
-  cron: "*/3 * * * *"
-  class: DespacharWorker
-  queue: despacho
+# control_materias_primas:
+#   cron: "15,45 * * * *"
+#   class: MateriaPrimaWorker
+#   queue: default
+
+# despachadar_ftps:
+#   cron: "*/3 * * * *"
+#   class: DespacharWorker
+#   queue: despacho

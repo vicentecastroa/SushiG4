@@ -31,6 +31,11 @@ class InventoriesController < ApplicationController
 		render plain: 'funcion review'
 	end
 
+	def arrocero_init
+		perform_arroz()
+		render plain: 'funcion arrocero'
+	end
+	
 	def init_delivery
 		perform_delivery()
 		render plain: 'funcion delivery'
