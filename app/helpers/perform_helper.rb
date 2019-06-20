@@ -155,7 +155,7 @@ module PerformHelper
 								cantidad_a_producir_ingrediente = (@@factor_multiplicador * lotes_faltantes_ingrediente * lote_produccion_ingrediente).ceil
 
 								# Fabricamos sin costo la cantidad a producir del ingrediente
-								if @@debug_mode; puts fabricar_sin_pago(ingrediente.ingrediente_id, cantidad_a_producir_ingrediente) end
+								fabricar_sin_pago(ingrediente.ingrediente_id, cantidad_a_producir_ingrediente)
 								if @@debug_mode; puts "Fabricamos SIN PAGO el ingrediente: " + p_minimo.sku + ", una cantidad de " + cantidad_a_producir.to_s + "\n" end
 
 							# Si el producto no es nuestro, lo pedimos a otro grupo
