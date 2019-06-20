@@ -219,8 +219,8 @@ module ApplicationHelper
 					
 					if skus_quantity[product_sku] > 50
 						diferencia = skus_quantity[product_sku] - 50
-						if diferencia > 80
-							skus_quantity_final[product_sku] = 80
+						if diferencia > 30
+							skus_quantity_final[product_sku] = 30
 						else
 							skus_quantity_final[product_sku] = diferencia
 						end
