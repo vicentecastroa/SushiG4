@@ -4,6 +4,8 @@ require 'json'
 
 class InventoriesController < ApplicationController
 
+	include PerformHelper
+
 	def show
 	end
 	
@@ -17,9 +19,22 @@ class InventoriesController < ApplicationController
 		render plain: response
 	end
 
-	def init_inventory_worker
-		InventoryWorker::perform()
+	def init_check_inventory
+		perform_inventory()
+		render plain: 'funcion inventory'
+
+		# InventoryWorker::perform()
 		# SchedulerWorker.perform_async unless SchedulerWorker.new.scheduled?
+	end
+
+	def init_review
+		perform_review()
+		render plain: 'funcion review'
+	end
+
+	def init_delivery
+		perform_delivery()
+		render plain: 'funcion delivery'
 	end
 
 	def init_test_worker
@@ -44,6 +59,10 @@ class InventoriesController < ApplicationController
 	end
 
 	def update
+	end
+
+	def allstock
+		@stock = getPrintStock()
 	end
 
 end

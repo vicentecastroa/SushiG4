@@ -16,7 +16,8 @@ module ApiBodegaHelper
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
+
+		if @@debug_mode
 			puts "\nALMACENES\n"
 			puts JSON.pretty_generate(almacenes)
 		end
@@ -31,7 +32,8 @@ module ApiBodegaHelper
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
+
+		if @@debug_mode
 			puts "\nPRODUCTOS DE ALMACENES\n"
 			puts JSON.pretty_generate(products)
 		end
@@ -46,7 +48,8 @@ module ApiBodegaHelper
 		"Authorization": "INTEGRACION grupo4:#{hash_value}",
 		"Content-Type": "application/json"
 		})
-	if @@print_valores
+
+	if @@debug_mode
 		puts "\nPRODUCTOS DE ALMACENES\n"
 		puts JSON.pretty_generate(products)
 	end
@@ -67,7 +70,8 @@ module ApiBodegaHelper
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
+
+		if @@debug_mode
 			puts "\nMOVER PRODUCTO ENTRE BODEGAS\n"
 			puts JSON.pretty_generate(producto_movido)
 		end
@@ -91,7 +95,8 @@ module ApiBodegaHelper
 		    "Content-Type": "application/json"
 		  })
 
-		if @@print_valores
+
+		if @@debug_mode
 			puts "\nMOVER PRODUCTO ENTRE ALMACENES\n"
 			puts JSON.pretty_generate(req)
 		end
@@ -106,7 +111,7 @@ module ApiBodegaHelper
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
+		if @@debug_mode
 			puts "\nSKUS\n"
 			puts JSON.pretty_generate(skus)
 		end
@@ -115,7 +120,8 @@ module ApiBodegaHelper
 
   def fabricar_sin_pago(sku, cantidad)
 		data = "PUT#{sku}#{cantidad}"
-		puts data
+
+		if @@debug_mode; puts data end
 		hash_value = hashing(data)
 		products_produced = HTTParty.put("#{@@url}/fabrica/fabricarSinPago",
 		  body:{
@@ -126,25 +132,35 @@ module ApiBodegaHelper
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
-		if @@print_valores
+		if @@debug_mode
 			puts "\nFABRICAR SIN PAGO\n"
 			puts JSON.pretty_generate(products_produced)
 		end
 		return products_produced
   end
   
-  def pedir_todo_materias_primas
-    puts "Pedir todas las materias primas propias"
-    @@materias_primas_propias.each do |sku|
-      fabricar_sin_pago(sku, 100)
-    end
-    if @@estado == "dev"
-      puts "DEV: Pedir materias primas ajenas"
-      @@materias_primas_ajenas.each do |sku|
-        fabricar_sin_pago(sku, 100)
-      end
-    end
-  end
+	def pedir_todo_materias_primas
+		factor_orden = 10
 
-  
+		@@materias_primas_propias.each do |sku|
+			producto = Producto.find(sku)
+			lote_produccion = producto.lote_produccion
+			fabricar_sin_pago(sku, lote_produccion * factor_orden)
+		end
+		
+		if @@estado == "dev"
+			@@materias_primas_ajenas.each do |sku|
+				producto = Producto.find(sku)
+				lote_produccion = producto.lote_produccion
+				fabricar_sin_pago(sku, lote_produccion * factor_orden)
+			end
+		else
+			@@materias_primas_ajenas.each do |sku|
+				producto = Producto.find(sku)
+				lote_produccion = producto.lote_produccion
+				nos_entregan = pedir_producto_grupos(sku, lote_produccion * factor_orden)
+			end
+		end
+  	end
+
 end

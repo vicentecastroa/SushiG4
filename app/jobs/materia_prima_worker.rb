@@ -4,23 +4,15 @@ require 'json'
 # require 'oc_helper'
 # require "#{Rails.root}/app/controllers/concerns/app_controller_module"
 
+class MateriaPrimaWorker < ApplicationJob
 
-class InventoryWorker < ApplicationJob
-
-	include PerformHelper
-
-	# include GroupsModule
-	# include OcHelper
-	# include AppController
+	queue_as :default
 
 	def perform
-
 		job_start()
-		perform_inventory()
+		pedir_todo_materias_primas()
 		job_end()
-
 	end
-
 
 
 end

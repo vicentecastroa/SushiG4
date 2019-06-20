@@ -1,0 +1,48 @@
+<p id="notice"><%= notice %></p>
+
+
+<h3>FTP ORDENES</h3>
+
+<table class="table table-striped">
+  <thead >
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Fecha creada</th>
+      <th scope="col">cliente</th>
+      <th scope="col">proveedor</th>
+      <th scope="col">sku</th>
+      <th scope="col">urlNotificacion</th>
+      <th scope="col">estado</th>
+      <th scope="col">fechaDespachos</th>
+      <th scope="col">fechaEntrega</th>
+      <th scope="col">precioUnitario</th>
+      <th scope="col">cantidadDespachada</th>
+      <th scope="col">cantidad</th>
+      <th scope="col">canal</th>
+      <th scope="col">rechazo</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @ordenes.each do |orden| %>
+      <tr>
+        <th scope="row"><%= orden['_id'] %></td>
+        <td><%= orden['created_at'] %></td>
+        <td><%= orden['cliente'] %></td>
+        <td><%= orden['proveedor'] %></td>
+        <td><%= orden['sku'] %></td>
+        <td><%= orden['urlNotificacion'] %></td>
+        <td><%= orden['estado'] %></td>
+        <td><%= orden['fechaDespachos'] %></td>
+        <td><%= orden['fechaEntrega'] %></td>
+        <td><%= orden['precioUnitario'] %></td>
+        <td><%= orden['cantidadDespachada'] %></td>
+        <td><%= orden['cantidad'] %></td>
+        <td><%= orden['canal'] %></td>
+        <td><%= orden['rechazo'] %></td>
+
+      </tr>
+    <% end %>
+  </tbody>
+</table>
