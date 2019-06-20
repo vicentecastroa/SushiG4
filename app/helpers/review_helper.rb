@@ -1,5 +1,5 @@
 module ReviewHelper
-    include ApplicationHelper
+  include ApplicationHelper
 	include ApiOcHelper
 	include VariablesHelper
 	include ApiBodegaHelper
@@ -7,30 +7,30 @@ module ReviewHelper
 
 	def cocinar(sku_a_cocinar, cantidad_a_cocinar)
 
-		puts "\nCOCINAR\n"
-		puts "SKU a cocinar: #{sku_a_cocinar}, Cantidad: #{cantidad_a_cocinar}\n"
+		if @@debug_mode; puts "\nCOCINAR\n" end
+		if @@debug_mode; puts "SKU a cocinar: #{sku_a_cocinar}, Cantidad: #{cantidad_a_cocinar}\n" end
 
 		ingredientes = IngredientesAssociation.where(producto_id: sku_a_cocinar)
 
 		numero_ingredientes = ingredientes.length
 		lista_ingredientes = []
 
-		puts "Este producto necesita #{numero_ingredientes} ingredientes\n"
+		if @@debug_mode; puts "Este producto necesita #{numero_ingredientes} ingredientes\n" end
 
 		contador_ingredientes = 0
 
-		puts "Checkeamos disponibilidad de ingredientes\n"
-		puts ingredientes
+		if @@debug_mode; puts "Checkeamos disponibilidad de ingredientes\n" end
+		if @@debug_mode; puts ingredientes end
 		ingredientes.each do |ingrediente|
-			puts ingrediente
+			if @@debug_mode; puts ingrediente end
 			cantidad_ingrediente = getInventoriesOne(ingrediente.ingrediente_id)
 			cantidad_necesaria = cantidad_a_cocinar * ingrediente.unidades_bodega
-			puts "Necesitamos #{cantidad_necesaria} unidades del sku #{ingrediente.ingrediente_id}. Tenemos #{cantidad_ingrediente["cantidad"]} unidades\n"
+			if @@debug_mode; puts "Necesitamos #{cantidad_necesaria} unidades del sku #{ingrediente.ingrediente_id}. Tenemos #{cantidad_ingrediente["cantidad"]} unidades\n" end
 			if cantidad_ingrediente["cantidad"]  < cantidad_necesaria
-				puts "Ingrediente no disponible"
+				if @@debug_mode; puts "Ingrediente no disponible" end
 				return false
 			end
-			puts "Ingrediente disponible"
+			if @@debug_mode; puts "Ingrediente disponible" end
 		end
 
 		ingredientes.each do |ingrediente|

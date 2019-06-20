@@ -9,9 +9,7 @@ class InventoryWorker < ApplicationJob
 
 	include PerformHelper
 
-	# include GroupsModule
-	# include OcHelper
-	# include AppController
+	queue_as :default
 
 	def perform
 
