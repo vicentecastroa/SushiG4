@@ -205,9 +205,13 @@ module PerformHelper
 		# Revisar inventario
 
 		inventario_total = getInventoriesAll()
-
-		oc_aceptadas.each do |oc|
+		oc_aceptadas.reverse_each do |oc|
+			# if oc["fechaEntrega"] <= Time.now
+			#   	puts "La fecha de entrega #{oc["fechaEntrega"]} es menor que la fecha actual #{Time.now}"
+			#   	next
+			# end
 			inventario_total.each do |inventario|
+				if (oc["cantidadDespachada"] >= oc["cantidad"]); next end
 				if inventario["sku"] == oc["sku"]
 					puts "Tenemos #{inventario["cantidad"]} de #{oc["cantidad"]} del sku #{inventario["sku"]}. Fecha de entrega #{oc["fechaEntrega"]}."
 					if inventario["cantidad"].to_i >= oc["cantidad"].to_i
