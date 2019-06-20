@@ -11,7 +11,7 @@ module PerformHelper
 
 	def perform_inventory
 		
-		puts "\n****************************\nInventory worker checkeando inventario\n****************************\n\n"
+		if @@debug_mode; puts "\n****************************\nInventory worker checkeando inventario\n****************************\n\n" end
   
 		pedidos = Hash.new
 
@@ -19,7 +19,7 @@ module PerformHelper
 		inventario_total = getInventoriesAll()
 		# puts "Inventario Total: \n" + inventario_total.to_s
 		# [{"sku" => key, "nombre" => sku_name[key], "cantidad" => skus_quantity[key]}, {}, {}]
-		puts "Corrio getInventories"
+		if @@debug_mode; puts "Corrio getInventories" end
 
 		p_all = Producto.all
 
@@ -34,8 +34,8 @@ module PerformHelper
 			stock_minimo = p_minimo.stock_minimo.to_i
 			stock_minimo = (stock_minimo * @@factor_multiplicador).ceil
 
-			puts "\n****************************\nProducto Minimo: " + p_minimo.nombre + "\n"
-			puts"\nStock Minimo: " + stock_minimo.to_s
+			if @@debug_mode; puts "\n****************************\nProducto Minimo: " + p_minimo.nombre + "\n" end
+			if @@debug_mode; puts"\nStock Minimo: " + stock_minimo.to_s end
 
 			## Obtenemos el producto dentro del inventario ##
 			p_minimo_inventario = getInventoriesOne(p_minimo.sku)
@@ -44,7 +44,7 @@ module PerformHelper
 			sku = p_minimo_inventario["sku"]
 			cantidad = p_minimo_inventario["cantidad"].to_i
 
-			puts "\nCantidad Actual: " + cantidad.to_s
+			if @@debug_mode; puts "\nCantidad Actual: " + cantidad.to_s end
 
 			if cantidad < stock_minimo # Si la cantidad es mayor o igual al stock minimo, no hago nada
 
@@ -61,20 +61,20 @@ module PerformHelper
 				# Calculamos la cantidad a fabricar del producto
 				cantidad_a_producir = lotes_faltantes * lote_produccion
 				total_produccion = cantidad_a_producir
-				puts "\nCantidad Faltante: " + cantidad_faltante.to_s + " -> Lotes Faltantes: " + lotes_faltantes.to_s
-				puts "\n****************************\n\n"
-				puts "Ingredientes: \n"
+				if @@debug_mode; puts "\nCantidad Faltante: " + cantidad_faltante.to_s + " -> Lotes Faltantes: " + lotes_faltantes.to_s end
+				if @@debug_mode; puts "\n****************************\n\n" end
+				if @@debug_mode; puts "Ingredientes: \n" end
 
 				# Si el producto es MASAGO, lo pido a los grupos productores correspondientes
 				if sku.to_i == 1013
 					while cantidad_a_producir > 0 do
 						orden = [cantidad_a_producir, 20].min
 						nos_entregan = pedir_producto_grupos("1013", orden)
-						puts "Nos entregan #{nos_entregan} unidades"
+						if @@debug_mode; puts "Nos entregan #{nos_entregan} unidades" end
 						cantidad_a_producir -= nos_entregan
-						puts "Hemos producido #{total_produccion-cantidad_a_producir} de #{total_produccion}\n"
+						if @@debug_mode; puts "Hemos producido #{total_produccion-cantidad_a_producir} de #{total_produccion}\n" end
 						if nos_entregan == 0
-							puts "\nNINGUN grupo tienen mas MASAGO\n"
+							if @@debug_mode; puts "\nNINGUN grupo tienen mas MASAGO\n" end
 							break
 						end
 					end
@@ -93,7 +93,7 @@ module PerformHelper
 						
 						lista_ingredientes << [ingrediente.ingrediente_id, ingrediente.unidades_bodega.to_i]
 						
-						puts "\t ID Ingrediente: " + ingrediente.ingrediente_id + "\n"
+						if @@debug_mode; puts "\t ID Ingrediente: " + ingrediente.ingrediente_id + "\n" end
 						
 						# Obtenemos el ingrediente desde Producto
 						p_ingrediente = Producto.find(ingrediente.ingrediente_id)
@@ -111,13 +111,13 @@ module PerformHelper
 							
 
 						if p_ingrediente_inventario["cantidad"].to_i >= cantidad_ingrediente
-							puts "\t ¡Tenemos UN ingrediente! \n"
+							if @@debug_mode; puts "\t ¡Tenemos UN ingrediente! \n" end
 							
 							contador_ingredientes += 1
-							puts "contadores: #{contador_ingredientes} / #{numero_ingredientes}\n"
+							if @@debug_mode; puts "contadores: #{contador_ingredientes} / #{numero_ingredientes}\n" end
 							if contador_ingredientes == numero_ingredientes
-								puts "\t ¡Tenemos TODOS LOS ingredienteS! \n"
-								puts "Comenzamos la produccion de #{cantidad_a_producir} productos"
+								if @@debug_mode; puts "\t ¡Tenemos TODOS LOS ingredienteS! \n" end
+								if @@debug_mode; puts "Comenzamos la produccion de #{cantidad_a_producir} productos" end
 
 								while cantidad_a_producir > 0 do
 									# Enviamos ingredientes a despacho
@@ -126,10 +126,10 @@ module PerformHelper
 										mover_ingrediente_a_despacho(item[0], item[1])
 									end
 									# Fabricamos sin costo los ingredientes enviados
-									puts fabricar_sin_pago(p_minimo.sku, lote_produccion)
+									if @@debug_mode; puts fabricar_sin_pago(p_minimo.sku, lote_produccion) end
 									cantidad_a_producir -= lote_produccion
 									cantidad_a_producir = [cantidad_a_producir, 0].max
-									puts "Hemos producido #{total_produccion-cantidad_a_producir} de #{total_produccion}\n"
+									if @@debug_mode; puts "Hemos producido #{total_produccion-cantidad_a_producir} de #{total_produccion}\n" end
 
 
 									# fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, cantidad_ingrediente)
@@ -139,11 +139,11 @@ module PerformHelper
 
 						# Si el stock actual es menor a la cantidad de ingrediente requerido, calculamos la cantidad faltante de ingrediente
 						else
-							puts "No tenemos el ingrediente! \n"
+							if @@debug_mode; puts "No tenemos el ingrediente! \n" end
 							cantidad_faltante_ingrediente = cantidad_ingrediente - p_ingrediente_inventario["cantidad"]
 
 							if @@materias_primas_propias.include? ingrediente.ingrediente_id.to_s
-								puts "El ingrediente es nuestro\n"
+								if @@debug_mode; puts "El ingrediente es nuestro\n" end
 								# Obtenemos el tamaño de lote de producción del ingrediente
 								lote_produccion_ingrediente = p_ingrediente.lote_produccion.to_i
 
@@ -158,20 +158,20 @@ module PerformHelper
 								cantidad_a_producir_ingrediente = (@@factor_multiplicador * lotes_faltantes_ingrediente * lote_produccion_ingrediente).ceil
 
 								# Fabricamos sin costo la cantidad a producir del ingrediente
-								puts fabricar_sin_pago(ingrediente.ingrediente_id, cantidad_a_producir_ingrediente)
-								puts "Fabricamos SIN PAGO el ingrediente: " + p_minimo.sku + ", una cantidad de " + cantidad_a_producir.to_s + "\n"
+								if @@debug_mode; puts fabricar_sin_pago(ingrediente.ingrediente_id, cantidad_a_producir_ingrediente) end
+								if @@debug_mode; puts "Fabricamos SIN PAGO el ingrediente: " + p_minimo.sku + ", una cantidad de " + cantidad_a_producir.to_s + "\n" end
 
 							# Si el producto no es nuestro, lo pedimos a otro grupo
 							else
-								puts "El ingrediente NO es nuestro\n"
+								if @@debug_mode; puts "El ingrediente NO es nuestro\n" end
 								while cantidad_faltante_ingrediente > 0
 									orden = [cantidad_faltante_ingrediente, 20].min
 									nos_entregan = pedir_producto_grupos(ingrediente.ingrediente_id, orden)
-									puts "Nos entregan #{nos_entregan} unidades"
+									if @@debug_mode; puts "Nos entregan #{nos_entregan} unidades" end
 									cantidad_faltante_ingrediente -= nos_entregan
 									
 									if nos_entregan == 0
-										puts "\nNINGUN grupo tienen mas Producto X\n"
+										if @@debug_mode; puts "\nNINGUN grupo tienen mas Producto X\n" end
 										break
 									end
 								end
@@ -196,7 +196,7 @@ module PerformHelper
 
 	def perform_delivery
 
-		puts "----- Entro a perform_delivery en perform_helper -----"
+		if @@debug_mode; puts "----- Entro a perform_delivery en perform_helper -----" end
 
 		# Revisar OCs aceptadas
 
@@ -209,14 +209,14 @@ module PerformHelper
 		oc_aceptadas.each do |oc|
 			inventario_total.each do |inventario|
 				if inventario["sku"] == oc["sku"]
-					puts "Tenemos #{inventario["cantidad"]} de #{oc["cantidad"]} del sku #{inventario["sku"]}. Fecha de entrega #{oc["fechaEntrega"]}."
+					if @@debug_mode; puts "Tenemos #{inventario["cantidad"]} de #{oc["cantidad"]} del sku #{inventario["sku"]}. Fecha de entrega #{oc["fechaEntrega"]}." end
 					if inventario["cantidad"].to_i >= oc["cantidad"].to_i
 						productos_cocina = get_products_from_almacenes(@@id_cocina, oc["sku"])
 						producto_enviado = 0
 						productos_cocina.each do |producto_cocina|
 							despachar = despachar_producto(producto_cocina["_id"], oc["_id"], oc["cliente"], oc["precioUnitario"])
 							if despachar["despachado"] == true
-								puts "Producto enviado"
+								if @@debug_mode; puts "Producto enviado" end
 							end
 							producto_enviado += 1
 							if producto_enviado == (oc["cantidad"])# - oc["cantidadDespachada"])
@@ -225,7 +225,7 @@ module PerformHelper
 						end
 						break
 					else
-						puts ("No tenemos suficiente ingrediente")
+						if @@debug_mode; puts ("No tenemos suficiente ingrediente") end
 					end
 				end
 			end
