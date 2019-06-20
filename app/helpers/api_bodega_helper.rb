@@ -16,6 +16,7 @@ module ApiBodegaHelper
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
+
 		if @@debug_mode
 			puts "\nALMACENES\n"
 			puts JSON.pretty_generate(almacenes)
@@ -31,6 +32,7 @@ module ApiBodegaHelper
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
+
 		if @@debug_mode
 			puts "\nPRODUCTOS DE ALMACENES\n"
 			puts JSON.pretty_generate(products)
@@ -68,6 +70,7 @@ module ApiBodegaHelper
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
+
 		if @@debug_mode
 			puts "\nMOVER PRODUCTO ENTRE BODEGAS\n"
 			puts JSON.pretty_generate(producto_movido)
@@ -91,6 +94,7 @@ module ApiBodegaHelper
 		    "Authorization": "INTEGRACION grupo4:#{hash_value}",
 		    "Content-Type": "application/json"
 		  })
+
 
 		if @@debug_mode
 			puts "\nMOVER PRODUCTO ENTRE ALMACENES\n"
@@ -116,6 +120,7 @@ module ApiBodegaHelper
 
   def fabricar_sin_pago(sku, cantidad)
 		data = "PUT#{sku}#{cantidad}"
+
 		if @@debug_mode; puts data end
 		hash_value = hashing(data)
 		products_produced = HTTParty.put("#{@@url}/fabrica/fabricarSinPago",
@@ -134,18 +139,28 @@ module ApiBodegaHelper
 		return products_produced
   end
   
-  def pedir_todo_materias_primas
-    if @@debug_mode; puts "Pedir todas las materias primas propias" end
-    @@materias_primas_propias.each do |sku|
-      fabricar_sin_pago(sku, 100)
-    end
-		if @@estado == "dev"
-			if @@debug_mode; puts "DEV: Pedir materias primas ajenas" end
-      @@materias_primas_ajenas.each do |sku|
-        fabricar_sin_pago(sku, 100)
-      end
-    end
-  end
+	def pedir_todo_materias_primas
+		factor_orden = 10
 
-  
+		@@materias_primas_propias.each do |sku|
+			producto = Producto.find(sku)
+			lote_produccion = producto.lote_produccion
+			fabricar_sin_pago(sku, lote_produccion * factor_orden)
+		end
+		
+		if @@estado == "dev"
+			@@materias_primas_ajenas.each do |sku|
+				producto = Producto.find(sku)
+				lote_produccion = producto.lote_produccion
+				fabricar_sin_pago(sku, lote_produccion * factor_orden)
+			end
+		else
+			@@materias_primas_ajenas.each do |sku|
+				producto = Producto.find(sku)
+				lote_produccion = producto.lote_produccion
+				nos_entregan = pedir_producto_grupos(sku, lote_produccion * factor_orden)
+			end
+		end
+  	end
+
 end

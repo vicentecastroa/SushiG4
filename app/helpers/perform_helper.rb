@@ -4,8 +4,10 @@ module PerformHelper
 	include VariablesHelper
 	include ApiBodegaHelper
 	include GruposHelper
+	include ReviewHelper
 
-    @@factor_multiplicador = 1.5
+    @@factor_multiplicador = 1
+
 
 	def perform_inventory
 		
@@ -179,9 +181,61 @@ module PerformHelper
 				end
 			end			
 		end
-		job_end()
+		# job_end()
+	end
+
+	def perform_review
+
+		#job_start()
+		revisar_oc()
+		revisar_cocina()
+		# revisar_cocina_worker()
+		#job_end()
+
+	end
+
+	def perform_delivery
+
+		puts "----- Entro a perform_delivery en perform_helper -----"
+
+		# Revisar OCs aceptadas
+
+		oc_aceptadas = obtener_oc_aceptadas()
+
+		# Revisar inventario
+
+		inventario_total = getInventoriesAll()
+
+		oc_aceptadas.each do |oc|
+			inventario_total.each do |inventario|
+				if inventario["sku"] == oc["sku"]
+					puts "Tenemos #{inventario["cantidad"]} de #{oc["cantidad"]} del sku #{inventario["sku"]}. Fecha de entrega #{oc["fechaEntrega"]}."
+					if inventario["cantidad"].to_i >= oc["cantidad"].to_i
+						productos_cocina = get_products_from_almacenes(@@id_cocina, oc["sku"])
+						producto_enviado = 0
+						productos_cocina.each do |producto_cocina|
+							despachar = despachar_producto(producto_cocina["_id"], oc["_id"], oc["cliente"], oc["precioUnitario"])
+							if despachar["despachado"] == true
+								puts "Producto enviado"
+							end
+							producto_enviado += 1
+							if producto_enviado == (oc["cantidad"])# - oc["cantidadDespachada"])
+								break
+							end
+						end
+						break
+					else
+						puts ("No tenemos suficiente ingrediente")
+					end
+				end
+			end
+		end
 	end
 
 
+
+	def perform_arroz
+		
+	end
 
 end
