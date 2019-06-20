@@ -8,7 +8,6 @@ module PerformHelper
 
     @@factor_multiplicador = 1
 
-
 	def perform_inventory
 		
 		puts "\n****************************\nInventory worker checkeando inventario\n****************************\n\n"
@@ -131,8 +130,6 @@ module PerformHelper
 									cantidad_a_producir = [cantidad_a_producir, 0].max
 									puts "Hemos producido #{total_produccion-cantidad_a_producir} de #{total_produccion}\n"
 
-
-									# fabricar_sin_pago(@@api_key, ingrediente.ingrediente_id, cantidad_ingrediente)
 								end
 
 							end
@@ -181,16 +178,12 @@ module PerformHelper
 				end
 			end			
 		end
-		# job_end()
 	end
 
 	def perform_review
 
-		#job_start()
 		revisar_oc()
 		revisar_cocina()
-		# revisar_cocina_worker()
-		#job_end()
 
 	end
 
@@ -210,8 +203,8 @@ module PerformHelper
 			#   	puts "La fecha de entrega #{oc["fechaEntrega"]} es menor que la fecha actual #{Time.now}"
 			#   	next
 			# end
+			if (oc["cantidadDespachada"] >= oc["cantidad"]); next end
 			inventario_total.each do |inventario|
-				if (oc["cantidadDespachada"] >= oc["cantidad"]); next end
 				if inventario["sku"] == oc["sku"]
 					puts "Tenemos #{inventario["cantidad"]} de #{oc["cantidad"]} del sku #{inventario["sku"]}. Fecha de entrega #{oc["fechaEntrega"]}."
 					if inventario["cantidad"].to_i >= oc["cantidad"].to_i
@@ -223,13 +216,13 @@ module PerformHelper
 								puts "Producto enviado"
 							end
 							producto_enviado += 1
-							if producto_enviado == (oc["cantidad"])# - oc["cantidadDespachada"])
+							if producto_enviado == (oc["cantidad"]) - oc["cantidadDespachada"])
 								break
 							end
 						end
 						break
 					else
-						puts ("No tenemos suficiente ingrediente")
+						puts ("No tenemos suficiente producto")
 					end
 				end
 			end

@@ -21,7 +21,7 @@ class OcWorker < ApplicationController
 				# 	fabricar = fabricar_sin_pago
 
 				if ['Cebollín entero', 'Arroz grano corto', 'Sal', 'Kanikama entero', 'Nori entero'].include? element['sku']
-					productos = fabricar_sin_pago(@@api_key, element['sku'], @producto.stock_minimo)
+					productos = fabricar_sin_pago(element['sku'], @producto.stock_minimo)
 					# Aca no se hace nada mas cierto?
 				# else
 				# 	# No lo producimos nosotros, pedir a otro grupo

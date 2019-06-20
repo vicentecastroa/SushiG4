@@ -18,8 +18,8 @@ module ApiBodegaHelper
 		  })
 
 		if @@debug_mode
-			puts "\nALMACENES\n"
-			puts JSON.pretty_generate(almacenes)
+			# puts "\nALMACENES\n"
+			# puts JSON.pretty_generate(almacenes)
 		end
 		return almacenes
   end
@@ -34,8 +34,8 @@ module ApiBodegaHelper
 		  })
 
 		if @@debug_mode
-			puts "\nPRODUCTOS DE ALMACENES\n"
-			puts JSON.pretty_generate(products)
+			# puts "\nPRODUCTOS DE ALMACENES\n"
+			# puts JSON.pretty_generate(products)
 		end
 		return products
   end
@@ -50,8 +50,8 @@ module ApiBodegaHelper
 		})
 
 	if @@debug_mode
-		puts "\nPRODUCTOS DE ALMACENES\n"
-		puts JSON.pretty_generate(products)
+		# puts "\nPRODUCTOS DE ALMACENES\n"
+		# puts JSON.pretty_generate(products)
 	end
 	return products
   end
@@ -72,8 +72,8 @@ module ApiBodegaHelper
 		  })
 
 		if @@debug_mode
-			puts "\nMOVER PRODUCTO ENTRE BODEGAS\n"
-			puts JSON.pretty_generate(producto_movido)
+			# puts "\nMOVER PRODUCTO ENTRE BODEGAS\n"
+			# puts JSON.pretty_generate(producto_movido)
 		end
 		return producto_movido
   end
@@ -97,8 +97,8 @@ module ApiBodegaHelper
 
 
 		if @@debug_mode
-			puts "\nMOVER PRODUCTO ENTRE ALMACENES\n"
-			puts JSON.pretty_generate(req)
+			# puts "\nMOVER PRODUCTO ENTRE ALMACENES\n"
+			# puts JSON.pretty_generate(req)
 		end
 		return req
 	end
@@ -112,8 +112,8 @@ module ApiBodegaHelper
 		    "Content-Type": "application/json"
 		  })
 		if @@debug_mode
-			puts "\nSKUS\n"
-			puts JSON.pretty_generate(skus)
+			# puts "\nSKUS\n"
+			# puts JSON.pretty_generate(skus)
 		end
 		return skus
 	end
@@ -133,8 +133,8 @@ module ApiBodegaHelper
 		    "Content-Type": "application/json"
 		  })
 		if @@debug_mode
-			puts "\nFABRICAR SIN PAGO\n"
-			puts JSON.pretty_generate(products_produced)
+			# puts "\nFABRICAR SIN PAGO\n"
+			# puts JSON.pretty_generate(products_produced)
 		end
 		return products_produced
   end
