@@ -579,17 +579,18 @@ module ApplicationHelper
 			@request = (obtener_skus_con_stock(almacen)).to_a
 			for element in @request do
 				sku = element["_id"]
-
-				if almacen == @@id_despacho
-					response[sku]["cantidadDespacho"] = element["total"]
-				elsif almacen == @@id_pulmon
-					response[sku]["cantidadPulmon"] = element["total"]
-				elsif almacen == @@id_recepcion
-					response[sku]["cantidadRecepcion"] = element["total"]
-				elsif almacen == @@id_cocina
-					response[sku]["cantidadCocina"] = element["total"]
+				if sku.length == 4
+					if almacen == @@id_despacho
+						response[sku]["cantidadDespacho"] = element["total"]
+					elsif almacen == @@id_pulmon
+						response[sku]["cantidadPulmon"] = element["total"]
+					elsif almacen == @@id_recepcion
+						response[sku]["cantidadRecepcion"] = element["total"]
+					elsif almacen == @@id_cocina
+						response[sku]["cantidadCocina"] = element["total"]
+					end
+					response[sku]["cantidad"] += element["total"]
 				end
-				response[sku]["cantidad"] += element["total"]
 			end
 		end
 
@@ -602,5 +603,34 @@ module ApplicationHelper
 			end
 		end
 		return @stock
+	end
+
+	def getCocinaStock
+		@cocina = []
+		response = Hash.new()
+		id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
+		for prod in Producto.all
+			if prod.sku.length == 5
+				response[prod.sku] = Hash.new()
+				response[prod.sku] = {
+					"nombre" => prod.nombre,
+					"sku" => prod.sku,
+					"cantidad" => 0,
+				}
+			end
+		end
+
+		@request = (obtener_skus_con_stock(@@id_cocina)).to_a
+		for element in @request do
+			sku = element["_id"]
+			response[sku]["cantidad"] = element["total"]
+		end
+
+		for prod in Producto.all
+			if prod.sku.length == 5
+				@cocina << response[prod.sku]
+			end
+		end
+		return @cocina
 	end
 end

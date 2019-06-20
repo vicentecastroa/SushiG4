@@ -15,6 +15,11 @@ class FtpOrdenesController < ApplicationController
 	  					data_json = JSON.parse data_json
 	  					order_id = data_json["order"]['id']
 	  					orden_compra = obtener_oc(order_id)
+	  					if ((Time.parse(orden_compra[0]["fechaEntrega"]) - time)/60).round > 0
+	  						orden_compra[0]["fechaEntrega"] = ((Time.parse(orden_compra[0]["fechaEntrega"]) - time)/60).round
+	  					else
+	  						orden_compra[0]["fechaEntrega"] = 0
+	  					end
 	  					@ordenes << orden_compra[0]
 					end
 				end

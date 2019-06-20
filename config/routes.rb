@@ -16,7 +16,7 @@ get '/review_init', to: 'inventories#init_review'
 get '/delivery_init', to: 'inventories#init_delivery'
 get 'ftp', to: 'ftp_ordenes#index'
 get 'stock', to: 'inventories#allstock'
-
+get 'cocina', to: 'inventories#cocina'
 post '/documents/:order_id/notification', to: 'documents#notificaciones'
 
 get '/pedir_todo', to: 'inventories#pedir_todo'
