@@ -19,6 +19,11 @@ class InventoriesController < ApplicationController
 		render plain: response
 	end
 
+	def arrocero_init
+		perform_arroz()
+		render plain: 'funcion arrocero'
+	end
+
 	def init_check_inventory
 		perform_inventory()
 		render plain: 'funcion inventory'

@@ -4,7 +4,7 @@
 #   queue: ordenes
 
 control_de_inventario:
-  cron: "*/30 * * * *"
+  cron: "*/10 * * * *"
   class: InventoryWorker
   queue: default
 
@@ -13,13 +13,13 @@ review_worker:
   class: ReviewWorker
   queue: despacho
 
-# el_arrocero:
-#   cron: "*/10 * * * *"
-#   class: HacerArrozWorker
-#   queue: default
+arrocero_worker:
+  cron: "*/5 * * * *"
+  class: ArroceroWorker
+  queue: default
 
 control_materias_primas:
-  cron: "15,45 * * * *"
+  cron: "*/15 * * * *"
   class: MateriaPrimaWorker
   queue: default
 

@@ -205,9 +205,13 @@ module PerformHelper
 		# Revisar inventario
 
 		inventario_total = getInventoriesAll()
-
-		oc_aceptadas.each do |oc|
+		oc_aceptadas.reverse_each do |oc|
+			# if oc["fechaEntrega"] <= Time.now
+			#   	puts "La fecha de entrega #{oc["fechaEntrega"]} es menor que la fecha actual #{Time.now}"
+			#   	next
+			# end
 			inventario_total.each do |inventario|
+				if (oc["cantidadDespachada"] >= oc["cantidad"]); next end
 				if inventario["sku"] == oc["sku"]
 					if @@debug_mode; puts "Tenemos #{inventario["cantidad"]} de #{oc["cantidad"]} del sku #{inventario["sku"]}. Fecha de entrega #{oc["fechaEntrega"]}." end
 					if inventario["cantidad"].to_i >= oc["cantidad"].to_i
@@ -235,7 +239,52 @@ module PerformHelper
 
 
 	def perform_arroz
-		
+		sku = "1101"
+		ingredientes = IngredientesAssociation.where(producto_id: sku)
+		puts ingredientes
+		numero_ingredientes = ingredientes.length
+		lista_ingredientes = []
+		contador_ingredientes = 0
+		stock_minimo_arroz = 300
+
+		inventario_arroz = getInventoriesOne(sku)
+
+		if inventario_arroz["cantidad"] <= stock_minimo_arroz
+			cantidad_faltante =  stock_minimo_arroz - inventario_arroz["cantidad"]
+			lote_produccion = 10
+			lotes_faltantes = (cantidad_faltante.to_f / lote_produccion.to_f).ceil
+			cantidad_a_producir = lotes_faltantes * lote_produccion
+			total_produccion = cantidad_a_producir
+			ingredientes.each do |ingrediente|
+				lista_ingredientes << [ingrediente.ingrediente_id, ingrediente.unidades_bodega.to_i]
+				p_ingrediente = Producto.find(ingrediente.ingrediente_id)
+				p_ingrediente_inventario = getInventoriesOne(p_ingrediente.sku)
+				unidades_bodega = ingrediente.unidades_bodega.to_i
+				cantidad_ingrediente = unidades_bodega * lotes_faltantes
+				
+				if p_ingrediente_inventario["cantidad"].to_i >= cantidad_ingrediente
+					puts "\t ¡AROCERO: Encontre UNO de los ingredientes! \n"
+					contador_ingredientes += 1
+					puts "contadores: #{contador_ingredientes} / #{numero_ingredientes}\n"
+					if contador_ingredientes == numero_ingredientes
+						puts "\t ¡ARROCERO: Tengo TODOS LOS ingredienteS! \n"
+						puts "ARROCERO: voy a cocinar #{cantidad_a_producir} arroces"
+
+						while cantidad_a_producir > 0 do
+							# Enviamos ingredientes a despacho
+							lista_ingredientes.each do |item|
+								mover_ingrediente_a_despacho(item[0], item[1])
+							end
+							# Fabricamos sin costo los ingredientes enviados
+							puts fabricar_sin_pago(sku, lote_produccion)
+							cantidad_a_producir -= lote_produccion
+							cantidad_a_producir = [cantidad_a_producir, 0].max
+							puts "ARROCERO: Hice #{total_produccion-cantidad_a_producir} de #{total_produccion}\n"
+						end
+					end
+				end
+			end
+		end
 	end
 
 end

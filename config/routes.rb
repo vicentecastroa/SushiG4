@@ -11,6 +11,7 @@ get '/totalproducts', to: 'inventories#total_products'
 get '/getskustock', to: 'inventories#sku_stock'
 
 #Jobs
+get '/arrocero', to: 'inventories#arrocero_init'
 get '/checkin_init', to: 'inventories#init_check_inventory'
 get '/review_init', to: 'inventories#init_review'
 get '/delivery_init', to: 'inventories#init_delivery'
