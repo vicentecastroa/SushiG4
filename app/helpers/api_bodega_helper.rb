@@ -153,8 +153,15 @@ module ApiBodegaHelper
 				maximo_sku = 250
 			end
 
+			if @@debug_mode; puts "Tenemos #{stock_actual["cantidad"]} de #{maximo_sku} del sku #{sku}" end
+
 			if maximo_sku > stock_actual["cantidad"]
-				fabricar_sin_pago(sku, lote_produccion * factor_orden)
+				if @@debug_mode
+					puts fabricar_sin_pago(sku, lote_produccion * factor_orden)
+					puts "Fabricamos SIN PAGO el ingrediente: " + sku + ", una cantidad de " + (lote_produccion * factor_orden).to_s + "\n"
+				else
+					fabricar_sin_pago(sku, lote_produccion * factor_orden)
+				end
 			end	
 		end
 		
@@ -163,6 +170,9 @@ module ApiBodegaHelper
 			maximo_sku = @@minimos[sku][1]*factor_maximo
 			producto = Producto.find(sku)
 			lote_produccion = producto.lote_produccion
+
+			if @@debug_mode; puts "Tenemos #{stock_actual["cantidad"]} de #{maximo_sku} del sku #{sku}" end
+
 			if maximo_sku > stock_actual["cantidad"]
 				nos_entregan = pedir_producto_grupos(sku, lote_produccion * factor_orden)
 			end
