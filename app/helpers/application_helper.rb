@@ -553,4 +553,32 @@ module ApplicationHelper
 		return p_minimos
 	end
 
+
+	def getMinStockAll  
+		# crea en el diccionario pedidos, el stock minimo de todos los pruductos minimos y sus ingredientes
+		pedidos = Hash.new
+		p_minimos = getProductosMinimos()
+
+		p_minimos.each do |p_minimo|
+			stock_minimo = p_minimo.stock_minimo.to_i
+			lote_produccion = p_minimo.lote_produccion
+			pedidos[p_minimo.sku] = ["MINIMO", p_minimo.nombre, stock_minimo.to_i, lote_produccion]
+			ingredientes = IngredientesAssociation.where(producto_id: p_minimo.sku)
+			puts "INGREDIENTES de #{p_minimo.nombre}:"
+			ingredientes.each do |ingrediente|
+				nombre = Producto.find(ingrediente.ingrediente_id).nombre
+				puts nombre		
+				total_necesario = (stock_minimo.to_f / lote_produccion.to_f).ceil
+				total_necesario = total_necesario * ingrediente.unidades_bodega.to_i
+
+				if pedidos.key?(ingrediente.ingrediente_id)
+					pedidos[ingrediente.ingrediente_id][2] += total_necesario
+				else
+					pedidos[ingrediente.ingrediente_id] = ["INGREDIENTE", nombre, total_necesario]
+				end
+			end
+		end			
+		puts pedidos
+	end
+
 end
