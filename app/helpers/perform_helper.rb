@@ -192,21 +192,30 @@ module PerformHelper
 		puts "----- Entro a perform_delivery en perform_helper -----"
 
 		# Revisar OCs aceptadas
-
 		oc_aceptadas = obtener_oc_aceptadas()
 
 		# Revisar inventario
-
 		inventario_total = getInventoriesAll()
-		oc_aceptadas.reverse_each do |oc|
-			# if oc["fechaEntrega"] <= Time.now
-			#   	puts "La fecha de entrega #{oc["fechaEntrega"]} es menor que la fecha actual #{Time.now}"
-			#   	next
-			# end
-			if (oc["cantidadDespachada"] >= oc["cantidad"]); next end
+
+		# Para cada OC aceptada
+		oc_aceptadas.each do |oc|
+
+			# Checkeamos que su fecha de entrega no sea menor que la actual
+			if oc["fechaEntrega"] <= Time.now.utc
+			   	puts "La fecha de entrega #{oc["fechaEntrega"]} es menor que la fecha actual #{Time.now.utc} para el producto #{oc["sku"]}"
+			   	next
+			end
+
+			# Checkeamos que la cantidad ya despachada no sea mayor o igual que la cantidad que se pide
+			if (oc["cantidadDespachada"].to_i >= oc["cantidad"].to_i)
+				puts "Ya se despacharon las #{oc["cantidad"]} unidades del producto #{oc["sku"]}"
+				next
+			end
+
+			# Checkeamos si hay inventario del producto
 			inventario_total.each do |inventario|
 				if inventario["sku"] == oc["sku"]
-					puts "Tenemos #{inventario["cantidad"]} de #{oc["cantidad"]} del sku #{inventario["sku"]}. Fecha de entrega #{oc["fechaEntrega"]}."
+					puts "Tenemos #{inventario["cantidad"]} de #{oc["cantidad"]} del sku #{inventario["sku"]}. Faltan por despachar #{(oc["cantidad"] - oc["cantidadDespachada"])}."
 					if inventario["cantidad"].to_i >= oc["cantidad"].to_i
 						productos_cocina = get_products_from_almacenes(@@id_cocina, oc["sku"])
 						producto_enviado = 0
@@ -216,6 +225,7 @@ module PerformHelper
 								puts "Producto enviado"
 							end
 							producto_enviado += 1
+							# Enviamos solo la cantidad faltante del producto
 							if producto_enviado == (oc["cantidad"] - oc["cantidadDespachada"])
 								break
 							end
