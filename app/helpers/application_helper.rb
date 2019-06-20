@@ -176,7 +176,7 @@ module ApplicationHelper
 		  })
 		if @@debug_mode
 			puts "\nMOVER PRODUCTO ENTRE BODEGAS\n"
-			puts JSON.pretty_generate(producto_movido)
+			puts JSON.pretty_generate(producto_despachado)
 		end
 		return producto_despachado
 	end
