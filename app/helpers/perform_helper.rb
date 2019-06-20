@@ -129,10 +129,6 @@ module PerformHelper
 									cantidad_a_producir -= lote_produccion
 									cantidad_a_producir = [cantidad_a_producir, 0].max
 									if @@debug_mode; puts "Hemos producido #{total_produccion-cantidad_a_producir} de #{total_produccion}\n" end
-<<<<<<< HEAD
-
-=======
->>>>>>> development
 
 								end
 
@@ -219,11 +215,7 @@ module PerformHelper
 			# Checkeamos si hay inventario del producto
 			inventario_total.each do |inventario|
 				if inventario["sku"] == oc["sku"]
-<<<<<<< HEAD
-					if @@debug_mode; puts "Tenemos #{inventario["cantidad"]} de #{oc["cantidad"]} del sku #{inventario["sku"]}. Fecha de entrega #{oc["fechaEntrega"]}." end
-=======
 					if @@debug_mode; puts "Tenemos #{inventario["cantidad"]} de #{oc["cantidad"]} del sku #{inventario["sku"]}. Faltan por despachar #{(oc["cantidad"] - oc["cantidadDespachada"])}." end
->>>>>>> development
 					if inventario["cantidad"].to_i >= oc["cantidad"].to_i
 						productos_cocina = get_products_from_almacenes(@@id_cocina, oc["sku"])
 						producto_enviado = 0
@@ -240,11 +232,7 @@ module PerformHelper
 						end
 						break
 					else
-<<<<<<< HEAD
-						if @@debug_mode; puts ("No tenemos suficiente ingrediente") end
-=======
 						if @@debug_mode; puts ("No tenemos suficiente producto") end
->>>>>>> development
 					end
 				end
 			end
