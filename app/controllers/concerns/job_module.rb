@@ -7,7 +7,6 @@ module JobModule
 	include PerformHelper
 	include ReviewHelper
 
-
 	def job_start
 		puts "\n**********************************************"
 		puts "\n******** INICIO DE #{self.class} ********"

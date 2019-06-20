@@ -8,6 +8,7 @@ module PerformHelper
 
     @@factor_multiplicador = 1
 
+
 	def perform_inventory
 		
 		puts "\n****************************\nInventory worker checkeando inventario\n****************************\n\n"
@@ -234,7 +235,6 @@ module PerformHelper
 
 
 	def perform_arroz
-
 		
 	end
 

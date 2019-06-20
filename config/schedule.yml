@@ -27,3 +27,4 @@ despachadar_ftps:
   cron: "*/3 * * * *"
   class: DespacharWorker
   queue: despacho
+

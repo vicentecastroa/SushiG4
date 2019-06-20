@@ -15,6 +15,8 @@ get '/checkin_init', to: 'inventories#init_check_inventory'
 get '/review_init', to: 'inventories#init_review'
 get '/delivery_init', to: 'inventories#init_delivery'
 get 'ftp', to: 'ftp_ordenes#index'
+get 'stock', to: 'inventories#allstock'
+
 post '/documents/:order_id/notification', to: 'documents#notificaciones'
 
 get '/pedir_todo', to: 'inventories#pedir_todo'
