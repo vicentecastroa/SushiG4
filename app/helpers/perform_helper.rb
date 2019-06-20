@@ -28,7 +28,7 @@ module PerformHelper
 		# puts "Productos Minimos: \n" + p_minimos.to_s
 
 		## Para cada producto que deba mantener stock minimo, revisamos su stock ##
-		p_minimos.each do |p_minimo|
+		p_minimos.reverse_each do |p_minimo|
 
 			## Obtenemos el stock minimo que debe mantener el producto ##
 			stock_minimo = p_minimo.stock_minimo.to_i
