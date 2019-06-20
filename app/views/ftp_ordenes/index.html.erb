@@ -6,18 +6,14 @@
   <thead >
     <tr>
       <th scope="col">ID</th>
-      <th scope="col">Fecha creada</th>
-      <th scope="col">cliente</th>
-      <th scope="col">proveedor</th>
-      <th scope="col">sku</th>
-      <th scope="col">urlNotificacion</th>
+      <th scope="col">SKU</th>
       <th scope="col">estado</th>
-      <th scope="col">fechaDespachos</th>
-      <th scope="col">fechaEntrega</th>
+      <th scope="col">Fecha Creada</th>
+      <th scope="col">Tiempo Faltante</th>
+      <th scope="col">Cantidad</th>
+      <th scope="col">CantidadDespachada</th>
+      <th scope="col">Faltan</th>
       <th scope="col">precioUnitario</th>
-      <th scope="col">cantidadDespachada</th>
-      <th scope="col">cantidad</th>
-      <th scope="col">canal</th>
       <th scope="col">rechazo</th>
       <th colspan="3"></th>
     </tr>
@@ -27,18 +23,14 @@
     <% @ordenes.each do |orden| %>
       <tr>
         <th scope="row"><%= orden['_id'] %></td>
-        <td><%= orden['created_at'] %></td>
-        <td><%= orden['cliente'] %></td>
-        <td><%= orden['proveedor'] %></td>
         <td><%= orden['sku'] %></td>
-        <td><%= orden['urlNotificacion'] %></td>
         <td><%= orden['estado'] %></td>
-        <td><%= orden['fechaDespachos'] %></td>
-        <td><%= orden['fechaEntrega'] %></td>
-        <td><%= orden['recioUnitario'] %></td>
-        <td><%= orden['cantidadDespachada'] %></td>
+        <td><%= orden['created_at'] %></td>
+        <td><%= orden['fechaEntrega']%> min</td>
         <td><%= orden['cantidad'] %></td>
-        <td><%= orden['canal'] %></td>
+        <td><%= orden['cantidadDespachada'] %></td>
+        <td><%= orden['cantidad'] - orden['cantidadDespachada'] %></td>
+        <td><%= orden['precioUnitario'] %></td>
         <td><%= orden['rechazo'] %></td>
 
       </tr>

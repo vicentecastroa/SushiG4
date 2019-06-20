@@ -53,4 +53,8 @@ class InventoriesController < ApplicationController
 		@stock = getPrintStock()
 	end
 
+	def cocina
+		@cocina = getCocinaStock()
+	end
+
 end
