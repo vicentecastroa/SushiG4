@@ -4,6 +4,7 @@ module ApiOcHelper
 	include GruposHelper
 	# Requests directas a la API OC del profesor
 	def obtener_oc(id)
+
 		if @@debug_mode; puts "----- Entro a obtener_oc en api_oc_helper -----" end
 		orden_compra = HTTParty.get("https://integracion-2019-#{@@estado}.herokuapp.com/oc/obtener/#{id}", 
 		  params:{
@@ -20,6 +21,7 @@ module ApiOcHelper
 	end
 
 	def crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+
 		if @@debug_mode; puts "----- Entro a crear_oc en api_oc_helper -----" end
 		data = "PUT"
 		order_creada = HTTParty.put("https://integracion-2019-#{@@estado}.herokuapp.com/oc/crear",
@@ -36,6 +38,7 @@ module ApiOcHelper
 		  headers:{
 		    "Content-Type": "application/json"
 		  })
+
 		if @@debug_mode
 			puts "ORDEN DE COMPRA CREADA"
 			puts JSON.pretty_generate(order_creada)
@@ -44,6 +47,7 @@ module ApiOcHelper
 	end
 
 	def anular_oc(id, anulacion)
+
 		if @@debug_mode; puts "----- Entro a anular_oc en api_oc_helper -----" end
 		orden_compra_anulada = HTTParty.delete("https://integracion-2019-#{@@estado}.herokuapp.com/oc/anular/#{id}", 
 		  body:{
@@ -53,6 +57,7 @@ module ApiOcHelper
 		  headers:{
 		    "Content-Type": "application/json"
 		  })
+
 		if @@debug_mode
 			puts "ORDEN DE COMPRA ANULADA"
 			puts JSON.pretty_generate(orden_compra_anulada)
@@ -69,6 +74,7 @@ module ApiOcHelper
 		  headers:{
 		    "Content-Type": "application/json"
 		  })
+
 		if @@debug_mode
 			puts "ORDEN DE COMPRA ACEPTADA"
 			puts JSON.pretty_generate(orden_compra_recepcionada)
@@ -77,6 +83,7 @@ module ApiOcHelper
 	end
 
 	def rechazar_oc(id, rechazo)
+
 		if @@debug_mode; puts "----- Entro a rechazar_oc en api_oc_helper -----" end
 		orden_compra_rechazada = HTTParty.post("https://integracion-2019-#{@@estado}.herokuapp.com/oc/rechazar/#{id}", 
 		  body:{
@@ -86,6 +93,7 @@ module ApiOcHelper
 		  headers:{
 		    "Content-Type": "application/json"
 		  })
+
 		if @@debug_mode
 			puts "ORDEN DE COMPRA RECHAZADA"
 			puts JSON.pretty_generate(orden_compra_rechazada)
@@ -95,6 +103,36 @@ module ApiOcHelper
 
 	# Funciones que trabajan con OCs
 	def revisar_oc
+		puts "----- Entro a revisar_oc en api_oc_helper -----"
+		ordenes = getOCfromServer(3)
+		ordenes.each do |orden_compra|
+			if orden_compra[0]["estado"] == "creada"
+				if orden_compra[0]["canal"] == "ftp"
+					aceptar_o_rechazar_oc_producto_final(orden_compra[0])
+				end
+			end
+		end
+	end
+
+	def obtener_oc_aceptadas
+		puts "----- Entro a robtener_oc_aceptada en api_oc_helper -----"
+		ordenes = getOCfromServer(10)
+		aceptadas = []
+		ordenes.each do |orden_compra|
+			if orden_compra[0]["estado"] == "aceptada"
+				if orden_compra[0]["canal"] == "ftp"
+					aceptadas << orden_compra[0]
+				end
+			end
+		end
+		return aceptadas
+	end
+
+	def getOCfromServer(horas)
+		puts "----- Entro a getOCfromServer en api_oc_helper -----"
+		time = Time.now
+		counter = 0
+		ordenes = []
 		if @@debug_mode; puts "----- Entro a revisar_oc en api_oc_helper -----" end
 		time = Time.now
 		counter = 0
@@ -104,23 +142,21 @@ module ApiOcHelper
 				file_name = entry.name.to_s
 				if file_name.length >= 10
 					time_file = DateTime.strptime(entry.attributes.mtime.to_s,'%s')
-					if time_file > (time - 1.hours)
+					if time_file > (time - horas.hours)
 						data_xml = sftp.download!("pedidos/#{entry.name}")
 	  					data_json = Hash.from_xml(data_xml).to_json
 	  					data_json = JSON.parse data_json
-	  					order_id = data_json["order"]['id']
-	  					orden_compra = obtener_oc(order_id)
-	  					if orden_compra[0]["estado"] == "creada"
-	  						if orden_compra[0]["canal"] == "ftp"
-	  							aceptar_o_rechazar_oc_producto_final(orden_compra[0])
-	  						end
-	  					end
+						order_id = data_json["order"]['id']
+						orden_compra = obtener_oc(order_id)
+						ordenes << orden_compra
 					end
-					
-  				end
+				end
 			end
 		end
+		return ordenes
 	end
+
+	
 
 	def nueva_oc(cliente, proveedor, sku, fechaEntrega, cantidad, materia_prima, nro_grupo)
 		if @@debug_mode; puts "----- Entro a nueva_oc en api_oc_helper -----" end
@@ -153,6 +189,7 @@ module ApiOcHelper
 		  headers:{
 		    "Content-Type": "application/json"
 		  })
+
 		if @@debug_mode
 			puts "ORDEN DE COMPRA CREADA"
 			puts JSON.pretty_generate(notificacion)
@@ -176,11 +213,11 @@ module ApiOcHelper
 					aceptar_oc(@order_id)
 					return ["aceptada", 0]
 				else
-					rechazar_oc(@order_id, "No podemos complir con los plazos entregados")
+					# rechazar_oc(@order_id, "No podemos complir con los plazos entregados")
 					return ["rechazada","No podemos complir con los plazos entregados"]
 				end
 			else
-				rechazar_oc(@order_id, "No hay inventario para realizar pedido")
+				# rechazar_oc(@order_id, "No hay inventario para realizar pedido")
 				return ["rechazada","No hay inventario para realizar pedido"]
 			end
 		end
@@ -188,6 +225,7 @@ module ApiOcHelper
 	end
 
 	def crear_documento_oc(orden_compra)
+
 		if @@debug_mode; puts "----- Entro a crear_documento_oc en api_oc_helper -----" end
 		Document.create! do |document|
 			document.all = orden_compra['_id'],
@@ -217,6 +255,7 @@ module ApiOcHelper
 	end
 
 	def solicitar_orden(sku, cantidad, grupo_id, order_id)
+
 		if @@debug_mode
 			puts "----- Entro a solicitar_orden en api_oc_helper -----"
 			puts "SOLICITAR ORDEN"
@@ -248,6 +287,7 @@ module ApiOcHelper
 	end
 
 	def solicitar_OC(sku, cantidad, grupo_id)
+
 		if @@debug_mode; puts "----- Entro a solicitar_OC en api_oc_helper -----" end
 		# Primero debemos crear la OC
 		# crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)

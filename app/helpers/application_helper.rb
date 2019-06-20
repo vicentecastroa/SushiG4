@@ -402,6 +402,7 @@ module ApplicationHelper
 	end
 
 	def pedir_producto_grupos(sku_a_pedir, cantidad_a_pedir)
+
 		if @@debug_mode; puts "\nPEDIR PRODUCTO A GRUPOS\n" end
 		cantidad_faltante = cantidad_a_pedir
 		# Obtenemos el producto en Producto
@@ -435,6 +436,7 @@ module ApplicationHelper
 			if cantidad_faltante == 0
 				return 1
 			end
+
 			if @@debug_mode; puts "Revisando grupo: " + grupo.group_id.to_s + ", URL: " + grupo.url.to_s + "\n" end
 			inventario_grupo = solicitar_inventario(grupo.group_id)
 			
@@ -447,6 +449,7 @@ module ApplicationHelper
 
 						# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
 						if cantidad_inventario >= cantidad_faltante
+
 							if @@debug_mode; puts "El inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante" end
 							# solicitar_orden_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
 							if solicitar_OC(sku_a_pedir, cantidad_faltante.to_i, grupo.group_id)
@@ -458,6 +461,7 @@ module ApplicationHelper
 
 						# Si el inventario del otro grupo es menor a la cantidad faltante, pedimos todo el inventario
 						else
+
 							if @@debug_mode; puts "El inventario es menor a la cantidad faltante, pedimos todo el inventario" end
 							if solicitar_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
 								# solicitar_orden_OC(sku_a_pedir, cantidad_inventario.to_i, grupo.group_id)
@@ -475,6 +479,7 @@ module ApplicationHelper
 
 	def mover_ingrediente_a_despacho(sku, cantidad_ingrediente)
 		inventario =  getSkuOnStock()
+
 		stock_en_almacen = Hash.new
 
 		# Partimos almacenes en 0
@@ -485,6 +490,7 @@ module ApplicationHelper
 
 		# Agregamos los almacenes que tienen stock del producto
 		for producto in inventario
+
 			if producto["sku"] == sku
 				if @@debug_mode; puts "Encontramos el producto en esta bodega" end
 				almacen = producto["almacenId"]
@@ -508,6 +514,7 @@ module ApplicationHelper
 			else
 			# Movemos las unidades en RECEPCIÓN, PULMÓN y COCINA a DESPACHO
 				if stock_en_almacen[almacen]["cantidad"]
+
 					if @@debug_mode; puts "Comenzando a mover a despacho" end
 					if stock_en_almacen[almacen]["cantidad"].to_i >= unidades_por_mover
 						if @@debug_mode; puts "unidades por mover #{unidades_por_mover}" end

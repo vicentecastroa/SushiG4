@@ -21,8 +21,20 @@ class InventoriesController < ApplicationController
 
 	def init_check_inventory
 		perform_inventory()
+		render plain: 'funcion inventory'
+
 		# InventoryWorker::perform()
 		# SchedulerWorker.perform_async unless SchedulerWorker.new.scheduled?
+	end
+
+	def init_review
+		perform_review()
+		render plain: 'funcion review'
+	end
+
+	def init_delivery
+		perform_delivery()
+		render plain: 'funcion delivery'
 	end
 
 	def init_test_worker
