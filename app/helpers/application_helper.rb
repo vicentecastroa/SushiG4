@@ -561,7 +561,6 @@ module ApplicationHelper
 					"cantidadDespacho" => 0,
 					"sku" => prod.sku,
 					"cantidad" => 0,
-					"stock_minimo" => prod.stock_minimo,
 					"faltante" => 0,
 				}
 			end
@@ -588,8 +587,9 @@ module ApplicationHelper
 
 		for prod in Producto.all
 			if prod.sku.length == 4
-				if (response[prod.sku]["stock_minimo"].to_i - response[prod.sku]["cantidad"].to_i) > 0
-					response[prod.sku]["faltante"] =  response[prod.sku]["stock_minimo"].to_i - response[prod.sku]["cantidad"].to_i
+				response[prod.sku]["stock_minimo"] = @@minimos[prod.sku][1]
+				if (response[prod.sku]["stock_minimo"] - response[prod.sku]["cantidad"]) > 0
+					response[prod.sku]["faltante"] =  response[prod.sku]["stock_minimo"] - response[prod.sku]["cantidad"]
 				end
 				@stock << response[prod.sku]
 			end
