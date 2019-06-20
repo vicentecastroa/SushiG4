@@ -142,14 +142,21 @@ module ApiBodegaHelper
 	def pedir_todo_materias_primas
 		factor_orden = 10
 		factor_maximo = 2
+		
 		@@materias_primas_propias.each do |sku|
 			stock_actual = getInventoriesOne(sku)
 			maximo_sku = @@minimos[sku][1]*factor_maximo
 			producto = Producto.find(sku)
 			lote_produccion = producto.lote_produccion
+
+			if @@minimos[sku][1] < 65
+				maximo_sku = 250
+			end
+
 			if maximo_sku > stock_actual
 				fabricar_sin_pago(sku, lote_produccion * factor_orden)
 			end
+			
 		end
 		
 		if @@estado == "dev"
@@ -160,9 +167,14 @@ module ApiBodegaHelper
 			end
 		else
 			@@materias_primas_ajenas.each do |sku|
+				stock_actual = getInventoriesOne(sku)
+				maximo_sku = @@minimos[sku][1]*factor_maximo
 				producto = Producto.find(sku)
 				lote_produccion = producto.lote_produccion
-				nos_entregan = pedir_producto_grupos(sku, lote_produccion * factor_orden)
+				if maximo_sku > stock_actual
+					nos_entregan = pedir_producto_grupos(sku, lote_produccion * factor_orden)
+				end
+
 			end
 		end
   	end
