@@ -13,10 +13,10 @@ review_worker:
   class: ReviewWorker
   queue: despacho
 
-# el_arrocero:
-#   cron: "*/10 * * * *"
-#   class: HacerArrozWorker
-#   queue: default
+arrocero_worker:
+  cron: "32 * * * *"
+  class: ArroceroWorker
+  queue: default
 
 control_materias_primas:
   cron: "15,45 * * * *"
