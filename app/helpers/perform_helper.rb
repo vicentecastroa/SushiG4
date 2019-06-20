@@ -216,7 +216,7 @@ module PerformHelper
 								puts "Producto enviado"
 							end
 							producto_enviado += 1
-							if producto_enviado == (oc["cantidad"]) - oc["cantidadDespachada"])
+							if producto_enviado == (oc["cantidad"] - oc["cantidadDespachada"])
 								break
 							end
 						end
