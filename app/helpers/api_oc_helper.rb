@@ -14,8 +14,8 @@ module ApiOcHelper
 		    "Content-Type": "application/json"
 		  })
 		if @@debug_mode
-			puts "ORDEN DE COMPRA OBTENIDA"
-			puts JSON.pretty_generate(orden_compra)
+			# puts "ORDEN DE COMPRA OBTENIDA"
+			# puts JSON.pretty_generate(orden_compra)
 		end
 		return orden_compra
 	end
@@ -40,8 +40,8 @@ module ApiOcHelper
 		  })
 
 		if @@debug_mode
-			puts "ORDEN DE COMPRA CREADA"
-			puts JSON.pretty_generate(order_creada)
+			# puts "ORDEN DE COMPRA CREADA"
+			# puts JSON.pretty_generate(order_creada)
 		end
 		return order_creada
 	end
@@ -59,8 +59,8 @@ module ApiOcHelper
 		  })
 
 		if @@debug_mode
-			puts "ORDEN DE COMPRA ANULADA"
-			puts JSON.pretty_generate(orden_compra_anulada)
+			# puts "ORDEN DE COMPRA ANULADA"
+			# puts JSON.pretty_generate(orden_compra_anulada)
 		end
 		return orden_compra_anulada
 	end
@@ -76,8 +76,8 @@ module ApiOcHelper
 		  })
 
 		if @@debug_mode
-			puts "ORDEN DE COMPRA ACEPTADA"
-			puts JSON.pretty_generate(orden_compra_recepcionada)
+			# puts "ORDEN DE COMPRA ACEPTADA"
+			# puts JSON.pretty_generate(orden_compra_recepcionada)
 		end
 		return orden_compra_recepcionada
 	end
@@ -95,8 +95,8 @@ module ApiOcHelper
 		  })
 
 		if @@debug_mode
-			puts "ORDEN DE COMPRA RECHAZADA"
-			puts JSON.pretty_generate(orden_compra_rechazada)
+			# puts "ORDEN DE COMPRA RECHAZADA"
+			# puts JSON.pretty_generate(orden_compra_rechazada)
 		end
 		return orden_compra_rechazada
 	end
@@ -191,8 +191,8 @@ module ApiOcHelper
 		  })
 
 		if @@debug_mode
-			puts "ORDEN DE COMPRA CREADA"
-			puts JSON.pretty_generate(notificacion)
+			# puts "ORDEN DE COMPRA CREADA"
+			# puts JSON.pretty_generate(notificacion)
 		end
 		return notificacion
 	end

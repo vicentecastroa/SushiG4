@@ -176,7 +176,7 @@ module ApplicationHelper
 		  })
 		if @@debug_mode
 			puts "\nMOVER PRODUCTO ENTRE BODEGAS\n"
-			puts JSON.pretty_generate(producto_movido)
+			puts JSON.pretty_generate(producto_despachado)
 		end
 		return producto_despachado
 	end
@@ -526,10 +526,10 @@ module ApplicationHelper
 					if @@debug_mode; puts "Comenzando a mover a despacho" end
 					if stock_en_almacen[almacen]["cantidad"].to_i >= unidades_por_mover
 						if @@debug_mode; puts "unidades por mover #{unidades_por_mover}" end
-						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku], unidades_por_mover)
+						mover_a_almacen(almacen, @@id_despacho, [sku], unidades_por_mover)
 						return 1
 					else 
-						mover_a_almacen(@@api_key, almacen, @@id_despacho, [sku], 0)
+						mover_a_almacen(almacen, @@id_despacho, [sku], 0)
 						unidades_por_mover -= stock_en_almacen[almacen]["cantidad"]
 					end
 				end
