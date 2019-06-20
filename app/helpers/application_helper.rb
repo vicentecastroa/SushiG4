@@ -425,7 +425,7 @@ module ApplicationHelper
 		end
 		
 		# REVIEW blacklist black list lista negra
-		lista_negra = [4] # 8, 10, 12
+		lista_negra = [4, 8, 12] # 8, 10, 12
 		
 		lista_negra.each do |l|
 			lista_de_grupos.each do |gr|

@@ -147,20 +147,26 @@ module ApiBodegaHelper
 			lote_produccion = producto.lote_produccion
 			fabricar_sin_pago(sku, lote_produccion * factor_orden)
 		end
-		
-		if @@estado == "dev"
-			@@materias_primas_ajenas.each do |sku|
-				producto = Producto.find(sku)
-				lote_produccion = producto.lote_produccion
-				fabricar_sin_pago(sku, lote_produccion * factor_orden)
-			end
-		else
-			@@materias_primas_ajenas.each do |sku|
-				producto = Producto.find(sku)
-				lote_produccion = producto.lote_produccion
-				nos_entregan = pedir_producto_grupos(sku, lote_produccion * factor_orden)
-			end
+
+		@@materias_primas_ajenas.each do |sku|
+			producto = Producto.find(sku)
+			lote_produccion = producto.lote_produccion
+			nos_entregan = pedir_producto_grupos(sku, lote_produccion * factor_orden)
 		end
-  	end
+		
+		# if @@estado == "dev"
+		# 	@@materias_primas_ajenas.each do |sku|
+		# 		producto = Producto.find(sku)
+		# 		lote_produccion = producto.lote_produccion
+		# 		fabricar_sin_pago(sku, lote_produccion * factor_orden)
+		# 	end
+		# else
+		# 	@@materias_primas_ajenas.each do |sku|
+		# 		producto = Producto.find(sku)
+		# 		lote_produccion = producto.lote_produccion
+		# 		nos_entregan = pedir_producto_grupos(sku, lote_produccion * factor_orden)
+		# 	end
+		# end
+  end
 
 end
