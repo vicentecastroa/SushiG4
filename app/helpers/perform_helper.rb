@@ -125,7 +125,11 @@ module PerformHelper
 										mover_ingrediente_a_despacho(item[0], item[1])
 									end
 									# Fabricamos sin costo los ingredientes enviados
-									if @@debug_mode; puts fabricar_sin_pago(p_minimo.sku, lote_produccion) end
+									if @@debug_mode
+										puts fabricar_sin_pago(p_minimo.sku, lote_produccion)
+									else
+										fabricar_sin_pago(p_minimo.sku, lote_produccion)
+									end
 									cantidad_a_producir -= lote_produccion
 									cantidad_a_producir = [cantidad_a_producir, 0].max
 									if @@debug_mode; puts "Hemos producido #{total_produccion-cantidad_a_producir} de #{total_produccion}\n" end
@@ -155,7 +159,12 @@ module PerformHelper
 								cantidad_a_producir_ingrediente = (@@factor_multiplicador * lotes_faltantes_ingrediente * lote_produccion_ingrediente).ceil
 
 								# Fabricamos sin costo la cantidad a producir del ingrediente
-								fabricar_sin_pago(ingrediente.ingrediente_id, cantidad_a_producir_ingrediente)
+								if @@debug_mode
+									puts fabricar_sin_pago(ingrediente.ingrediente_id, cantidad_a_producir_ingrediente)
+								else
+									fabricar_sin_pago(ingrediente.ingrediente_id, cantidad_a_producir_ingrediente)
+								end
+								
 								if @@debug_mode; puts "Fabricamos SIN PAGO el ingrediente: " + p_minimo.sku + ", una cantidad de " + cantidad_a_producir.to_s + "\n" end
 
 							# Si el producto no es nuestro, lo pedimos a otro grupo
