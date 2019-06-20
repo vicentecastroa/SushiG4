@@ -36,7 +36,7 @@ module ReviewHelper
 		ingredientes.each do |ingrediente|
 			
 			a_mover = cantidad_a_cocinar * ingrediente.unidades_bodega
-			puts "Moviendo #{a_mover} unidades del sku #{ingrediente.ingrediente_id} a la Cocina\n"
+			if @@debug_mode; puts "Moviendo #{a_mover} unidades del sku #{ingrediente.ingrediente_id} a la Cocina\n" end
 			movidos = 0
 			almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon, @@id_despacho]
 			
@@ -45,7 +45,7 @@ module ReviewHelper
 					movidos = mover_a_almacen(almacen, @@id_cocina, [ingrediente.ingrediente_id], a_mover)
 					a_mover = a_mover - movidos
 					if movidos > 0
-						puts "Movimos #{movidos} unidades del sku #{ingrediente.ingrediente_id} a la Cocina. Faltan #{a_mover} por mover\n"
+						if @@debug_mode; puts "Movimos #{movidos} unidades del sku #{ingrediente.ingrediente_id} a la Cocina. Faltan #{a_mover} por mover\n" end
 					end
 				end
 			end
@@ -55,7 +55,7 @@ module ReviewHelper
 
 		respuesta = response["disponible"]
 		if respuesta
-			puts response
+			if @@debug_mode; puts response end
 			return response["disponible"]
 		end
 		return nil
@@ -63,7 +63,7 @@ module ReviewHelper
 	end
 
 	def revisar_cocina
-		puts "--------- ENTRO A REVISAR_COCINA --------"
+		if @@debug_mode; puts "--------- ENTRO A REVISAR_COCINA --------" end
 		@documents = Document.all
 		@documents.each do |document|
 			sku = document["sku"]
