@@ -1,7 +1,7 @@
 require 'httparty'
 require 'json'
 
-class HacerArrozWorker < ApplicationJob
+class ArroceroWorker < ApplicationJob
 
 	queue_as :default
 
@@ -10,6 +10,5 @@ class HacerArrozWorker < ApplicationJob
 		perform_arroz()
 		job_end()
 	end
-
 
 end
