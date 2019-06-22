@@ -70,7 +70,7 @@ module GruposHelper
 		# Ejemplo: solicitar_inventario(13)
 		
 		begin
-			inventario_grupo = HTTParty.get("http://tuerca#{grupo_id}.ing.puc.cl/inventories", timeout: 90)
+			inventario_grupo = HTTParty.get("http://tuerca#{grupo_id}.ing.puc.cl/inventories", timeout: 30)
 
 		rescue Errno::ECONNREFUSED
 			if @@debug_mode; puts "Grupo sin conexion. Imposible acceder al inventario\n" end

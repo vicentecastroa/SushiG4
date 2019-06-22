@@ -447,6 +447,8 @@ module ApplicationHelper
 						if @@debug_mode; puts p_inventario.to_s end
 						cantidad_inventario = p_inventario["total"]
 
+						if !cantidad_inventario; next end
+
 						# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
 						if cantidad_inventario >= cantidad_faltante
 

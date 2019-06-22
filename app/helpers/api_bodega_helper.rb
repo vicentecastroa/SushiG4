@@ -140,10 +140,11 @@ module ApiBodegaHelper
   end
   
 	def pedir_todo_materias_primas
-		factor_orden = 10
+		factor_orden = 1
 		factor_maximo = 2
 		
 		@@materias_primas_propias.each do |sku|
+		#@@materias_primas_totales.each do |sku|
 			stock_actual = getInventoriesOne(sku)
 			maximo_sku = @@minimos[sku][1]*factor_maximo
 			producto = Producto.find(sku)
@@ -156,16 +157,22 @@ module ApiBodegaHelper
 			if @@debug_mode; puts "Tenemos #{stock_actual["cantidad"]} de #{maximo_sku} del sku #{sku}" end
 
 			if maximo_sku > stock_actual["cantidad"]
+
+				cantidad_faltante = (maximo_sku - stock_actual["cantidad"])
+				lotes_a_producir = (cantidad_faltante/lote_produccion).ceil
+				cantidad_a_producir = lotes_a_producir * lote_produccion
+
 				if @@debug_mode
-					puts fabricar_sin_pago(sku, lote_produccion * factor_orden)
-					puts "Fabricamos SIN PAGO el ingrediente: " + sku + ", una cantidad de " + (lote_produccion * factor_orden).to_s + "\n"
+					puts fabricar_sin_pago(sku, cantidad_a_producir * factor_orden)
+					puts "Fabricamos SIN PAGO el ingrediente: " + sku + ", una cantidad de " + (cantidad_a_producir * factor_orden).to_s + "\n"
 				else
-					fabricar_sin_pago(sku, lote_produccion * factor_orden)
+					fabricar_sin_pago(sku, cantidad_a_producir * factor_orden)
 				end
-			end	
+			end
 		end
 		
 		@@materias_primas_ajenas.each do |sku|
+			#break
 			stock_actual = getInventoriesOne(sku)
 			maximo_sku = @@minimos[sku][1]*factor_maximo
 			producto = Producto.find(sku)
@@ -174,7 +181,24 @@ module ApiBodegaHelper
 			if @@debug_mode; puts "Tenemos #{stock_actual["cantidad"]} de #{maximo_sku} del sku #{sku}" end
 
 			if maximo_sku > stock_actual["cantidad"]
-				nos_entregan = pedir_producto_grupos(sku, lote_produccion * factor_orden)
+				
+				cantidad_faltante = (maximo_sku - stock_actual["cantidad"])
+				lotes_a_producir = (cantidad_faltante/lote_produccion).ceil
+				cantidad_a_producir = lotes_a_producir * lote_produccion
+				cantidad_faltante_ingrediente = cantidad_a_producir
+
+				while cantidad_faltante_ingrediente > 0
+					orden = [cantidad_faltante_ingrediente, 20].min
+					nos_entregan = pedir_producto_grupos(sku, orden)
+					if @@debug_mode; puts "Nos entregan #{nos_entregan} unidades" end
+					cantidad_faltante_ingrediente -= nos_entregan
+					
+					if nos_entregan == 0
+						if @@debug_mode; puts "\nNINGUN grupo tienen mas Producto X\n" end
+						break
+					end
+				end
+				#nos_entregan = pedir_producto_grupos(sku, cantidad_a_producir * factor_orden)
 			end
 
 		end

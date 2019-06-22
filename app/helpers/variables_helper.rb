@@ -73,9 +73,11 @@ module VariablesHelper
 
 	# Productos
 	@@nuestros_productos = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
-	# Materia primas producidas por nosotros
+	# Materias primas
+	@@materias_primas_totales = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016", "1002", "1003", "1007", "1008", "1010", "1011", "1012", "1013"]
+	# Materias primas producidas por nosotros
 	@@materias_primas_propias = ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016"]
-	# Materias primas prodcidas por otros grupos
+	# Materias primas producidas por otros grupos
 	@@materias_primas_ajenas = ["1002", "1003", "1007", "1008", "1010", "1011", "1012", "1013"]
 	# Productos procesados
 	@@productos_procesados = ["1105", "1106", "1107", "1108", "1109", "1110", "1111", "1112", "1114", "1115", "1116", "1201", "1207", "1209", "1210", "1211", "1215", "1216", "1301", "1307", "1309", "1310", "1407"]
