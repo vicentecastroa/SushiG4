@@ -300,9 +300,11 @@ module ApiOcHelper
 		canal = "b2b"
 		url = "https://tuerca4.ing.puc.cl/documents/{_id}/notification"
 		oc_creada = crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
+		if @@debug_mode; puts oc_creada end
 
 		# Luego debemos solicitar el producto al grupo, incluyendo el id de la OC
 		oc_id = oc_creada["_id"]
+
 		if @@debug_mode
 			puts "\nSe creo la ordern id: " + oc_creada["_id"] + "\n"
 			puts "Para el producto sku: #{sku}\n"
@@ -349,6 +351,7 @@ module ApiOcHelper
 		else
 			response = false
 			if @@debug_mode; puts "Nos han rechazado el pedido\n" end
+			# if @@debug_mode; puts pedido_producto end
 		end
 
 		return response

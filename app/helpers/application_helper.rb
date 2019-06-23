@@ -227,8 +227,8 @@ module ApplicationHelper
 					
 					if skus_quantity[product_sku] > 50
 						diferencia = skus_quantity[product_sku] - 50
-						if diferencia > 80
-							skus_quantity_final[product_sku] = 80
+						if diferencia > 30
+							skus_quantity_final[product_sku] = 30
 						else
 							skus_quantity_final[product_sku] = diferencia
 						end
@@ -454,6 +454,8 @@ module ApplicationHelper
 					if sku_a_pedir == p_inventario["sku"]
 						if @@debug_mode; puts p_inventario.to_s end
 						cantidad_inventario = p_inventario["total"]
+
+						if !cantidad_inventario; next end
 
 						# Si el inventario es mayor a la cantidad faltante, pedimos toda la cantidad faltante
 						if cantidad_inventario >= cantidad_faltante
