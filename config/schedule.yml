@@ -3,6 +3,11 @@
 #   class: PedirFinalesWorker
 #   queue: ordenes
 
+vaciar_pulmon_worker:
+  cron: "27 * * * *"
+  class: VaciarPulmonWorker
+  queue: default
+
 control_de_inventario:
   cron: "*/10 * * * *"
   class: InventoryWorker

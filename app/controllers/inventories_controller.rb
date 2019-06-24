@@ -32,6 +32,11 @@ class InventoriesController < ApplicationController
 		# SchedulerWorker.perform_async unless SchedulerWorker.new.scheduled?
 	end
 
+	def init_vaciar_pulmon
+		perform_pulmon()
+		render plain: 'fucion vaciar_pulmon'
+	end
+
 	def init_review
 		perform_review()
 		render plain: 'funcion review'
