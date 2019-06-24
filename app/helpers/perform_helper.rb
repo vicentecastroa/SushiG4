@@ -298,4 +298,10 @@ module PerformHelper
 		end
 	end
 
+	def perform_pulmon
+		# Revisa todo lo que haya en el pulmon y lo mueve a la bodega secreta
+		mover_a_almacen(almacen, @@id_despacho, [sku], unidades_por_mover)
+
+	end
+
 end
