@@ -564,6 +564,8 @@ module ApplicationHelper
 					"cantidadRecepcion" => 0,
 					"cantidadCocina" => 0,
 					"cantidadDespacho" => 0,
+					"cantidadMultihuso_1" => 0,
+					"cantidadMultihuso_2" => 0,
 					"sku" => prod.sku,
 					"cantidad" => 0,
 					"faltante" => 0,
@@ -584,6 +586,10 @@ module ApplicationHelper
 						response[sku]["cantidadRecepcion"] = element["total"]
 					elsif almacen == @@id_cocina
 						response[sku]["cantidadCocina"] = element["total"]
+					elsif almacen == @@id_multiuso_1
+						response[sku]["cantidadMultihuso_1"] = element["total"]
+					elsif almacen == @@id_multiuso_2
+						response[sku]["cantidadMultihuso_2"] = element["total"]
 					end
 					response[sku]["cantidad"] += element["total"]
 				end
