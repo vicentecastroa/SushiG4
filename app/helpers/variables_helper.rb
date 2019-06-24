@@ -22,8 +22,10 @@ module VariablesHelper
 		@@id_despacho = "5cc7b139a823b10004d8e6e0"
 		@@id_pulmon = "5cc7b139a823b10004d8e6e3"
 		@@id_cocina = "5cc7b139a823b10004d8e6e4"
+		@@id_multiuso_1 = "5cc7b139a823b10004d8e6e1"
+		@@id_multiuso_2 = "5cc7b139a823b10004d8e6e2"
 		@@url = "http://integracion-2019-prod.herokuapp.com/bodega"
-		@@id_almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon]
+		@@id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho, @@id_multiuso_1, @@id_multiuso_2]
 
 		@@IDs_Grupos = {"1"=>"5cc66e378820160004a4c3bc",
 					"2"=>"5cc66e378820160004a4c3bd",
@@ -49,8 +51,10 @@ module VariablesHelper
 		@@id_despacho = "5cbd3ce444f67600049431c6"
 		@@id_pulmon = "5cbd3ce444f67600049431c9"
 		@@id_cocina = "5cbd3ce444f67600049431ca"
+		@@id_multiuso_1 = "5cbd3ce444f67600049431c7"
+		@@id_multiuso_2 = "5cbd3ce444f67600049431c8"
 		@@url = "https://integracion-2019-dev.herokuapp.com/bodega"
-		@@id_almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon]
+		@@id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho, @@id_multiuso_1, @@id_multiuso_2]
 
 		@@IDs_Grupos = {"1"=>"5cbd31b7c445af0004739be3",
 					"2"=>"5cbd31b7c445af0004739be4",

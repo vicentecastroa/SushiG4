@@ -38,7 +38,8 @@ module ReviewHelper
 			a_mover = cantidad_a_cocinar * ingrediente.unidades_bodega
 			if @@debug_mode; puts "Moviendo #{a_mover} unidades del sku #{ingrediente.ingrediente_id} a la Cocina\n" end
 			movidos = 0
-			almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon, @@id_despacho]
+			#almacenes = [@@id_cocina, @@id_recepcion, @@id_pulmon, @@id_despacho]
+			almacenes = @@id_almacenes
 			
 			almacenes.each do |almacen|
 				if a_mover > 0

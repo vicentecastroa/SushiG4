@@ -53,6 +53,7 @@ module ApplicationHelper
 			return "Recepcion"
 		elsif id_almacen == @@id_cocina
 			return "Cocina"
+		###############
 		else
 			return "Destino"
 		end
@@ -240,9 +241,9 @@ module ApplicationHelper
 
 	def getSkuOnStock
 		response = []
-		id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
+		#id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
 
-		for almacen in id_almacenes
+		for almacen in @@id_almacenes
 			@request = (obtener_skus_con_stock(almacen)).to_a
 			for element in @request do
 				sku = element["_id"]
@@ -304,7 +305,8 @@ module ApplicationHelper
 		stock_en_almacen = Hash.new
 
 		# Partimos almacenes en 0
-		id_almacenes = [@@id_despacho, @@id_recepcion, @@id_pulmon, @@id_cocina]
+		# id_almacenes = [@@id_despacho, @@id_recepcion, @@id_pulmon, @@id_cocina]
+		id_almacenes = @@id_almacenes
 		for almacen in id_almacenes
 			stock_en_almacen[almacen] = {"cantidad" => 0}
 		end
@@ -551,7 +553,8 @@ module ApplicationHelper
 	def getPrintStock
 		@stock = []
 		response = Hash.new()
-		id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
+		#id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
+		id_almacenes = @@id_almacenes
 		for prod in Producto.all
 			if prod.sku.length == 4
 				response[prod.sku] = Hash.new()
@@ -602,7 +605,8 @@ module ApplicationHelper
 	def getCocinaStock
 		@cocina = []
 		response = Hash.new()
-		id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
+		#id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
+		id_almacenes = @@id_almacenes
 		for prod in Producto.all
 			if prod.sku.length == 5
 				response[prod.sku] = Hash.new()
