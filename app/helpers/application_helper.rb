@@ -53,7 +53,10 @@ module ApplicationHelper
 			return "Recepcion"
 		elsif id_almacen == @@id_cocina
 			return "Cocina"
-		###############
+		elsif id_almacen == @@id_multiuso_1
+			return "Multiuso 1"
+		elsif id_almacen == @@id_multiuso_2
+			return "Multiuso 2"
 		else
 			return "Destino"
 		end

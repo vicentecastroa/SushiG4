@@ -313,12 +313,29 @@ module PerformHelper
 
 
 		productos_pulmon = obtener_skus_con_stock(@@id_pulmon)
+		almacen_a_mover = @@id_multiuso_1
 		for producto in productos_pulmon
-			sku = producto["_id"]["sku"]
+			sku = producto["_id"]
 			cantidad = producto["total"].to_i
-			mover_a_almacen(@@id_pulmon, @@id_multiuso_1, sku, cantidad)
+			movidos = 0
+			movidos_a_multiuso = 0
+			if @@debug_mode; puts "Moviendo #{cantidad} unidades de #{sku} a #{nombre_almacen(almacen_a_mover)}" end
+			while cantidad > movidos
+				movidos = mover_a_almacen(@@id_pulmon, almacen_a_mover, [sku], cantidad)
+				movidos_a_multiuso += movidos
+				if movidos != 0
+					if @@debug_mode; puts "Se mueven #{movidos} unidades de #{sku} a #{nombre_almacen(almacen_a_mover)}" end
+				else
+					if almacen_a_mover == @@id_multiuso_1
+						almacen_a_mover = @@id_multiuso_2
+						if @@debug_mode; puts "Multiuso 1 lleno, cambiando a Multiuso 2" end
+					else
+						if @@debug_mode; puts "Almacenes multiuso llenos" end
+						break
+					end
+				end
+			end
 		end
-
 	end
 
 end
