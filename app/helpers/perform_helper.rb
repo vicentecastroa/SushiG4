@@ -300,7 +300,24 @@ module PerformHelper
 
 	def perform_pulmon
 		# Revisa todo lo que haya en el pulmon y lo mueve a la bodega secreta
-		mover_a_almacen(almacen, @@id_despacho, [sku], unidades_por_mover)
+
+		# @items = Producto.all
+		# for item in @items
+		# 	sku = item.sku
+		# 	request = get_products_from_almacenes(@@api_key, @@id_pulmon, sku)
+		# 	for prod in request
+		# 		prod_id = prod['_id']
+		# 		response = mover_producto_entre_almacenes(prod_id, @@id_multiuso_1)
+		# 	end 
+		# end
+
+
+		productos_pulmon = obtener_skus_con_stock(@@id_pulmon)
+		for producto in productos_pulmon
+			sku = producto["_id"]["sku"]
+			cantidad = producto["total"].to_i
+			mover_a_almacen(@@id_pulmon, @@id_multiuso_1, sku, cantidad)
+		end
 
 	end
 
