@@ -19,7 +19,7 @@ review_worker:
   queue: despacho
 
 arrocero_worker:
-  cron: "*/5 * * * *"
+  cron: "*/25 * * * *"
   class: ArroceroWorker
   queue: default
 
