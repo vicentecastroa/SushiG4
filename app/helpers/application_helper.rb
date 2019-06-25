@@ -554,7 +554,7 @@ module ApplicationHelper
 	end
 
 	def getPrintStock
-		@capacidad_almacenes = [99999999,133,80,1122,5315,1012]
+		@capacidad_almacenes = [100000399,533,180,1322,5315,1012]
 		@cantidad_almacenes = [0,0,0,0,0,0]
 		@stock = []
 		response = Hash.new()
