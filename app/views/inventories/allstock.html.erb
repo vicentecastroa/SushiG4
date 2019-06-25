@@ -20,6 +20,22 @@
   </thead>
 
   <tbody>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><%= @cantidad_almacenes[0] %> / <%= @capacidad_almacenes[0] %></td>
+        <td><%= @cantidad_almacenes[1] %> / <%= @capacidad_almacenes[1] %></td>
+        <td><%= @cantidad_almacenes[2] %> / <%= @capacidad_almacenes[2] %></td>
+        <td><%= @cantidad_almacenes[3] %> / <%= @capacidad_almacenes[3] %></td>
+        <td><%= @cantidad_almacenes[4] %> / <%= @capacidad_almacenes[4] %></td>
+        <td><%= @cantidad_almacenes[5] %> / <%= @capacidad_almacenes[5] %></td>
+      </tr>
+  </tbody>
+
+  <tbody>
     <% @stock.each do |product| %>
       <tr>
         <td scope="row"><%= product['sku'] %></td>

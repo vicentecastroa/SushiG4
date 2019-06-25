@@ -34,7 +34,7 @@ class InventoriesController < ApplicationController
 
 	def init_vaciar_pulmon
 		perform_pulmon()
-		render plain: 'fucion vaciar_pulmon'
+		render plain: 'funcion vaciar_pulmon'
 	end
 
 	def init_review
@@ -55,6 +55,7 @@ class InventoriesController < ApplicationController
 	def pedir_todo
 		pedir_todo_materias_primas()
 		#pedir_producto_grupo('1', '1010', 1)
+		#solicitar_OC("1007", 20, 13)
 		render plain: 'funcion pedir todo'
 	end
 
@@ -72,7 +73,7 @@ class InventoriesController < ApplicationController
 	end
 
 	def allstock
-		@stock = getPrintStock()
+		@stock, @cantidad_almacenes, @capacidad_almacenes = getPrintStock()
 	end
 
 	def cocina
