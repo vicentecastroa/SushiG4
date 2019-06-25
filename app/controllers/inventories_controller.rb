@@ -72,7 +72,7 @@ class InventoriesController < ApplicationController
 	end
 
 	def allstock
-		@stock = getPrintStock()
+		@stock, @cantidad_almacenes, @capacidad_almacenes = getPrintStock()
 	end
 
 	def cocina

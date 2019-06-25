@@ -554,6 +554,8 @@ module ApplicationHelper
 	end
 
 	def getPrintStock
+		@capacidad_almacenes = [99999999,133,80,1122,5315,1012]
+		@cantidad_almacenes = [0,0,0,0,0,0]
 		@stock = []
 		response = Hash.new()
 		#id_almacenes = [@@id_cocina, @@id_pulmon, @@id_recepcion, @@id_despacho]
@@ -583,16 +585,22 @@ module ApplicationHelper
 				if sku.length == 4
 					if almacen == @@id_despacho
 						response[sku]["cantidadDespacho"] = element["total"]
+						@cantidad_almacenes[2] += element["total"]
 					elsif almacen == @@id_pulmon
 						response[sku]["cantidadPulmon"] = element["total"]
+						@cantidad_almacenes[0] += element["total"]
 					elsif almacen == @@id_recepcion
 						response[sku]["cantidadRecepcion"] = element["total"]
+						@cantidad_almacenes[1] += element["total"]
 					elsif almacen == @@id_cocina
 						response[sku]["cantidadCocina"] = element["total"]
+						@cantidad_almacenes[3] += element["total"]
 					elsif almacen == @@id_multiuso_1
 						response[sku]["cantidadMultihuso_1"] = element["total"]
+						@cantidad_almacenes[4] += element["total"]
 					elsif almacen == @@id_multiuso_2
 						response[sku]["cantidadMultihuso_2"] = element["total"]
+						@cantidad_almacenes[5] += element["total"]
 					end
 					response[sku]["cantidad"] += element["total"]
 				end
@@ -608,7 +616,7 @@ module ApplicationHelper
 				@stock << response[prod.sku]
 			end
 		end
-		return @stock
+		return @stock, @cantidad_almacenes, @capacidad_almacenes
 	end
 
 	def getCocinaStock
