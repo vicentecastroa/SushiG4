@@ -9,7 +9,7 @@ vaciar_pulmon_worker:
   queue: default
 
 control_de_inventario:
-  cron: "*/10 * * * *"
+  cron: "*/11 * * * *"
   class: InventoryWorker
   queue: default
 
@@ -18,10 +18,10 @@ review_worker:
   class: ReviewWorker
   queue: despacho
 
-# arrocero_worker:
-#   cron: "*/25 * * * *"
-#   class: ArroceroWorker
-#   queue: default
+arrocero_worker:
+  cron: "*/5 * * * *"
+  class: ArroceroWorker
+  queue: default
 
 control_materias_primas:
   cron: "*/13 * * * *"
