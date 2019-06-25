@@ -320,7 +320,7 @@ module PerformHelper
 			movidos = 0
 			movidos_a_multiuso = 0
 			if @@debug_mode; puts "Moviendo #{cantidad} unidades de #{sku} a #{nombre_almacen(almacen_a_mover)}" end
-			while cantidad > movidos
+			while movidos_a_multiuso < cantidad
 				movidos = mover_a_almacen(@@id_pulmon, almacen_a_mover, [sku], cantidad)
 				movidos_a_multiuso += movidos
 				if movidos != 0
