@@ -327,7 +327,7 @@ module ApiOcHelper
 					"almacenId": @@id_recepcion,
 					"oc": oc_id
 				}.to_json,
-				timeout: 60)
+				timeout: 90)
 		rescue Net::OpenTimeout
 			codigo = 601
 		rescue Timeout::Error
