@@ -287,7 +287,7 @@ module PerformHelper
 								mover_ingrediente_a_despacho(item[0], item[1])
 							end
 							# Fabricamos sin costo los ingredientes enviados
-							if @@debug_mode; puts fabricar_sin_pago(sku, lote_produccion) end
+							fabricar_sin_pago(sku, lote_produccion)
 							cantidad_a_producir -= lote_produccion
 							cantidad_a_producir = [cantidad_a_producir, 0].max
 							if @@debug_mode; puts "ARROCERO: Hice #{total_produccion-cantidad_a_producir} de #{total_produccion}\n" end
