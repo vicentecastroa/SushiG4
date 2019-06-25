@@ -186,12 +186,14 @@ module ApiBodegaHelper
 				lotes_a_producir = (cantidad_faltante/lote_produccion).ceil
 				cantidad_a_producir = lotes_a_producir * lote_produccion
 				cantidad_faltante_ingrediente = cantidad_a_producir
+				if @@debug_mode; puts "La cantidad faltante de ingrediente es #{cantidad_faltante_ingrediente} unidades" end
 
 				while cantidad_faltante_ingrediente > 0
 					orden = [cantidad_faltante_ingrediente, 20].min
 					nos_entregan = pedir_producto_grupos(sku, orden)
 					if @@debug_mode; puts "Nos entregan #{nos_entregan} unidades" end
 					cantidad_faltante_ingrediente -= nos_entregan
+					if @@debug_mode; puts "La cantidad faltante de ingrediente es #{cantidad_faltante_ingrediente} unidades" end
 					
 					if nos_entregan == 0
 						if @@debug_mode; puts "\nNINGUN grupo tienen mas Producto X\n" end
@@ -264,6 +266,7 @@ module ApiBodegaHelper
 					nos_entregan = pedir_producto_grupos(sku, orden)
 					if @@debug_mode; puts "Nos entregan #{nos_entregan} unidades" end
 					cantidad_faltante_ingrediente -= nos_entregan
+					if @@debug_mode; puts "la cantidad faltante de ingrediente es #{cantidad_faltante_ingrediente} unidades" end
 					
 					if nos_entregan == 0
 						if @@debug_mode; puts "\nNINGUN grupo tienen mas Producto X\n" end
