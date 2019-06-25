@@ -18,13 +18,13 @@ review_worker:
   class: ReviewWorker
   queue: despacho
 
-arrocero_worker:
-  cron: "*/25 * * * *"
-  class: ArroceroWorker
-  queue: default
+# arrocero_worker:
+#   cron: "*/25 * * * *"
+#   class: ArroceroWorker
+#   queue: default
 
 control_materias_primas:
-  cron: "*/15 * * * *"
+  cron: "*/13 * * * *"
   class: MateriaPrimaWorker
   queue: default
 
