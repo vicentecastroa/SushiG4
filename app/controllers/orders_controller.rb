@@ -19,7 +19,8 @@ class OrdersController < ApplicationController
 		@group = request.headers['group']
 		@order_id = params["oc"]
 		@orden_compra = obtener_oc(@order_id)
-		@urlNotificacion = @orden_compra[0]["urlNotificacion"]
+		#@urlNotificacion = @orden_compra[0]["urlNotificacion"]
+		@urlNotificacion = ""
 		@sku = params["sku"]
 		@cantidad = params["cantidad"]
 		@almacenId = params["almacenId"]
