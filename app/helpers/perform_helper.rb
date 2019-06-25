@@ -165,7 +165,7 @@ module PerformHelper
 									fabricar_sin_pago(ingrediente.ingrediente_id, cantidad_a_producir_ingrediente)
 								end
 								
-								if @@debug_mode; puts "Fabricamos SIN PAGO el ingrediente: " + p_minimo.sku + ", una cantidad de " + cantidad_a_producir.to_s + "\n" end
+								if @@debug_mode; puts "Fabricamos SIN PAGO el ingrediente: " + ingrediente.ingrediente_id + ", una cantidad de " + cantidad_a_producir_ingrediente.to_s + "\n" end
 
 							# Si el producto no es nuestro, lo pedimos a otro grupo
 							else

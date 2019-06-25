@@ -1,6 +1,6 @@
 module VariablesHelper
 	@@api_key = "o5bQnMbk@:BxrE"
-	@@estado = "dev"
+	@@estado = "prod"
 	@@print_valores = false
 	@@host = 'fierro.ing.puc.cl'
 	@@port = 22
