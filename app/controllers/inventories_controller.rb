@@ -59,6 +59,12 @@ class InventoriesController < ApplicationController
 		render plain: 'funcion pedir todo'
 	end
 
+	def vaciar_despacho
+		despacho_a_recepcion()
+		render plain: 'funcion vaciar despacho'
+
+	end
+
 	def index
 		StockAvailableToSell()
 	end
