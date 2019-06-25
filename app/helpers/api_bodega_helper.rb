@@ -280,4 +280,11 @@ module ApiBodegaHelper
 	
   end
 
+	def despacho_a_recepcion
+
+		mover_a_almacen(@@id_despacho, @@id_recepcion, @@materias_primas_totales, 200)
+		mover_a_almacen(@@id_despacho, @@id_pulmon, @@materias_primas_totales, 200)
+
+	end
+
 end
