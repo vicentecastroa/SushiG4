@@ -9,7 +9,7 @@ vaciar_pulmon_worker:
   queue: default
 
 control_de_inventario:
-  cron: "*/11 * * * *"
+  cron: "*/15 * * * *"
   class: InventoryWorker
   queue: default
 
