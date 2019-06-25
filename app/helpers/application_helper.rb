@@ -304,7 +304,7 @@ module ApplicationHelper
 
 	def mover_ingrediente_a_despacho(sku, cantidad_ingrediente)
 		inventario =  getSkuOnStock()
-		if @@debug_mode; puts "getSkuOnStock: \n" + inventario.to_s + "\n" end
+		#if @@debug_mode; puts "getSkuOnStock: \n" + inventario.to_s + "\n" end
 		stock_en_almacen = Hash.new
 
 		# Partimos almacenes en 0
@@ -316,13 +316,13 @@ module ApplicationHelper
 
 		# Agregamos los almacenes que tienen stock del producto
 		for producto in inventario
-			if @@debug_mode; puts "producto[sku]: " + producto["sku"] + "\n" end
+			#if @@debug_mode; puts "producto[sku]: " + producto["sku"] + "\n" end
 			if producto["sku"] == sku
-				if @@debug_mode; puts "Encontramos el producto en esta bodega" end
+				#if @@debug_mode; puts "Encontramos el producto en esta bodega" end
 				almacen = producto["almacenId"]
 				cantidad = producto["cantidad"]
 				stock_en_almacen[almacen] = producto
-				if @@debug_mode; puts "stock_en_almacen[almacen]: " + stock_en_almacen[almacen].to_s + "\n" end
+				#if @@debug_mode; puts "stock_en_almacen[almacen]: " + stock_en_almacen[almacen].to_s + "\n" end
 			end
 		end
 		unidades_por_mover = cantidad_ingrediente
@@ -484,59 +484,6 @@ module ApplicationHelper
 		return cantidad_entregada
 	end
 
-	def mover_ingrediente_a_despacho(sku, cantidad_ingrediente)
-		inventario =  getSkuOnStock()
-
-		stock_en_almacen = Hash.new
-
-		# Partimos almacenes en 0
-		id_almacenes = [@@id_despacho, @@id_recepcion, @@id_pulmon, @@id_cocina]
-		for almacen in id_almacenes
-			stock_en_almacen[almacen] = {"cantidad" => 0}
-		end
-
-		# Agregamos los almacenes que tienen stock del producto
-		for producto in inventario
-
-			if producto["sku"] == sku
-				if @@debug_mode; puts "Encontramos el producto en esta bodega" end
-				almacen = producto["almacenId"]
-				cantidad = producto["cantidad"]
-				stock_en_almacen[almacen] = producto
-			end
-		end
-		unidades_por_mover = cantidad_ingrediente
-
-		# Para cada almacen, movemos las unidades
-		for almacen in id_almacenes
-			# Checkeamos si tenemos unidades en DESPACHO
-			if almacen == @@id_despacho
-				if stock_en_almacen[almacen]["cantidad"]
-					if stock_en_almacen[almacen]["cantidad"] >= unidades_por_mover
-						return 1
-					else 
-						unidades_por_mover -= stock_en_almacen[almacen]["cantidad"]
-					end
-				end
-			else
-			# Movemos las unidades en RECEPCIÓN, PULMÓN y COCINA a DESPACHO
-				if stock_en_almacen[almacen]["cantidad"]
-
-					if @@debug_mode; puts "Comenzando a mover a despacho" end
-					if stock_en_almacen[almacen]["cantidad"].to_i >= unidades_por_mover
-						if @@debug_mode; puts "unidades por mover #{unidades_por_mover}" end
-						mover_a_almacen(almacen, @@id_despacho, [sku], unidades_por_mover)
-						return 1
-					else 
-						mover_a_almacen(almacen, @@id_despacho, [sku], 0)
-						unidades_por_mover -= stock_en_almacen[almacen]["cantidad"]
-					end
-				end
-			end
-		end 
-		
-		return 1
-	end
 
 	def getProductosMinimos
 		p_minimos = Producto.where('stock_minimo != ? OR sku = ? OR sku = ?', 0, '1101', '1111')
