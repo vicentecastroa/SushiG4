@@ -9,6 +9,8 @@ resources :inventories, :productos, :orders, :group
 
 get '/totalproducts', to: 'inventories#total_products'
 get '/getskustock', to: 'inventories#sku_stock'
+get '/eliminarstock_pulmon', to: 'inventories#eliminar_stock_pulmon'
+get '/eliminarstock_multiuso', to: 'inventories#eliminar_stock_multiuso'
 
 #Jobs
 get '/vaciar_pulmon', to: 'inventories#init_vaciar_pulmon'

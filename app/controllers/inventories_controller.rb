@@ -19,6 +19,16 @@ class InventoriesController < ApplicationController
 		render plain: response
 	end
 
+	def eliminar_stock_pulmon
+		response = eliminar_productos_pulmon()
+		render plain: response
+	end
+	
+	def eliminar_stock_multiuso
+		response = eliminar_productos_multiuso()
+		render plain: response
+	end
+
 	def arrocero_init
 		perform_arroz()
 		render plain: 'funcion arrocero'

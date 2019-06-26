@@ -595,4 +595,127 @@ module ApplicationHelper
 		end
 		return @cocina
 	end
+
+	def eliminar_productos_multiuso
+		skus_on_stock = getSkuOnStock()
+		skus_on_stock.each do |sku_stock|
+			almacen = @@id_multiuso_1
+			max_stock = 550
+			sku_eliminar = "1005"
+			sku = sku_stock["sku"]
+			if (sku_stock["almacenId"] == almacen) #&& (sku == sku_eliminar)
+		
+				stock = sku_stock["cantidad"].to_i
+				if @@debug_mode; puts sku end
+				if @@debug_mode; puts stock end
+				if stock > max_stock
+					if @@debug_mode; puts "entro al if, stock > #{max_stock}" end
+					cantidad_eliminar = (max_stock - stock)*(-1)
+					if @@debug_mode; puts "Necesito eliminar: #{cantidad_eliminar}" end
+					if cantidad_eliminar > 5000
+						oc = crear_oc("5cbd31b7c445af0004739be6", "5cc66e378820160004a4c3bf", sku, 1568039052000, 5000, "500", "b2b","http://tuerca4.ing.puc.cl/documents/{_id}/notification")
+						cantidad_eliminar = 5000
+					else
+						oc = crear_oc("5cbd31b7c445af0004739be6", "5cc66e378820160004a4c3bf", sku, 1568039052000, cantidad_eliminar, "500", "b2b","http://tuerca4.ing.puc.cl/documents/{_id}/notification")
+					end
+					oc_id = oc["_id"]
+					if @@debug_mode; puts "oc creada: " + oc_id end
+					orden = obtener_oc(oc_id)
+					while cantidad_eliminar > 0
+						if @@debug_mode; puts "entro al while" end
+						if cantidad_eliminar > 30
+							moved = mover_a_almacen(sku_stock["almacenId"], @@id_despacho, [sku], 30)
+						else
+							moved = mover_a_almacen(sku_stock["almacenId"], @@id_despacho, [sku], cantidad_eliminar)
+						end
+						if @@debug_mode; puts "moved: " + moved.to_s end
+						if moved != 0
+							lista_id_productos = get_products_from_almacenes(@@id_despacho, sku)
+							count = moved
+							for item in lista_id_productos
+								productoId = item["_id"]
+								if @@debug_mode; puts "productId: " + productoId end
+								if count > 0
+									eliminando = despachar_producto(productoId, oc_id, "eliminando", "500")
+									count -= 1
+									if eliminando["despachado"] == true
+										cantidad_eliminar -= 1
+										if @@debug_mode; puts "eliminado carajo!" end
+									end
+								else
+									break
+								end
+							end
+						end
+						if @@debug_mode; puts "cantidad eliminar: " + cantidad_eliminar.to_s end
+					end
+					if @@debug_mode; puts "sali del while" end
+					if @@debug_mode; puts "--------- revisando otro sku ---------" end
+				end
+				
+			end
+		end
+	end
+
+	def eliminar_productos_pulmon
+		skus_on_stock = getSkuOnStock()
+		skus_on_stock.each do |sku_stock|
+			almacen = @@id_pulmon
+			max_stock = 550
+			sku_eliminar = "1014"
+			sku = sku_stock["sku"]
+			if (sku_stock["almacenId"] == almacen) #&& (sku == sku_eliminar)
+		
+				stock = sku_stock["cantidad"].to_i
+				if @@debug_mode; puts sku end
+				if @@debug_mode; puts stock end
+				if stock > max_stock
+					if @@debug_mode; puts "entro al if, stock > #{max_stock}" end
+					cantidad_eliminar = (max_stock - stock)*(-1)
+					if @@debug_mode; puts "Necesito eliminar: #{cantidad_eliminar}" end
+					if cantidad_eliminar > 5000
+						oc = crear_oc("5cbd31b7c445af0004739be6", "5cc66e378820160004a4c3bf", sku, 1568039052000, 5000, "500", "b2b","http://tuerca4.ing.puc.cl/documents/{_id}/notification")
+						cantidad_eliminar = 5000
+					else
+						oc = crear_oc("5cbd31b7c445af0004739be6", "5cc66e378820160004a4c3bf", sku, 1568039052000, cantidad_eliminar, "500", "b2b","http://tuerca4.ing.puc.cl/documents/{_id}/notification")
+					end
+					oc_id = oc["_id"]
+					if @@debug_mode; puts "oc creada: " + oc_id end
+					orden = obtener_oc(oc_id)
+					while cantidad_eliminar > 0
+						if @@debug_mode; puts "entro al while" end
+						if cantidad_eliminar > 30
+							moved = mover_a_almacen(sku_stock["almacenId"], @@id_despacho, [sku], 30)
+						else
+							moved = mover_a_almacen(sku_stock["almacenId"], @@id_despacho, [sku], cantidad_eliminar)
+						end
+						if @@debug_mode; puts "moved: " + moved.to_s end
+						if moved != 0
+							lista_id_productos = get_products_from_almacenes(@@id_despacho, sku)
+							count = moved
+							for item in lista_id_productos
+								productoId = item["_id"]
+								if @@debug_mode; puts "productId: " + productoId end
+								if count > 0
+									eliminando = despachar_producto(productoId, oc_id, "eliminando", "500")
+									count -= 1
+									if eliminando["despachado"] == true
+										cantidad_eliminar -= 1
+										if @@debug_mode; puts "eliminado carajo!" end
+									end
+								else
+									break
+								end
+							end
+						end
+						if @@debug_mode; puts "cantidad eliminar: " + cantidad_eliminar.to_s end
+					end
+					if @@debug_mode; puts "sali del while" end
+					if @@debug_mode; puts "--------- revisando otro sku ---------" end
+				end
+				
+			end
+		end
+	end
+
 end
