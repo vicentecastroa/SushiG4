@@ -300,42 +300,78 @@ module PerformHelper
 
 	def perform_pulmon
 		# Revisa todo lo que haya en el pulmon y lo mueve a la bodega secreta
-
-		# @items = Producto.all
-		# for item in @items
-		# 	sku = item.sku
-		# 	request = get_products_from_almacenes(@@api_key, @@id_pulmon, sku)
-		# 	for prod in request
-		# 		prod_id = prod['_id']
-		# 		response = mover_producto_entre_almacenes(prod_id, @@id_multiuso_1)
-		# 	end 
-		# end
-
-
-		productos_pulmon = obtener_skus_con_stock(@@id_pulmon)
+		@items = Producto.all
+		
+		contador = 0
 		almacen_a_mover = @@id_multiuso_1
-		for producto in productos_pulmon
-			sku = producto["_id"]
-			cantidad = producto["total"].to_i
-			movidos = 0
-			movidos_a_multiuso = 0
-			if @@debug_mode; puts "Moviendo #{cantidad} unidades de #{sku} a #{nombre_almacen(almacen_a_mover)}" end
-			while movidos_a_multiuso < cantidad
-				movidos = mover_a_almacen(@@id_pulmon, almacen_a_mover, [sku], cantidad)
-				movidos_a_multiuso += movidos
-				if movidos != 0
-					if @@debug_mode; puts "Se mueven #{movidos} unidades de #{sku} a #{nombre_almacen(almacen_a_mover)}" end
+		almacen = "Multiuso 1"
+		for item in @items
+			sku = item.sku
+			request = get_products_from_almacenes(@@id_pulmon, sku)
+
+			if request.code != 200
+				puts "SKU #{sku} no encontrado en Pulmon"
+				next
+			end 
+
+
+			for prod in request
+				prod_id = prod['_id']
+				response = mover_producto_entre_almacenes(prod_id, almacen_a_mover)
+				
+				case response.code
+				when 201
+					response = true
+					# puts " Producto movido a #{almacen}"
+					contador = contador + 1
+					puts "contador = mas o menos #{contador}"
+				when 200
+					response = true
+					# puts " Producto movido a #{almacen}"
+					contador = contador + 1
+					puts "contador = mas o menos #{contador}"
+
 				else
-					if almacen_a_mover == @@id_multiuso_1
-						almacen_a_mover = @@id_multiuso_2
-						if @@debug_mode; puts "Multiuso 1 lleno, cambiando a Multiuso 2" end
-					else
-						if @@debug_mode; puts "Almacenes multiuso llenos" end
-						break
-					end
+					response = false
 				end
-			end
+				# movidos = mover_a_almacen(@@id_pulmon, almacen_a_mover, [sku], cantidad)
+				
+				if response == false
+					almacen_a_mover = @@id_multiuso_2
+					# movidos = mover_a_almacen(@@id_pulmon, almacen_a_mover, [sku], cantidad)
+					response = mover_producto_entre_almacenes(prod_id, almacen_a_mover)
+					almacen = "Multiuso 2"
+				end
+			end 
 		end
+
+		
+
+
+		# productos_pulmon = obtener_skus_con_stock(@@id_pulmon)
+		# almacen_a_mover = @@id_multiuso_1
+		# for producto in productos_pulmon
+		# 	sku = producto["_id"]
+		# 	cantidad = producto["total"].to_i
+		# 	movidos = 0
+		# 	movidos_a_multiuso = 0
+		# 	if @@debug_mode; puts "Moviendo #{cantidad} unidades de #{sku} a #{nombre_almacen(almacen_a_mover)}" end
+		# 	while movidos_a_multiuso < cantidad
+		# 		movidos = mover_a_almacen(@@id_pulmon, almacen_a_mover, [sku], cantidad)
+		# 		movidos_a_multiuso += movidos
+		# 		if movidos != 0
+		# 			if @@debug_mode; puts "Se mueven #{movidos} unidades de #{sku} a #{nombre_almacen(almacen_a_mover)}" end
+		# 		else
+		# 			if almacen_a_mover == @@id_multiuso_1
+		# 				almacen_a_mover = @@id_multiuso_2
+		# 				if @@debug_mode; puts "Multiuso 1 lleno, cambiando a Multiuso 2" end
+		# 			else
+		# 				if @@debug_mode; puts "Almacenes multiuso llenos" end
+		# 				break
+		# 			end
+		# 		end
+		# 	end
+		# end
 	end
 
 end
