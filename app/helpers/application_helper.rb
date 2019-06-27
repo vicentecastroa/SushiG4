@@ -613,10 +613,10 @@ module ApplicationHelper
 					cantidad_eliminar = (max_stock - stock)*(-1)
 					if @@debug_mode; puts "Necesito eliminar: #{cantidad_eliminar}" end
 					if cantidad_eliminar > 5000
-						oc = crear_oc("5cbd31b7c445af0004739be6", "5cc66e378820160004a4c3bf", sku, 1568039052000, 5000, "500", "b2b","")
+						oc = crear_oc("5cbd31b7c445af0004739be6", "5cc66e378820160004a4c3bf", sku, 1568039052000, 5000, "500", "b2b","http://tuerca4.ing.puc.cl/documents/{_id}/notification")
 						cantidad_eliminar = 5000
 					else
-						oc = crear_oc("5cbd31b7c445af0004739be6", "5cc66e378820160004a4c3bf", sku, 1568039052000, cantidad_eliminar, "500", "b2b","")
+						oc = crear_oc("5cbd31b7c445af0004739be6", "5cc66e378820160004a4c3bf", sku, 1568039052000, cantidad_eliminar, "500", "b2b","http://tuerca4.ing.puc.cl/documents/{_id}/notification")
 					end
 					oc_id = oc["_id"]
 					if @@debug_mode; puts "oc creada: " + oc_id end
@@ -674,10 +674,10 @@ module ApplicationHelper
 					cantidad_eliminar = (max_stock - stock)*(-1)
 					if @@debug_mode; puts "Necesito eliminar: #{cantidad_eliminar}" end
 					if cantidad_eliminar > 5000
-						oc = crear_oc("5cbd31b7c445af0004739be6", "5cc66e378820160004a4c3bf", sku, 1568039052000, 5000, "500", "b2b","")
+						oc = crear_oc("5cbd31b7c445af0004739be6", "5cc66e378820160004a4c3bf", sku, 1568039052000, 5000, "500", "b2b","http://tuerca4.ing.puc.cl/documents/{_id}/notification")
 						cantidad_eliminar = 5000
 					else
-						oc = crear_oc("5cbd31b7c445af0004739be6", "5cc66e378820160004a4c3bf", sku, 1568039052000, cantidad_eliminar, "500", "b2b","")
+						oc = crear_oc("5cbd31b7c445af0004739be6", "5cc66e378820160004a4c3bf", sku, 1568039052000, cantidad_eliminar, "500", "b2b","http://tuerca4.ing.puc.cl/documents/{_id}/notification")
 					end
 					oc_id = oc["_id"]
 					if @@debug_mode; puts "oc creada: " + oc_id end

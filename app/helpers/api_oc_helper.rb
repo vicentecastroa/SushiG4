@@ -163,9 +163,9 @@ module ApiOcHelper
 		time = Time.now.tomorrow.to_date
 		precio = Producto.find(sku).precio_venta
 		if materia_prima
-			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "")
+			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "http://tuerca4.ing.puc.cl/documents/{_id}/notification")
 		else
-			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "")
+			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "http://tuerca4.ing.puc.cl/documents/{_id}/notification")
 		end
 		respuesta = solicitar_orden(orden_creada['sku'], orden_creada['cantidad'], nro_grupo, orden_creada['_id'])
 		if respuesta["sku"]
