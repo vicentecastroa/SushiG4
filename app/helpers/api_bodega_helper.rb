@@ -141,7 +141,7 @@ module ApiBodegaHelper
   
 	def pedir_todo_materias_primas
 		factor_orden = 1
-		factor_maximo = 2
+		factor_maximo = 1
 		
 		@@materias_primas_propias.each do |sku|
 		#@@materias_primas_totales.each do |sku|
@@ -151,7 +151,7 @@ module ApiBodegaHelper
 			lote_produccion = producto.lote_produccion
 
 			if @@minimos[sku][1] < 65
-				maximo_sku = 250
+				maximo_sku = 90
 			end
 
 			if @@debug_mode; puts "Tenemos #{stock_actual["cantidad"]} de #{maximo_sku} del sku #{sku}" end

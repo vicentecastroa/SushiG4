@@ -662,7 +662,7 @@ module ApplicationHelper
 		skus_on_stock.each do |sku_stock|
 			almacen = @@id_pulmon
 			max_stock = 550
-			sku_eliminar = "1001"
+			sku_eliminar = "1015"
 			sku = sku_stock["sku"]
 			if (sku_stock["almacenId"] == almacen) #&& (sku == sku_eliminar)
 		

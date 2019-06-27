@@ -100,7 +100,7 @@ module VariablesHelper
 		"1107"=>["Salmón cortado para roll", 50],
 		"1007"=>["Filete de salmón", 26],
 		"1108"=>["Salmón ahumado cortado para roll", 10],
-		"1008"=>["Filete de salmón ahumado", 2],
+		"1008"=>["Filete de salmón ahumado", 15],
 		"1109"=>["Atún cortado para roll", 50],
 		"1009"=>["Filete de atún", 23],
 		"1110"=>["Palta cortada para envoltura", 80],
