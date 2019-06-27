@@ -298,7 +298,7 @@ module ApiOcHelper
 		cantidad = cantidad.to_i
 		precioUnitario = "1"
 		canal = "b2b"
-		url = "https://tuerca4.ing.puc.cl/documents/{_id}/notification"
+		url = "http://tuerca4.ing.puc.cl/documents/{_id}/notification"
 		oc_creada = crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
 		if @@debug_mode; puts "crear_oc(#{cliente}, #{proveedor}, #{sku}, #{fechaEntrega}, #{cantidad}, #{precioUnitario}, #{canal}, #{url})" end
 		if @@debug_mode; puts oc_creada end

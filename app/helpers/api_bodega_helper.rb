@@ -141,7 +141,7 @@ module ApiBodegaHelper
   
 	def pedir_todo_materias_primas
 		factor_orden = 1
-		factor_maximo = 2
+		factor_maximo = 1
 		
 		@@materias_primas_propias.each do |sku|
 		#@@materias_primas_totales.each do |sku|
@@ -151,7 +151,7 @@ module ApiBodegaHelper
 			lote_produccion = producto.lote_produccion
 
 			if @@minimos[sku][1] < 65
-				maximo_sku = 250
+				maximo_sku = 90
 			end
 
 			if @@debug_mode; puts "Tenemos #{stock_actual["cantidad"]} de #{maximo_sku} del sku #{sku}" end
@@ -282,8 +282,9 @@ module ApiBodegaHelper
 
 	def despacho_a_recepcion
 
-		mover_a_almacen(@@id_despacho, @@id_recepcion, @@materias_primas_totales, 200)
-		mover_a_almacen(@@id_despacho, @@id_pulmon, @@materias_primas_totales, 200)
+		mover_a_almacen(@@id_despacho, @@id_pulmon, ["1001", "1004", "1005", "1006", "1009", "1014", "1015", "1016", "1002", "1003", "1007", "1008", "1010", "1011", "1012", "1013", "1105", "1106", "1107", "1108", "1109", "1110", "1111", "1112", "1114", "1115", "1116", "1201", "1207", "1209", "1210", "1211", "1215", "1216", "1301", "1307", "1309", "1310", "1407"] , 1000)
+		#mover_a_almacen(@@id_despacho, @@id_pulmon, @@productos_procesados , 200)
+		#mover_a_almacen(@@id_despacho, @@id_pulmon, @@productos_y_materias, 200)
 
 	end
 
