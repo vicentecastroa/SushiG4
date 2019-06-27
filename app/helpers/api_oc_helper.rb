@@ -163,9 +163,9 @@ module ApiOcHelper
 		time = Time.now.tomorrow.to_date
 		precio = Producto.find(sku).precio_venta
 		if materia_prima
-			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "http://tuerca4.ing.puc.cl/documents/{_id}/notification")
+			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "")
 		else
-			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "http://tuerca4.ing.puc.cl/documents/{_id}/notification")
+			orden_creada = crear_oc(cliente, proveedor, sku, 1568039052000, cantidad, "10", 'b2b', "")
 		end
 		respuesta = solicitar_orden(orden_creada['sku'], orden_creada['cantidad'], nro_grupo, orden_creada['_id'])
 		if respuesta["sku"]
@@ -298,7 +298,7 @@ module ApiOcHelper
 		cantidad = cantidad.to_i
 		precioUnitario = "1"
 		canal = "b2b"
-		url = "https://tuerca4.ing.puc.cl/documents/{_id}/notification"
+		url = ""
 		oc_creada = crear_oc(cliente, proveedor, sku, fechaEntrega, cantidad, precioUnitario, canal, url)
 		if @@debug_mode; puts "crear_oc(#{cliente}, #{proveedor}, #{sku}, #{fechaEntrega}, #{cantidad}, #{precioUnitario}, #{canal}, #{url})" end
 		if @@debug_mode; puts oc_creada end

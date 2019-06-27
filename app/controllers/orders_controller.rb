@@ -22,7 +22,7 @@ class OrdersController < ApplicationController
 		#@urlNotificacion = @orden_compra[0]["urlNotificacion"]
 		@urlNotificacion = ""
 		@sku = params["sku"]
-		@cantidad = params["cantidad"]
+		@cantidad = @orden_compra[0]["cantidad"]
 		@almacenId = params["almacenId"]
 
 		#Si alguno de los parametros necesarios no viene responder con error 400
