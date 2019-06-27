@@ -62,11 +62,6 @@ class OrdersController < ApplicationController
 
 						#si tenemos suficiente stock como para entregar y quedar con stock minimo: ACEPTAR
 						elsif producto["total"].to_i > 0 && producto["total"].to_i > @cantidad.to_i
-							#NOTIFICAR
-							aceptar_oc(@order_id)
-							if @urlNotificacion.length > 5
-								notificar(@urlNotificacion,"accept")
-							end
 
 							#GESTIONAR ENVIO
 							# Mover la cantidad del sku a nuestro almacen despacho
@@ -95,6 +90,11 @@ class OrdersController < ApplicationController
 									despachado = mover_producto_entre_bodegas(productoId, @almacenId, @order_id, 1)
 									contador += 1
 									break if contador == @cantidad
+								end
+								aceptar_oc(@order_id)
+								#NOTIFICAR
+								if @urlNotificacion.length > 5
+									notificar(@urlNotificacion,"accept")
 								end
 								
 								res = {

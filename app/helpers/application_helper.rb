@@ -600,10 +600,10 @@ module ApplicationHelper
 		skus_on_stock = getSkuOnStock()
 		skus_on_stock.each do |sku_stock|
 			almacen = @@id_multiuso_1
-			max_stock = 550
+			max_stock = 100
 			sku_eliminar = "1015"
 			sku = sku_stock["sku"]
-			if (sku_stock["almacenId"] == almacen) #&& (sku == sku_eliminar)
+			if (sku_stock["almacenId"] == almacen) && (sku == sku_eliminar)
 		
 				stock = sku_stock["cantidad"].to_i
 				if @@debug_mode; puts sku end
@@ -661,10 +661,10 @@ module ApplicationHelper
 		skus_on_stock = getSkuOnStock()
 		skus_on_stock.each do |sku_stock|
 			almacen = @@id_pulmon
-			max_stock = 550
+			max_stock = 100
 			sku_eliminar = "1015"
 			sku = sku_stock["sku"]
-			if (sku_stock["almacenId"] == almacen) #&& (sku == sku_eliminar)
+			if (sku_stock["almacenId"] == almacen) && (sku == sku_eliminar)
 		
 				stock = sku_stock["cantidad"].to_i
 				if @@debug_mode; puts sku end
