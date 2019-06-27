@@ -9,7 +9,7 @@
 #   queue: default
 
 control_de_inventario:
-  cron: "*/15 * * * *"
+  cron: "*/8 * * * *"
   class: InventoryWorker
   queue: default
 
